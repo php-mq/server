@@ -1,0 +1,50 @@
+{
+	"name": "hollodotme/phpmq",
+	"description": "PHPMQ",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Holger Woltersdorf",
+			"email": "hw@hollo.me"
+		}
+	],
+	"require": {
+		"php": ">=7.1"
+	},
+	"autoload": {
+		"psr-4": {
+			"hollodotme\\PHPMQ\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"hollodotme\\PHPMQ\\Tests\\": "tests/"
+		}
+	},
+	"require-dev": {
+		"tm/tooly-composer-script": "^1.0",
+		"roave/security-advisories": "dev-master"
+	},
+	"scripts": {
+		"post-install-cmd": "Tooly\\ScriptHandler::installPharTools",
+		"post-update-cmd": "Tooly\\ScriptHandler::installPharTools"
+	},
+	"extra": {
+		"tools": {
+			"phpunit": {
+				"url": "https://phar.phpunit.de/phpunit-6.1.0.phar",
+				"only-dev": true
+			},
+			"coveralls": {
+				"url": "https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar",
+				"only-dev": true
+			},
+			"phpmetrics": {
+				"url": "https://github.com/phpmetrics/PhpMetrics/releases/download/v2.1.0/phpmetrics.phar",
+				"only-dev": true
+			}
+		}
+	}
+}
