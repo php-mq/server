@@ -13,6 +13,8 @@ At the moment this is a proof-of-concept implementation.
 
 This implementation aims to implement the following requirements.
 
+For details of the client-endpoint-communication see the message [protocol documentation](./docs/MessageProtocol.md).
+
 ### Message endpoint
 
 * Establish a communication endpoint via network or unix domain socket. (both should be possible)
