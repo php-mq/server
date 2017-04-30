@@ -3,7 +3,7 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit;
+namespace hollodotme\PHPMQ\Tests\Unit\Storage;
 
 use hollodotme\PHPMQ\Interfaces\CarriesInformation;
 use hollodotme\PHPMQ\Storage\Interfaces\ConfiguresMessageQueue;
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageQueueSQLiteTest
- * @package hollodotme\PHPMQ\Tests\Unit
+ * @package hollodotme\PHPMQ\Tests\Unit\Storage
  */
 final class MessageQueueSQLiteTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class MessageQueueSQLiteTest extends TestCase
 
 			public function __construct()
 			{
-				$this->data = require __DIR__ . '/../../config/Storage.php';
+				$this->data = require __DIR__ . '/../../../config/Storage.php';
 			}
 
 			public function getMessageQueuePath() : string

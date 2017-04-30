@@ -7,7 +7,7 @@ Each message sent from a client to the endpoint must have a leading header line 
 * A flag that identifies the line as message header 
 * A number that identifies the version of the message protocol 
 * The type of the message (see [message types](#message-types)) (3 bytes)
-* The number of the following packages (see [package types](#package-types))
+* The number of the following packages (see [packet types](#packet-types))
 
 Example:
 
@@ -16,8 +16,8 @@ H0100102
 
 means:
 
-HEADER-FLAG | VERSION | MSG-TYPE | PACKAGE COUNT
-H           |      01 |      001 |            02 
+PACKET-ID | VERSION | MSG-TYPE | PACKAGE COUNT
+        H |      01 |      001 |            02 
 ```
  
 So a header always has a length of 8 byte.
@@ -29,7 +29,7 @@ So a header always has a length of 8 byte.
 * `003` - Endpoint dispatches a message
 * `004` - Client acknowledges a message
 
-## Package headers
+## Packet headers
 
 Each data package in a message is preceded by a package header with defines:
  
@@ -44,15 +44,15 @@ P01000000000000000000000000000000256
 
 means:
 
-PACKAGE-FLAG | PKG-TYPE | CONTENT-LENGTH (as int)
-           P |       01 |                     256
+PACKET-ID | PKG-TYPE | CONTENT-LENGTH (as int)
+        P |       01 |                     256
 ```
 
 So a package header always has a length of 36 byte.
 
 **Please note:** The content length has a length of 32 bytes and is filled up with zeros.
 
-## Package types
+## Packet types
 
 ### All
 
