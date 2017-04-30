@@ -11,7 +11,9 @@
 		}
 	],
 	"require": {
-		"php": ">=7.1"
+		"php": ">=7.1",
+		"psr/log": "^1.0.2",
+		"roave/security-advisories": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

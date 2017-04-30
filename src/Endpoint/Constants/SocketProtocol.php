@@ -6,10 +6,10 @@
 namespace hollodotme\PHPMQ\Endpoint\Constants;
 
 /**
- * Class Protocol
+ * Class SocketProtocol
  * @package hollodotme\PHPMQ\Endpoint\Constants
  */
-abstract class Protocol
+abstract class SocketProtocol
 {
 	const TCP = SOL_TCP;
 }

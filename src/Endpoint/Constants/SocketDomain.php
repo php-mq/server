@@ -9,7 +9,7 @@ namespace hollodotme\PHPMQ\Endpoint\Constants;
  * Class SocketType
  * @package hollodotme\PHPMQ\Endpoint\Constants
  */
-abstract class Domain
+abstract class SocketDomain
 {
 	public const UNIX        = AF_UNIX;
 

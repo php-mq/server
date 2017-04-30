@@ -5,18 +5,23 @@
 
 namespace hollodotme\PHPMQ\Endpoint;
 
+use hollodotme\PHPMQ\Clients\Client;
+use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
+use hollodotme\PHPMQ\Clients\Types\ClientId;
 use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ReceivesMessages;
+use hollodotme\PHPMQ\Exceptions\RuntimeException;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class Endpoint
  * @package hollodotme\PHPMQ\Endpoint
  */
-final class Endpoint implements ReceivesMessages, ListensToClients
+final class Endpoint implements ListensToClients, LoggerAwareInterface
 {
-	private const STREAM_SELECT_USEC = 20000;
+	use LoggerAwareTrait;
 
 	/** @var ConfiguresEndpoint */
 	private $config;
@@ -24,12 +29,48 @@ final class Endpoint implements ReceivesMessages, ListensToClients
 	/** @var resource */
 	private $socket;
 
+	/** @var array|Client[] */
+	private $clients;
+
+	/** @var bool */
+	private $listening;
+
 	public function __construct( ConfiguresEndpoint $config )
 	{
-		$this->config = $config;
+		$this->config    = $config;
+		$this->clients   = [];
+		$this->listening = false;
 	}
 
 	public function startListening() : void
+	{
+		$this->establishSocket();
+
+		$this->listening = true;
+
+		while ( $this->listening )
+		{
+			$this->checkForNewClient();
+
+			foreach ( $this->getActiveClients() as $client )
+			{
+				if ( $client->isDisconnected() )
+				{
+					$this->logger->debug( 'Client disconnected: ' . $client->getClientId() );
+
+					$this->removeClient( $client->getClientId() );
+
+					$this->logger->debug( 'Memory: ' . (memory_get_peak_usage( true ) / 1024 / 1024) . ' MB' );
+
+					continue;
+				}
+
+				$this->logger->debug( $client->read() );
+			}
+		}
+	}
+
+	private function establishSocket() : void
 	{
 		if ( null !== $this->socket )
 		{
@@ -42,6 +83,11 @@ final class Endpoint implements ReceivesMessages, ListensToClients
 			$this->config->getSocketProtocol()
 		);
 
+		if ( file_exists( $this->config->getBindToAddress()->getAddress() ) )
+		{
+			@unlink( $this->config->getBindToAddress()->getAddress() );
+		}
+
 		socket_bind(
 			$this->socket,
 			$this->config->getBindToAddress()->getAddress(),
@@ -49,28 +95,72 @@ final class Endpoint implements ReceivesMessages, ListensToClients
 		);
 
 		socket_listen( $this->socket, $this->config->getListenBacklog() );
+		socket_set_nonblock( $this->socket );
+	}
+
+	private function checkForNewClient() : void
+	{
+		$clientSocket = socket_accept( $this->socket );
+
+		if ( $clientSocket !== false )
+		{
+			$clientId = ClientId::generate();
+			$client   = new Client( $clientId, $clientSocket );
+
+			$this->logger->debug( 'New client connected: ' . $clientId );
+
+			$this->clients[ $clientId->toString() ] = $client;
+		}
+	}
+
+	/**
+	 * @return array|Client[]
+	 */
+	private function getActiveClients() : array
+	{
+		if ( empty( $this->clients ) )
+		{
+			return [];
+		}
+
+		$reads  = [];
+		$writes = $exepts = null;
+
+		foreach ( $this->clients as $client )
+		{
+			$client->collectSocket( $reads );
+		}
+
+		socket_select( $reads, $writes, $exepts, 0 );
+
+		return array_intersect_key( $this->clients, $reads );
+	}
+
+	private function removeClient( IdentifiesClient $clientId ) : void
+	{
+		unset( $this->clients[ $clientId->toString() ] );
+	}
+
+	private function getClientWithId( IdentifiesClient $clientId ) : Client
+	{
+		if ( isset( $this->clients[ $clientId->toString() ] ) )
+		{
+			return $this->clients[ $clientId->toString() ];
+		}
+
+		throw new RuntimeException( 'Client not found for ID ' . $clientId->toString() );
 	}
 
 	public function endListening() : void
 	{
+		$this->listening = false;
+
 		if ( null !== $this->socket )
 		{
 			socket_shutdown( $this->socket, SocketShutdownMode::READING_WRITING );
 			socket_close( $this->socket );
+			$this->socket = null;
 		}
-	}
-
-	public function hasMessages() : bool
-	{
-		$writes = [ $this->socket ];
-		$reads  = $exepts = null;
-
-		return (bool)stream_select( $reads, $writes, $exepts, 0, self::STREAM_SELECT_USEC );
-	}
-
-	public function readMessages() : \Generator
-	{
-		// TODO: Implement readMessages() method.
 	}
 
 	public function __destruct()
