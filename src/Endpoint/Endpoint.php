@@ -11,7 +11,6 @@ use hollodotme\PHPMQ\Clients\Types\ClientId;
 use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
-use hollodotme\PHPMQ\Exceptions\RuntimeException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -139,16 +138,6 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	private function removeClient( IdentifiesClient $clientId ) : void
 	{
 		unset( $this->clients[ $clientId->toString() ] );
-	}
-
-	private function getClientWithId( IdentifiesClient $clientId ) : Client
-	{
-		if ( isset( $this->clients[ $clientId->toString() ] ) )
-		{
-			return $this->clients[ $clientId->toString() ];
-		}
-
-		throw new RuntimeException( 'Client not found for ID ' . $clientId->toString() );
 	}
 
 	public function endListening() : void
