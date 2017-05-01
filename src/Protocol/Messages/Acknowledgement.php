@@ -5,6 +5,8 @@
 
 namespace hollodotme\PHPMQ\Protocol\Messages;
 
+use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
+use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
 use hollodotme\PHPMQ\Protocol\Constants\PacketType;
 use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
@@ -22,16 +24,16 @@ final class Acknowledgement implements CarriesInformation
 {
 	use StringRepresenting;
 
-	/** @var string */
+	/** @var IdentifiesQueue */
 	private $queueName;
 
-	/** @var string */
+	/** @var IdentifiesMessage */
 	private $messageId;
 
 	/** @var IdentifiesMessageType */
 	private $messageType;
 
-	public function __construct( string $queueName, string $messageId )
+	public function __construct( IdentifiesQueue $queueName, IdentifiesMessage $messageId )
 	{
 		$this->queueName   = $queueName;
 		$this->messageId   = $messageId;
@@ -43,12 +45,12 @@ final class Acknowledgement implements CarriesInformation
 		return $this->messageType;
 	}
 
-	public function getQueueName() : string
+	public function getQueueName() : IdentifiesQueue
 	{
 		return $this->queueName;
 	}
 
-	public function getMessageId() : string
+	public function getMessageId() : IdentifiesMessage
 	{
 		return $this->messageId;
 	}
@@ -56,13 +58,13 @@ final class Acknowledgement implements CarriesInformation
 	public function toString() : string
 	{
 		$messageHeader         = new MessageHeader( ProtocolVersion::VERSION_1, $this->messageType );
-		$queuePacketHeader     = new PacketHeader( PacketType::QUEUE_NAME, strlen( $this->queueName ) );
-		$messageIdPacketHeader = new PacketHeader( PacketType::MESSAGE_ID, strlen( $this->messageId ) );
+		$queuePacketHeader     = new PacketHeader( PacketType::QUEUE_NAME, strlen( (string)$this->queueName ) );
+		$messageIdPacketHeader = new PacketHeader( PacketType::MESSAGE_ID, strlen( (string)$this->messageId ) );
 
-		return $messageHeader->toString()
-		       . $queuePacketHeader->toString()
+		return $messageHeader
+		       . $queuePacketHeader
 		       . $this->queueName
-		       . $messageIdPacketHeader->toString()
+		       . $messageIdPacketHeader
 		       . $this->messageId;
 	}
 }

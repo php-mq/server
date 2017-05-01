@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\Protocol\Messages;
 
+use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
 use hollodotme\PHPMQ\Protocol\Constants\PacketType;
 use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
@@ -22,7 +23,7 @@ final class MessageC2E implements CarriesInformation
 {
 	use StringRepresenting;
 
-	/** @var string */
+	/** @var IdentifiesQueue */
 	private $queueName;
 
 	/** @var string */
@@ -31,7 +32,7 @@ final class MessageC2E implements CarriesInformation
 	/** @var IdentifiesMessageType */
 	private $messageType;
 
-	public function __construct( string $queueName, string $content )
+	public function __construct( IdentifiesQueue $queueName, string $content )
 	{
 		$this->queueName   = $queueName;
 		$this->content     = $content;
@@ -43,7 +44,7 @@ final class MessageC2E implements CarriesInformation
 		return $this->messageType;
 	}
 
-	public function getQueueName() : string
+	public function getQueueName() : IdentifiesQueue
 	{
 		return $this->queueName;
 	}
@@ -56,13 +57,13 @@ final class MessageC2E implements CarriesInformation
 	public function toString() : string
 	{
 		$messageHeader       = new MessageHeader( ProtocolVersion::VERSION_1, $this->messageType );
-		$queuePacketHeader   = new PacketHeader( PacketType::QUEUE_NAME, strlen( $this->queueName ) );
+		$queuePacketHeader   = new PacketHeader( PacketType::QUEUE_NAME, strlen( (string)$this->queueName ) );
 		$contentPacketHeader = new PacketHeader( PacketType::MESSAGE_CONTENT, strlen( $this->content ) );
 
-		return $messageHeader->toString()
-		       . $queuePacketHeader->toString()
+		return $messageHeader
+		       . $queuePacketHeader
 		       . $this->queueName
-		       . $contentPacketHeader->toString()
+		       . $contentPacketHeader
 		       . $this->content;
 	}
 }

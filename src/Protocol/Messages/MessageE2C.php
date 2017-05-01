@@ -71,12 +71,12 @@ final class MessageE2C implements CarriesInformation
 		$contentPacketHeader   = new PacketHeader( PacketType::MESSAGE_CONTENT, strlen( $this->content ) );
 		$messageIdPacketHeader = new PacketHeader( PacketType::MESSAGE_ID, strlen( $this->messageId->toString() ) );
 
-		return $messageHeader->toString()
-		       . $queuePacketHeader->toString()
-		       . $this->queueName->toString()
-		       . $contentPacketHeader->toString()
+		return $messageHeader
+		       . $queuePacketHeader
+		       . $this->queueName
+		       . $contentPacketHeader
 		       . $this->content
-		       . $messageIdPacketHeader->toString()
-		       . $this->messageId->toString();
+		       . $messageIdPacketHeader
+		       . $this->messageId;
 	}
 }

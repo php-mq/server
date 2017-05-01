@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\Protocol\Messages;
 
+use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
 use hollodotme\PHPMQ\Protocol\Constants\PacketType;
 use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
@@ -22,7 +23,7 @@ final class ConsumeRequest implements CarriesInformation
 {
 	use StringRepresenting;
 
-	/** @var string */
+	/** @var IdentifiesQueue */
 	private $queueName;
 
 	/** @var int */
@@ -31,7 +32,7 @@ final class ConsumeRequest implements CarriesInformation
 	/** @var IdentifiesMessageType */
 	private $messageType;
 
-	public function __construct( string $queueName, int $messageCount )
+	public function __construct( IdentifiesQueue $queueName, int $messageCount )
 	{
 		$this->queueName    = $queueName;
 		$this->messageCount = $messageCount;
@@ -43,7 +44,7 @@ final class ConsumeRequest implements CarriesInformation
 		return $this->messageType;
 	}
 
-	public function getQueueName() : string
+	public function getQueueName() : IdentifiesQueue
 	{
 		return $this->queueName;
 	}
@@ -56,16 +57,16 @@ final class ConsumeRequest implements CarriesInformation
 	public function toString() : string
 	{
 		$messageHeader            = new MessageHeader( ProtocolVersion::VERSION_1, $this->messageType );
-		$queuePacketHeader        = new PacketHeader( PacketType::QUEUE_NAME, strlen( $this->queueName ) );
+		$queuePacketHeader        = new PacketHeader( PacketType::QUEUE_NAME, strlen( (string)$this->queueName ) );
 		$messageCountPacketHeader = new PacketHeader(
 			PacketType::MESSAGE_CONSUME_COUNT,
 			strlen( (string)$this->messageCount )
 		);
 
-		return $messageHeader->toString()
-		       . $queuePacketHeader->toString()
+		return $messageHeader
+		       . $queuePacketHeader
 		       . $this->queueName
-		       . $messageCountPacketHeader->toString()
+		       . $messageCountPacketHeader
 		       . $this->messageCount;
 	}
 }
