@@ -40,7 +40,7 @@ final class PacketHeader extends AbstractPacket
 	public function toString() : string
 	{
 		return sprintf(
-			'%s%02d%032d',
+			'%s%02d%029d',
 			$this->getIdentifier(),
 			$this->packetType,
 			$this->contentLength
@@ -51,7 +51,7 @@ final class PacketHeader extends AbstractPacket
 	{
 		return new self(
 			(int)substr( $string, 1, 2 ),
-			(int)substr( $string, -32 )
+			(int)substr( $string, -29 )
 		);
 	}
 }
