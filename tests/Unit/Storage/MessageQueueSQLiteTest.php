@@ -6,8 +6,7 @@
 namespace hollodotme\PHPMQ\Tests\Unit\Storage;
 
 use hollodotme\PHPMQ\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Storage\Interfaces\ConfiguresMessageQueue;
-use hollodotme\PHPMQ\Storage\MessageQueueSQLite;
+use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\StorageMocking;
 use hollodotme\PHPMQ\Types\Message;
 use hollodotme\PHPMQ\Types\MessageId;
 use hollodotme\PHPMQ\Types\QueueName;
@@ -19,35 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class MessageQueueSQLiteTest extends TestCase
 {
-	/** @var MessageQueueSQLite */
-	private $messageQueue;
-
-	public function setUp() : void
-	{
-		$config = new class() implements ConfiguresMessageQueue
-		{
-			private $data;
-
-			public function __construct()
-			{
-				$this->data = require __DIR__ . '/../../../config/Storage.php';
-			}
-
-			public function getMessageQueuePath() : string
-			{
-				return (string)$this->data['messageQueueFile'];
-			}
-		};
-
-		$this->messageQueue = new MessageQueueSQLite( $config );
-		$this->messageQueue->flushAllQueues();
-	}
-
-	public function tearDown() : void
-	{
-		$this->messageQueue->flushAllQueues();
-		$this->messageQueue = null;
-	}
+	use StorageMocking;
 
 	public function testCanEnqueueMessages() : void
 	{

@@ -5,7 +5,8 @@
 
 namespace hollodotme\PHPMQ\Endpoint\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\CarriesInformation;
+use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
+use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
 
 /**
  * Interface HandlesMessage
@@ -13,5 +14,7 @@ use hollodotme\PHPMQ\Interfaces\CarriesInformation;
  */
 interface HandlesMessage
 {
-	public function handle( CarriesInformation $carriesInformation ) : void;
+	public function acceptsMessageType( IdentifiesMessageType $messageType ) : bool;
+
+	public function handle( CarriesInformation $message ) : void;
 }

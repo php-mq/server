@@ -6,6 +6,7 @@
 namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
 
 use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
+use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +24,9 @@ final class MessageC2ETest extends TestCase
 	 */
 	public function testCanGetEncodedMessage( string $queueName, string $content, string $expectedMessage ) : void
 	{
-		$messageC2E = new MessageC2E( $queueName, $content );
+		$messageC2E = new MessageC2E( new QueueName( $queueName ), $content );
 
-		$this->assertSame( $queueName, $messageC2E->getQueueName() );
+		$this->assertSame( $queueName, (string)$messageC2E->getQueueName() );
 		$this->assertSame( $content, $messageC2E->getContent() );
 		$this->assertSame( $expectedMessage, (string)$messageC2E );
 		$this->assertSame( $expectedMessage, $messageC2E->toString() );

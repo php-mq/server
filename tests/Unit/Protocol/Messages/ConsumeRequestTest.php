@@ -6,6 +6,7 @@
 namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
 
 use hollodotme\PHPMQ\Protocol\Messages\ConsumeRequest;
+use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +24,9 @@ final class ConsumeRequestTest extends TestCase
 	 */
 	public function testCanGetEncodedMessage( string $queueName, int $messageCount, string $expectedMessage ) : void
 	{
-		$consumeRequest = new ConsumeRequest( $queueName, $messageCount );
+		$consumeRequest = new ConsumeRequest( new QueueName( $queueName ), $messageCount );
 
-		$this->assertSame( $queueName, $consumeRequest->getQueueName() );
+		$this->assertSame( $queueName, (string)$consumeRequest->getQueueName() );
 		$this->assertSame( $messageCount, $consumeRequest->getMessageCount() );
 		$this->assertSame( $expectedMessage, (string)$consumeRequest );
 		$this->assertSame( $expectedMessage, $consumeRequest->toString() );

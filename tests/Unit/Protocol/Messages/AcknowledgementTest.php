@@ -6,6 +6,8 @@
 namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
 
 use hollodotme\PHPMQ\Protocol\Messages\Acknowledgement;
+use hollodotme\PHPMQ\Types\MessageId;
+use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,10 +25,10 @@ final class AcknowledgementTest extends TestCase
 	 */
 	public function testCanEncodeMessage( string $queueName, string $messageId, string $expectedMessage ) : void
 	{
-		$acknowledgement = new Acknowledgement( $queueName, $messageId );
+		$acknowledgement = new Acknowledgement( new QueueName( $queueName ), new MessageId( $messageId ) );
 
-		$this->assertSame( $queueName, $acknowledgement->getQueueName() );
-		$this->assertSame( $messageId, $acknowledgement->getMessageId() );
+		$this->assertSame( $queueName, (string)$acknowledgement->getQueueName() );
+		$this->assertSame( $messageId, (string)$acknowledgement->getMessageId() );
 		$this->assertSame( $expectedMessage, (string)$acknowledgement );
 		$this->assertSame( $expectedMessage, $acknowledgement->toString() );
 	}
