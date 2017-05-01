@@ -6,12 +6,10 @@
 namespace hollodotme\PHPMQ\Endpoint\Interfaces;
 
 /**
- * Interface ListensToClients
+ * Interface AcceptsMessageHandlers
  * @package hollodotme\PHPMQ\Endpoint\Interfaces
  */
-interface ListensToClients
+interface AcceptsMessageHandlers
 {
-	public function startListening() : void;
-
-	public function endListening() : void;
+	public function addMessageHandlers( HandlesMessage ...$messageHandlers ) : void;
 }

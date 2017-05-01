@@ -9,7 +9,9 @@ use hollodotme\PHPMQ\Clients\Client;
 use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
 use hollodotme\PHPMQ\Clients\Types\ClientId;
 use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
+use hollodotme\PHPMQ\Endpoint\Interfaces\AcceptsMessageHandlers;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
+use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -18,7 +20,7 @@ use Psr\Log\LoggerAwareTrait;
  * Class Endpoint
  * @package hollodotme\PHPMQ\Endpoint
  */
-final class Endpoint implements ListensToClients, LoggerAwareInterface
+final class Endpoint implements ListensToClients, AcceptsMessageHandlers, LoggerAwareInterface
 {
 	use LoggerAwareTrait;
 
@@ -34,11 +36,23 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	/** @var bool */
 	private $listening;
 
+	/** @var array|HandlesMessage[] */
+	private $messageHandlers;
+
 	public function __construct( ConfiguresEndpoint $config )
 	{
-		$this->config    = $config;
-		$this->clients   = [];
-		$this->listening = false;
+		$this->config          = $config;
+		$this->clients         = [];
+		$this->listening       = false;
+		$this->messageHandlers = [];
+	}
+
+	public function addMessageHandlers( HandlesMessage ...$messageHandlers ) : void
+	{
+		foreach ( $messageHandlers as $messageHandler )
+		{
+			$this->messageHandlers[] = $messageHandler;
+		}
 	}
 
 	public function startListening() : void

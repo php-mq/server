@@ -78,8 +78,8 @@ final class MessageHeaderTest extends TestCase
 		$messageHeader = MessageHeader::fromString( $string );
 
 		$this->assertSame( $expectedVersion, $messageHeader->getVersion() );
-		$this->assertSame( $expectedMessageType->getType(), $messageHeader->getMessageType() );
-		$this->assertSame( $expectedMessageType->getPackageCount(), $messageHeader->getPackageCount() );
+		$this->assertSame( $expectedMessageType->getType(), $messageHeader->getMessageType()->getType() );
+		$this->assertSame( $expectedMessageType->getPacketCount(), $messageHeader->getMessageType()->getPacketCount() );
 		$this->assertSame( $string, $messageHeader->toString() );
 	}
 

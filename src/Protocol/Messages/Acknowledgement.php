@@ -5,9 +5,10 @@
 
 namespace hollodotme\PHPMQ\Protocol\Messages;
 
-use hollodotme\PHPMQ\Interfaces\RepresentsString;
 use hollodotme\PHPMQ\Protocol\Constants\PacketType;
 use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
+use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
+use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
 use hollodotme\PHPMQ\Protocol\MessageHeader;
 use hollodotme\PHPMQ\Protocol\PacketHeader;
 use hollodotme\PHPMQ\Protocol\Types\MessageType;
@@ -17,7 +18,7 @@ use hollodotme\PHPMQ\Traits\StringRepresenting;
  * Class Acknowledgement
  * @package hollodotme\PHPMQ\Protocol\Messages
  */
-final class Acknowledgement implements RepresentsString
+final class Acknowledgement implements CarriesInformation
 {
 	use StringRepresenting;
 
@@ -27,10 +28,19 @@ final class Acknowledgement implements RepresentsString
 	/** @var string */
 	private $messageId;
 
+	/** @var IdentifiesMessageType */
+	private $messageType;
+
 	public function __construct( string $queueName, string $messageId )
 	{
-		$this->queueName = $queueName;
-		$this->messageId = $messageId;
+		$this->queueName   = $queueName;
+		$this->messageId   = $messageId;
+		$this->messageType = new MessageType( MessageType::ACKNOWLEDGEMENT );
+	}
+
+	public function getMessageType() : IdentifiesMessageType
+	{
+		return $this->messageType;
 	}
 
 	public function getQueueName() : string
@@ -45,11 +55,7 @@ final class Acknowledgement implements RepresentsString
 
 	public function toString() : string
 	{
-		$messageHeader = new MessageHeader(
-			ProtocolVersion::VERSION_1,
-			new MessageType( MessageType::ACKNOWLEDGEMENT )
-		);
-
+		$messageHeader         = new MessageHeader( ProtocolVersion::VERSION_1, $this->messageType );
 		$queuePacketHeader     = new PacketHeader( PacketType::QUEUE_NAME, strlen( $this->queueName ) );
 		$messageIdPacketHeader = new PacketHeader( PacketType::MESSAGE_ID, strlen( $this->messageId ) );
 

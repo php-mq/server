@@ -5,11 +5,13 @@
 
 namespace hollodotme\PHPMQ\Protocol\Types;
 
+use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
+
 /**
  * Class MessageType
  * @package hollodotme\PHPMQ\Protocol\Types
  */
-final class MessageType
+final class MessageType implements IdentifiesMessageType
 {
 	public const  MESSAGE_C2E      = 1;
 
@@ -39,7 +41,7 @@ final class MessageType
 		return $this->type;
 	}
 
-	public function getPackageCount() : int
+	public function getPacketCount() : int
 	{
 		return self::PACKET_COUNT_MAP[ $this->type ];
 	}

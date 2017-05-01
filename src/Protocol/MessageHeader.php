@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\Protocol;
 
+use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
 use hollodotme\PHPMQ\Protocol\Types\MessageType;
 
 /**
@@ -18,19 +19,15 @@ final class MessageHeader extends AbstractPacket
 	/** @var int */
 	private $version;
 
-	/** @var int */
+	/** @var IdentifiesMessageType */
 	private $messageType;
 
-	/** @var int */
-	private $packageCount;
-
-	public function __construct( int $version, MessageType $messageType )
+	public function __construct( int $version, IdentifiesMessageType $messageType )
 	{
 		parent::__construct( self::PACKET_ID );
 
-		$this->version      = $version;
-		$this->messageType  = $messageType->getType();
-		$this->packageCount = $messageType->getPackageCount();
+		$this->version     = $version;
+		$this->messageType = $messageType;
 	}
 
 	public function getVersion() : int
@@ -38,14 +35,9 @@ final class MessageHeader extends AbstractPacket
 		return $this->version;
 	}
 
-	public function getMessageType() : int
+	public function getMessageType() : IdentifiesMessageType
 	{
 		return $this->messageType;
-	}
-
-	public function getPackageCount() : int
-	{
-		return $this->packageCount;
 	}
 
 	public function toString() : string
@@ -54,8 +46,8 @@ final class MessageHeader extends AbstractPacket
 			'%s%02d%03d%02d',
 			$this->getIdentifier(),
 			$this->version,
-			$this->messageType,
-			$this->packageCount
+			$this->messageType->getType(),
+			$this->messageType->getPacketCount()
 		);
 	}
 
