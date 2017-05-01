@@ -53,7 +53,7 @@ final class ConsumeRequest implements RepresentsString
 		$queuePacketHeader        = new PacketHeader( PacketType::QUEUE_NAME, strlen( $this->queueName ) );
 		$messageCountPacketHeader = new PacketHeader(
 			PacketType::MESSAGE_CONSUME_COUNT,
-			strlen( $this->messageCount )
+			strlen( (string)$this->messageCount )
 		);
 
 		return $messageHeader->toString()
