@@ -32,8 +32,6 @@ final class Client
 		$this->socket         = $socket;
 		$this->buffer         = '';
 		$this->isDisconnected = false;
-
-		socket_set_nonblock( $this->socket );
 	}
 
 	public function getClientId() : IdentifiesClient

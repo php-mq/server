@@ -103,6 +103,8 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 
 		if ( $clientSocket !== false )
 		{
+			socket_set_nonblock( $clientSocket );
+
 			$clientId = ClientId::generate();
 			$client   = new Client( $clientId, $clientSocket );
 
