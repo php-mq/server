@@ -18,13 +18,23 @@ use PHPUnit\Framework\TestCase;
  */
 final class ClientTest extends TestCase
 {
+	private const SOCKET_PATH = '/tmp/mock.sock';
+
+	/** @var resource */
+	private $socketServer;
+
 	/** @var resource */
 	private $socketClient;
 
 	public function setUp() : void
 	{
-		$this->socketClient = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
-		socket_connect( $this->socketClient, '127.0.0.1', 80 );
+		$this->socketServer = socket_create( AF_UNIX, SOCK_STREAM, 0 );
+		@unlink( self::SOCKET_PATH );
+		socket_bind( $this->socketServer, self::SOCKET_PATH );
+		socket_listen( $this->socketServer, SOMAXCONN );
+
+		$this->socketClient = socket_create( AF_UNIX, SOCK_STREAM, 0 );
+		socket_connect( $this->socketClient, self::SOCKET_PATH );
 	}
 
 	public function tearDown() : void
