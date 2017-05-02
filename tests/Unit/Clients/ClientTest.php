@@ -7,6 +7,7 @@ namespace hollodotme\PHPMQ\Tests\Unit\Clients;
 
 use hollodotme\PHPMQ\Clients\Client;
 use hollodotme\PHPMQ\Clients\Types\ClientId;
+use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
 use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
 use hollodotme\PHPMQ\Types\MessageId;
 use hollodotme\PHPMQ\Types\QueueName;
@@ -39,14 +40,16 @@ final class ClientTest extends TestCase
 
 	public function tearDown() : void
 	{
+		socket_shutdown( $this->socketServer );
 		socket_shutdown( $this->socketClient );
+		socket_close( $this->socketServer );
 		socket_close( $this->socketClient );
 	}
 
 	public function testClientIsNotDisconnectedAfterConstruction() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient );
+		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$this->assertSame( $clientId, $client->getClientId() );
 		$this->assertSame( (string)$clientId, $client->getClientId()->toString() );
@@ -57,7 +60,7 @@ final class ClientTest extends TestCase
 	{
 		$clientId        = ClientId::generate();
 		$socket          = $this->socketClient;
-		$client          = new Client( $clientId, $socket );
+		$client          = new Client( $clientId, $socket, new MessageBuilder() );
 		$expectedSockets = [
 			$clientId->toString() => $socket,
 		];
@@ -72,7 +75,7 @@ final class ClientTest extends TestCase
 	public function testCannotConsumeMessagesAfterConstruction() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient );
+		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$this->assertFalse( $client->canConsumeMessages() );
 		$this->assertSame( 0, $client->getConsumableMessageCount() );
@@ -81,7 +84,7 @@ final class ClientTest extends TestCase
 	public function testCanUpdateConsumptionCount() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient );
+		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$client->updateConsumptionCount( 5 );
 
@@ -102,7 +105,7 @@ final class ClientTest extends TestCase
 	public function testCanConsumeMessages() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient );
+		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$client->updateConsumptionCount( 5 );
 
@@ -120,7 +123,7 @@ final class ClientTest extends TestCase
 	public function testCanAcknowledgeMessages() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient );
+		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$client->updateConsumptionCount( 5 );
 

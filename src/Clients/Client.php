@@ -9,7 +9,12 @@ use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
 use hollodotme\PHPMQ\Exceptions\RuntimeException;
 use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
+use hollodotme\PHPMQ\Protocol\Constants\PacketLength;
+use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
+use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
+use hollodotme\PHPMQ\Protocol\MessageHeader;
 use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
+use hollodotme\PHPMQ\Protocol\PacketHeader;
 
 /**
  * Class Client
@@ -17,14 +22,14 @@ use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
  */
 final class Client implements ConsumesMessages
 {
-	/** @var resource */
-	private $socket;
-
 	/** @var IdentifiesClient */
 	private $clientId;
 
-	/** @var string */
-	private $buffer;
+	/** @var resource */
+	private $socket;
+
+	/** @var BuildsMessages */
+	private $messageBuilder;
 
 	/** @var bool */
 	private $isDisconnected;
@@ -35,11 +40,11 @@ final class Client implements ConsumesMessages
 	/** @var int */
 	private $messageConsumeCount;
 
-	public function __construct( IdentifiesClient $clientId, $socket )
+	public function __construct( IdentifiesClient $clientId, $socket, BuildsMessages $messageBuilder )
 	{
 		$this->clientId            = $clientId;
 		$this->socket              = $socket;
-		$this->buffer              = '';
+		$this->messageBuilder      = $messageBuilder;
 		$this->isDisconnected      = false;
 		$this->consumedMessageIds  = [];
 		$this->messageConsumeCount = 0;
@@ -55,26 +60,72 @@ final class Client implements ConsumesMessages
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
 
-	public function read() : string
+	public function read() : ?CarriesInformation
 	{
-		$bytes = socket_recv( $this->socket, $this->buffer, 2048, MSG_DONTWAIT );
+		$buffer = '';
+		$bytes  = socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
 
-		if ( false !== $bytes )
+		$this->guardReadBytes( $bytes );
+
+		if ( $this->hasClientClosedConnection( $buffer ) )
 		{
-			if ( null === $this->buffer )
-			{
-				$this->isDisconnected = true;
-
-				return '';
-			}
-
-			return $this->buffer;
+			return null;
 		}
 
-		throw new RuntimeException(
-			'socket_recv() failed; reason: '
-			. socket_strerror( socket_last_error( $this->socket ) )
-		);
+		$messageHeader = MessageHeader::fromString( $buffer );
+		$packetCount   = $messageHeader->getMessageType()->getPacketCount();
+
+		$packets = [];
+
+		for ( $i = 0; $i < $packetCount; $i++ )
+		{
+			$buffer = '';
+			$bytes  = socket_recv( $this->socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
+			$this->guardReadBytes( $bytes );
+
+			if ( $this->hasClientClosedConnection( $buffer ) )
+			{
+				return null;
+			}
+
+			$packetHeader = PacketHeader::fromString( $buffer );
+
+			$buffer = '';
+			$bytes  = socket_recv( $this->socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
+			$this->guardReadBytes( $bytes );
+
+			if ( $this->hasClientClosedConnection( $buffer ) )
+			{
+				return null;
+			}
+
+			$packets[ $packetHeader->getPacketType() ] = $buffer;
+		}
+
+		return $this->messageBuilder->buildMessage( $messageHeader, $packets );
+	}
+
+	private function guardReadBytes( $bytes ) : void
+	{
+		if ( false === $bytes )
+		{
+			throw new RuntimeException(
+				'socket_recv() failed; reason: '
+				. socket_strerror( socket_last_error( $this->socket ) )
+			);
+		}
+	}
+
+	private function hasClientClosedConnection( ?string $buffer ) : bool
+	{
+		if ( null === $buffer )
+		{
+			$this->isDisconnected = true;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public function isDisconnected() : bool

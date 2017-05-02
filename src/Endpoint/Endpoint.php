@@ -11,8 +11,12 @@ use hollodotme\PHPMQ\Clients\Types\ClientId;
 use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
 use hollodotme\PHPMQ\Endpoint\Interfaces\AcceptsMessageHandlers;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
+use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
 use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
+use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
+use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
+use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -36,6 +40,9 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	/** @var bool */
 	private $listening;
 
+	/** @var BuildsMessages */
+	private $messageBuilder;
+
 	/** @var array|HandlesMessage[] */
 	private $messageHandlers;
 
@@ -44,6 +51,7 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 		$this->config          = $config;
 		$this->clients         = [];
 		$this->listening       = false;
+		$this->messageBuilder  = new MessageBuilder();
 		$this->messageHandlers = [];
 	}
 
@@ -78,7 +86,14 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 					continue;
 				}
 
-				$this->logger->debug( $client->read() );
+				$message = $client->read();
+
+				if ( null === $message )
+				{
+					continue;
+				}
+
+				$this->handleClientMessage( $client, $message );
 			}
 		}
 	}
@@ -120,7 +135,7 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 			socket_set_nonblock( $clientSocket );
 
 			$clientId = ClientId::generate();
-			$client   = new Client( $clientId, $clientSocket );
+			$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
 
 			$this->logger->debug( 'New client connected: ' . $clientId );
 
@@ -154,6 +169,17 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	private function removeClient( IdentifiesClient $clientId ) : void
 	{
 		unset( $this->clients[ $clientId->toString() ] );
+	}
+
+	private function handleClientMessage( ConsumesMessages $client, CarriesInformation $message ) : void
+	{
+		foreach ( $this->messageHandlers as $messageHandler )
+		{
+			if ( $messageHandler->acceptsMessageType( $message->getMessageType() ) )
+			{
+				$messageHandler->handle( $message, $client );
+			}
+		}
 	}
 
 	public function endListening() : void
