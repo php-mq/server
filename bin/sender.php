@@ -7,16 +7,19 @@ namespace hollodotme\PHPMQ;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$socket = fsockopen( 'unix:///tmp/phpmq.sock', -1 );
+$socket = socket_create( AF_UNIX, SOCK_STREAM, 0 );
+socket_connect( $socket, '/tmp/phpmq.sock' );
+socket_set_nonblock( $socket );
 
 sleep( 1 );
 
-fwrite( $socket, 'Woot' );
+socket_write( $socket, 'Woot' );
 
 sleep( 1 );
 
-fwrite( $socket, 'Woot' );
+socket_write( $socket, 'Woot' );
 
 sleep( 1 );
 
-fclose( $socket );
+socket_shutdown( $socket );
+socket_close( $socket );
