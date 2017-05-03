@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\MessageHandlers;
 
+use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
 use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
 use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
@@ -33,9 +34,12 @@ final class AcknowledgementHandler implements HandlesMessage
 
 	/**
 	 * @param CarriesInformation|Acknowledgement $message
+	 * @param ConsumesMessages                   $client
 	 */
-	public function handle( CarriesInformation $message ) : void
+	public function handle( CarriesInformation $message, ConsumesMessages $client ) : void
 	{
 		$this->storage->dequeue( $message->getQueueName(), $message->getMessageId() );
+
+		$client->acknowledgeMessage( $message->getQueueName(), $message->getMessageId() );
 	}
 }

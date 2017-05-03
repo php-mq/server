@@ -18,7 +18,7 @@ trait StorageMocking
 	/** @var StoresMessages */
 	private $messageQueue;
 
-	public function setUp() : void
+	public function setUpStorage() : void
 	{
 		$config = new class() implements ConfiguresMessageQueue
 		{
@@ -32,7 +32,7 @@ trait StorageMocking
 		$this->messageQueue->flushAllQueues();
 	}
 
-	public function tearDown() : void
+	public function tearDownStorage() : void
 	{
 		$this->messageQueue->flushAllQueues();
 		$this->messageQueue = null;

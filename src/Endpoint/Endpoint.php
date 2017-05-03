@@ -12,6 +12,7 @@ use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
 use hollodotme\PHPMQ\Endpoint\Interfaces\AcceptsMessageHandlers;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
+use hollodotme\PHPMQ\Endpoint\Interfaces\DispatchesMessages;
 use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
 use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
@@ -46,13 +47,17 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	/** @var array|HandlesMessage[] */
 	private $messageHandlers;
 
-	public function __construct( ConfiguresEndpoint $config )
+	/** @var DispatchesMessages */
+	private $messageDispatcher;
+
+	public function __construct( ConfiguresEndpoint $config, DispatchesMessages $messageDispatcher )
 	{
-		$this->config          = $config;
-		$this->clients         = [];
-		$this->listening       = false;
-		$this->messageBuilder  = new MessageBuilder();
-		$this->messageHandlers = [];
+		$this->config            = $config;
+		$this->clients           = [];
+		$this->listening         = false;
+		$this->messageBuilder    = new MessageBuilder();
+		$this->messageHandlers   = [];
+		$this->messageDispatcher = $messageDispatcher;
 	}
 
 	public function addMessageHandlers( HandlesMessage ...$messageHandlers ) : void
@@ -81,19 +86,19 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 
 					$this->removeClient( $client->getClientId() );
 
-					$this->logger->debug( 'Memory: ' . (memory_get_peak_usage( true ) / 1024 / 1024) . ' MB' );
-
 					continue;
 				}
 
-				$message = $client->read();
+				$this->messageDispatcher->dispatchMessages( $client );
+
+				$message = $client->readMessage();
 
 				if ( null === $message )
 				{
 					continue;
 				}
 
-				$this->handleClientMessage( $client, $message );
+				$this->handleMessageFromClient( $client, $message );
 			}
 		}
 	}
@@ -171,7 +176,7 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 		unset( $this->clients[ $clientId->toString() ] );
 	}
 
-	private function handleClientMessage( ConsumesMessages $client, CarriesInformation $message ) : void
+	private function handleMessageFromClient( ConsumesMessages $client, CarriesInformation $message ) : void
 	{
 		foreach ( $this->messageHandlers as $messageHandler )
 		{

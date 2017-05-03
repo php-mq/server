@@ -9,6 +9,7 @@ use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
 use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
 use hollodotme\PHPMQ\Exceptions\RuntimeException;
 use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
+use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
 use hollodotme\PHPMQ\Protocol\Constants\PacketLength;
 use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
@@ -38,16 +39,19 @@ final class Client implements ConsumesMessages
 	private $consumedMessageIds;
 
 	/** @var int */
-	private $messageConsumeCount;
+	private $consumptionMessageCount;
+
+	/** @var IdentifiesQueue */
+	private $consumptionQueueName;
 
 	public function __construct( IdentifiesClient $clientId, $socket, BuildsMessages $messageBuilder )
 	{
-		$this->clientId            = $clientId;
-		$this->socket              = $socket;
-		$this->messageBuilder      = $messageBuilder;
-		$this->isDisconnected      = false;
-		$this->consumedMessageIds  = [];
-		$this->messageConsumeCount = 0;
+		$this->clientId                = $clientId;
+		$this->socket                  = $socket;
+		$this->messageBuilder          = $messageBuilder;
+		$this->isDisconnected          = false;
+		$this->consumedMessageIds      = [];
+		$this->consumptionMessageCount = 0;
 	}
 
 	public function getClientId() : IdentifiesClient
@@ -60,7 +64,7 @@ final class Client implements ConsumesMessages
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
 
-	public function read() : ?CarriesInformation
+	public function readMessage() : ?CarriesInformation
 	{
 		$buffer = '';
 		$bytes  = socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
@@ -133,19 +137,36 @@ final class Client implements ConsumesMessages
 		return $this->isDisconnected;
 	}
 
-	public function updateConsumptionCount( int $messageCount ) : void
+	public function updateConsumptionInfo( IdentifiesQueue $queueName, int $messageCount ) : void
 	{
-		$this->messageConsumeCount = $messageCount;
+		$this->consumptionQueueName    = $queueName;
+		$this->consumptionMessageCount = $messageCount;
+
+		if ( !isset( $this->consumedMessageIds[ $queueName->toString() ] ) )
+		{
+			$this->consumedMessageIds[ $queueName->toString() ] = [];
+		}
 	}
 
 	public function canConsumeMessages() : bool
 	{
-		return ($this->getConsumableMessageCount() > 0);
+		return ($this->getConsumptionMessageCount() > 0);
 	}
 
-	public function getConsumableMessageCount() : int
+	public function getConsumptionMessageCount() : int
 	{
-		return ($this->messageConsumeCount - count( $this->consumedMessageIds ));
+		$queueName = '';
+		if ( null !== $this->consumptionQueueName )
+		{
+			$queueName = $this->consumptionQueueName->toString();
+		}
+
+		return ($this->consumptionMessageCount - count( $this->consumedMessageIds[ $queueName ] ?? [] ));
+	}
+
+	public function getConsumptionQueueName() : IdentifiesQueue
+	{
+		return $this->consumptionQueueName;
 	}
 
 	public function consumeMessage( MessageE2C $message ) : void
@@ -157,11 +178,14 @@ final class Client implements ConsumesMessages
 			throw new RuntimeException( 'Could not write message to client socket.' );
 		}
 
-		$this->consumedMessageIds[] = $message->getMessageId();
+		$this->consumedMessageIds[ $message->getQueueName()->toString() ][] = $message->getMessageId();
 	}
 
-	public function acknowledgeMessage( IdentifiesMessage $messageId ) : void
+	public function acknowledgeMessage( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
-		$this->consumedMessageIds = array_diff( $this->consumedMessageIds, [ $messageId ] );
+		$key         = $queueName->toString();
+		$consumedIds = $this->consumedMessageIds[ $key ] ?? [];
+
+		$this->consumedMessageIds[ $key ] = array_diff( $consumedIds, [ $messageId ] );
 	}
 }

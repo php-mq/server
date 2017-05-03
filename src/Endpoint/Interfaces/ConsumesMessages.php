@@ -6,6 +6,7 @@
 namespace hollodotme\PHPMQ\Endpoint\Interfaces;
 
 use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
+use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
 use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
 
 /**
@@ -14,13 +15,15 @@ use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
  */
 interface ConsumesMessages
 {
-	public function updateConsumptionCount( int $messageCount ) : void;
+	public function updateConsumptionInfo( IdentifiesQueue $queue, int $messageCount ) : void;
 
 	public function canConsumeMessages() : bool;
 
-	public function getConsumableMessageCount() : int;
+	public function getConsumptionMessageCount() : int;
+
+	public function getConsumptionQueueName() : IdentifiesQueue;
 
 	public function consumeMessage( MessageE2C $message ) : void;
 
-	public function acknowledgeMessage( IdentifiesMessage $messageId ) : void;
+	public function acknowledgeMessage( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
 }

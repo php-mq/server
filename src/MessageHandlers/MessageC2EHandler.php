@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\MessageHandlers;
 
+use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
 use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
 use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
 use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
@@ -35,8 +36,9 @@ final class MessageC2EHandler implements HandlesMessage
 
 	/**
 	 * @param CarriesInformation|MessageC2E $message
+	 * @param ConsumesMessages              $client
 	 */
-	public function handle( CarriesInformation $message ) : void
+	public function handle( CarriesInformation $message, ConsumesMessages $client ) : void
 	{
 		$storeMessage = new Message( MessageId::generate(), $message->getContent() );
 

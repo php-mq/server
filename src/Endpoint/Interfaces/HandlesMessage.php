@@ -16,5 +16,5 @@ interface HandlesMessage
 {
 	public function acceptsMessageType( IdentifiesMessageType $messageType ) : bool;
 
-	public function handle( CarriesInformation $message ) : void;
+	public function handle( CarriesInformation $message, ConsumesMessages $client ) : void;
 }

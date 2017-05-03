@@ -20,6 +20,16 @@ final class MessageQueueSQLiteTest extends TestCase
 {
 	use StorageMocking;
 
+	public function setUp() : void
+	{
+		$this->setUpStorage();
+	}
+
+	public function tearDown() : void
+	{
+		$this->tearDownStorage();
+	}
+
 	public function testCanEnqueueMessages() : void
 	{
 		$queueName = new QueueName( 'TestQueue' );
