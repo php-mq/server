@@ -43,6 +43,6 @@ final class MessageType implements IdentifiesMessageType
 
 	public function getPacketCount() : int
 	{
-		return self::PACKET_COUNT_MAP[ $this->type ];
+		return self::PACKET_COUNT_MAP[ $this->type ] ?? 0;
 	}
 }

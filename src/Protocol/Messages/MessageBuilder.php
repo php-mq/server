@@ -5,6 +5,7 @@
 
 namespace hollodotme\PHPMQ\Protocol\Messages;
 
+use hollodotme\PHPMQ\Exceptions\LogicException;
 use hollodotme\PHPMQ\Exceptions\RuntimeException;
 use hollodotme\PHPMQ\Protocol\Constants\PacketType;
 use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
@@ -22,6 +23,8 @@ final class MessageBuilder implements BuildsMessages
 {
 	public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesInformation
 	{
+		$this->guardPacketCountMatchesMessageType( $messageHeader, $packets );
+
 		switch ( $messageHeader->getMessageType()->getType() )
 		{
 			case MessageType::MESSAGE_C2E:
@@ -68,6 +71,14 @@ final class MessageBuilder implements BuildsMessages
 					. $messageHeader->getMessageType()->getType()
 				);
 			}
+		}
+	}
+
+	private function guardPacketCountMatchesMessageType( MessageHeader $messageHeader, array $packets ) : void
+	{
+		if ( $messageHeader->getMessageType()->getPacketCount() !== count( $packets ) )
+		{
+			throw new LogicException( 'Packet count does not match expectation of message type.' );
 		}
 	}
 }
