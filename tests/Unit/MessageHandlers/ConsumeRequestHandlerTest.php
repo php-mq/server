@@ -14,6 +14,7 @@ use hollodotme\PHPMQ\Protocol\Types\MessageType;
 use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\SocketMocking;
 use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Class ConsumeRequestHandlerTest
@@ -35,7 +36,8 @@ final class ConsumeRequestHandlerTest extends TestCase
 
 	public function testAcceptsConsumeRequestMessages() : void
 	{
-		$handler     = new ConsumeRequestHandler();
+		$handler = new ConsumeRequestHandler();
+		$handler->setLogger( new NullLogger() );
 		$messageType = new MessageType( MessageType::CONSUME_REQUEST );
 
 		$this->assertTrue( $handler->acceptsMessageType( $messageType ) );
@@ -47,6 +49,7 @@ final class ConsumeRequestHandlerTest extends TestCase
 		$queueName      = new QueueName( 'Test-Queue' );
 		$consumeRequest = new ConsumeRequest( $queueName, 5 );
 		$handler        = new ConsumeRequestHandler();
+		$handler->setLogger( new NullLogger() );
 
 		$handler->handle( $consumeRequest, $client );
 

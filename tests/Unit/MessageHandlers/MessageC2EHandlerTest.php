@@ -15,6 +15,7 @@ use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\SocketMocking;
 use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\StorageMocking;
 use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Class MessageC2EHandlerTest
@@ -39,7 +40,8 @@ final class MessageC2EHandlerTest extends TestCase
 
 	public function testAcceptsMessageC2EMessages() : void
 	{
-		$handler     = new MessageC2EHandler( $this->messageQueue );
+		$handler = new MessageC2EHandler( $this->messageQueue );
+		$handler->setLogger( new NullLogger() );
 		$messageType = new MessageType( MessageType::MESSAGE_C2E );
 
 		$this->assertTrue( $handler->acceptsMessageType( $messageType ) );
@@ -52,6 +54,7 @@ final class MessageC2EHandlerTest extends TestCase
 		$queueName         = new QueueName( 'Test-Queue' );
 		$messageC2E        = new MessageC2E( $queueName, 'Unit-Test' );
 		$messageC2EHandler = new MessageC2EHandler( $this->messageQueue );
+		$messageC2EHandler->setLogger( new NullLogger() );
 
 		$this->assertTrue( $messageC2EHandler->acceptsMessageType( $messageC2E->getMessageType() ) );
 

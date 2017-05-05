@@ -18,6 +18,7 @@ use hollodotme\PHPMQ\Types\Message;
 use hollodotme\PHPMQ\Types\MessageId;
 use hollodotme\PHPMQ\Types\QueueName;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Class AcknowledgementHandlerTest
@@ -42,7 +43,8 @@ final class AcknowledgementHandlerTest extends TestCase
 
 	public function testAcceptsAcknowledgementMessages() : void
 	{
-		$handler     = new AcknowledgementHandler( $this->messageQueue );
+		$handler = new AcknowledgementHandler( $this->messageQueue );
+		$handler->setLogger( new NullLogger() );
 		$messageType = new MessageType( MessageType::ACKNOWLEDGEMENT );
 
 		$this->assertTrue( $handler->acceptsMessageType( $messageType ) );
@@ -58,6 +60,7 @@ final class AcknowledgementHandlerTest extends TestCase
 		$message         = new Message( $messageId, 'Unit-Test' );
 		$acknowledgement = new Acknowledgement( $queueName, $messageId );
 		$messageHandler  = new AcknowledgementHandler( $this->messageQueue );
+		$messageHandler->setLogger( new NullLogger() );
 
 		$this->messageQueue->enqueue( $queueName, $message );
 
