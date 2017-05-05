@@ -61,12 +61,13 @@ $logger = new class extends AbstractLogger
 {
 	public function log( $level, $message, array $context = [] )
 	{
-		printf( "[%s]: %s\n", $level, sprintf( $message, ...$context ) );
+		printf( "%s\n", sprintf( $message, ...$context ) );
 	}
 };
 
 $storage    = new MessageQueueSQLite( $storageConfig );
 $dispatcher = new MessageDispatcher( $storage );
+$dispatcher->setLogger( $logger );
 
 $endoint = new Endpoint( $endpointConfig, $dispatcher );
 $endoint->setLogger( $logger );
