@@ -5,11 +5,13 @@
 
 namespace hollodotme\PHPMQ\Endpoint\Interfaces;
 
+use Psr\Log\LoggerAwareInterface;
+
 /**
  * Interface DispatchesMessages
  * @package hollodotme\PHPMQ\Endpoint\Interfaces
  */
-interface DispatchesMessages
+interface DispatchesMessages extends LoggerAwareInterface
 {
 	public function dispatchMessages( ConsumesMessages $client ) : void;
 }
