@@ -64,6 +64,8 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	{
 		foreach ( $messageHandlers as $messageHandler )
 		{
+			$messageHandler->setLogger( $this->logger );
+
 			$this->messageHandlers[] = $messageHandler;
 		}
 	}
@@ -73,6 +75,8 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 		$this->establishSocket();
 
 		$this->listening = true;
+
+		$this->logger->debug( 'Start listening for client connections...' );
 
 		while ( $this->listening )
 		{
@@ -89,8 +93,6 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 					continue;
 				}
 
-				$this->messageDispatcher->dispatchMessages( $client );
-
 				$message = $client->readMessage();
 
 				if ( null === $message )
@@ -99,6 +101,11 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 				}
 
 				$this->handleMessageFromClient( $client, $message );
+			}
+
+			foreach ( $this->clients as $client )
+			{
+				$this->messageDispatcher->dispatchMessages( $client );
 			}
 		}
 	}
