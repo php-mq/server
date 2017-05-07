@@ -1,5 +1,5 @@
 {
-	"name": "hollodotme/phpmq",
+	"name": "php-mq/server",
 	"description": "PHPMQ",
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -17,17 +17,16 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"hollodotme\\PHPMQ\\": "src/"
+			"PHPMQ\\Server\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"hollodotme\\PHPMQ\\Tests\\": "tests/"
+			"PHPMQ\\Server\\Tests\\": "tests/"
 		}
 	},
 	"require-dev": {
-		"tm/tooly-composer-script": "^1.0",
-		"roave/security-advisories": "dev-master"
+		"tm/tooly-composer-script": "^1.0"
 	},
 	"scripts": {
 		"post-install-cmd": "Tooly\\ScriptHandler::installPharTools",

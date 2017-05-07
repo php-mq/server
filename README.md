@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/hollodotme/phpmq.svg?branch=master)](https://travis-ci.org/hollodotme/phpmq)
-[![Latest Stable Version](https://poser.pugx.org/hollodotme/phpmq/v/stable)](https://packagist.org/packages/hollodotme/phpmq) 
-[![Total Downloads](https://poser.pugx.org/hollodotme/phpmq/downloads)](https://packagist.org/packages/hollodotme/phpmq) 
-[![Coverage Status](https://coveralls.io/repos/github/hollodotme/phpmq/badge.svg?branch=master)](https://coveralls.io/github/hollodotme/phpmq?branch=master)
+[![Build Status](https://travis-ci.org/php-mq/server.svg?branch=master)](https://travis-ci.org/php-mq/server)
+[![Latest Stable Version](https://poser.pugx.org/php-mq/server/v/stable)](https://packagist.org/packages/php-mq/server) 
+[![Total Downloads](https://poser.pugx.org/php-mq/server/downloads)](https://packagist.org/packages/php-mq/server) 
+[![Coverage Status](https://coveralls.io/repos/github/php-mq/server/badge.svg?branch=master)](https://coveralls.io/github/php-mq/server?branch=master)
 
-# PHPMQ
+# PHPMQ\Server
 
 A lightweight PHP message queue
 

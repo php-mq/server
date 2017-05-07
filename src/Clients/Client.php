@@ -3,23 +3,23 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Clients;
+namespace PHPMQ\Server\Clients;
 
-use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
-use hollodotme\PHPMQ\Exceptions\RuntimeException;
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Protocol\Constants\PacketLength;
-use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\MessageHeader;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Protocol\PacketHeader;
+use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
+use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
+use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Protocol\Constants\PacketLength;
+use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Protocol\PacketHeader;
 
 /**
  * Class Client
- * @package hollodotme\PHPMQ\Clients
+ * @package PHPMQ\Server\Clients
  */
 final class Client implements ConsumesMessages
 {

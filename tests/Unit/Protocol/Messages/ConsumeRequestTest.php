@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
-use hollodotme\PHPMQ\Protocol\Messages\ConsumeRequest;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConsumeRequestTest
- * @package hollodotme\PHPMQ\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
  */
 final class ConsumeRequestTest extends TestCase
 {

@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Storage\Interfaces;
+namespace PHPMQ\Server\Storage\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
 
 /**
  * Interface StoresMessages
- * @package hollodotme\PHPMQ\Storage\Interfaces
+ * @package PHPMQ\Server\Storage\Interfaces
  */
 interface StoresMessages
 {

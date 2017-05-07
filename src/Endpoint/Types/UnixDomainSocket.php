@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Types;
+namespace PHPMQ\Server\Endpoint\Types;
 
-use hollodotme\PHPMQ\Endpoint\Interfaces\IdentifiesSocketAddress;
+use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
 
 /**
  * Class UnixDomainAddress
- * @package hollodotme\PHPMQ\Endpoint\Types
+ * @package PHPMQ\Server\Endpoint\Types
  */
 final class UnixDomainSocket implements IdentifiesSocketAddress
 {

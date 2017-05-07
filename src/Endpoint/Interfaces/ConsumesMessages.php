@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Interfaces;
+namespace PHPMQ\Server\Endpoint\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
 
 /**
  * Interface ConsumesMessages
- * @package hollodotme\PHPMQ\Endpoint\Interfaces
+ * @package PHPMQ\Server\Endpoint\Interfaces
  */
 interface ConsumesMessages
 {

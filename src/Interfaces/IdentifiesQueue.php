@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Interfaces;
+namespace PHPMQ\Server\Interfaces;
 
 /**
  * Interface IdentifiesQueue
- * @package hollodotme\PHPMQ\Interfaces
+ * @package PHPMQ\Server\Interfaces
  */
 interface IdentifiesQueue extends RepresentsString
 {

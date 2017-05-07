@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Interfaces;
+namespace PHPMQ\Server\Interfaces;
 
 /**
  * Interface RepresentsString
- * @package hollodotme\PHPMQ\Interfaces
+ * @package PHPMQ\Server\Interfaces
  */
 interface RepresentsString extends \JsonSerializable
 {

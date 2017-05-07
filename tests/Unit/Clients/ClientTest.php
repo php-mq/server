@@ -3,20 +3,20 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Clients;
+namespace PHPMQ\Server\Tests\Unit\Clients;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Clients\Types\ClientId;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\SocketMocking;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\Types\ClientId;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ClientTest
- * @package hollodotme\PHPMQ\Tests\Unit\Clients
+ * @package PHPMQ\Server\Tests\Unit\Clients
  */
 final class ClientTest extends TestCase
 {

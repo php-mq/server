@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits;
+namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use hollodotme\PHPMQ\Storage\Interfaces\ConfiguresMessageQueue;
-use hollodotme\PHPMQ\Storage\Interfaces\StoresMessages;
-use hollodotme\PHPMQ\Storage\MessageQueueSQLite;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\Storage\MessageQueueSQLite;
 
 /**
  * Trait StorageMocking
- * @package hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
  */
 trait StorageMocking
 {

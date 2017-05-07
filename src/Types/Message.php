@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Types;
+namespace PHPMQ\Server\Types;
 
-use hollodotme\PHPMQ\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
 
 /**
  * Class Message
- * @package hollodotme\PHPMQ\Types
+ * @package PHPMQ\Server\Types
  */
 final class Message implements CarriesInformation
 {

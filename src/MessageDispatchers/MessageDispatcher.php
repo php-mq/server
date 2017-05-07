@@ -3,18 +3,18 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\MessageDispatchers;
+namespace PHPMQ\Server\MessageDispatchers;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
-use hollodotme\PHPMQ\Endpoint\Interfaces\DispatchesMessages;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
+use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MessageDispatcher
- * @package hollodotme\PHPMQ\MessageDispatchers
+ * @package PHPMQ\Server\MessageDispatchers
  */
 final class MessageDispatcher implements DispatchesMessages
 {

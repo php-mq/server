@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Constants;
+namespace PHPMQ\Server\Protocol\Constants;
 
 /**
  * Class PacketType
- * @package hollodotme\PHPMQ\Protocol\Constants
+ * @package PHPMQ\Server\Protocol\Constants
  */
 abstract class PacketType
 {

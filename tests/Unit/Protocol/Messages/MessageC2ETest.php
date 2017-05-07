@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
-use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageC2ETest
- * @package hollodotme\PHPMQ\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
  */
 final class MessageC2ETest extends TestCase
 {

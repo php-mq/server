@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Types;
+namespace PHPMQ\Server\Types;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Storage\Interfaces\ProvidesQueueStatus;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
 
 /**
  * Class MessageQueueStatus
- * @package hollodotme\PHPMQ\Types
+ * @package PHPMQ\Server\Types
  */
 final class MessageQueueStatus implements ProvidesQueueStatus
 {

@@ -3,22 +3,22 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Storage;
+namespace PHPMQ\Server\Storage;
 
-use hollodotme\PHPMQ\Exceptions\RuntimeException;
-use hollodotme\PHPMQ\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Storage\Interfaces\ConfiguresMessageQueue;
-use hollodotme\PHPMQ\Storage\Interfaces\ProvidesQueueStatus;
-use hollodotme\PHPMQ\Storage\Interfaces\StoresMessages;
-use hollodotme\PHPMQ\Types\Message;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\MessageQueueStatus;
+use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\Types\Message;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\MessageQueueStatus;
 
 /**
  * Class MessageQueueSQLite
- * @package hollodotme\PHPMQ\Storage
+ * @package PHPMQ\Server\Storage
  */
 final class MessageQueueSQLite implements StoresMessages
 {
@@ -57,7 +57,7 @@ final class MessageQueueSQLite implements StoresMessages
 	 * @param IdentifiesQueue    $queueName
 	 * @param CarriesInformation $message
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void
 	{
@@ -114,7 +114,7 @@ final class MessageQueueSQLite implements StoresMessages
 	 * @param IdentifiesQueue   $queueName
 	 * @param IdentifiesMessage $messageId
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function dequeue( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
@@ -153,7 +153,7 @@ final class MessageQueueSQLite implements StoresMessages
 	 * @param IdentifiesQueue   $queueName
 	 * @param IdentifiesMessage $messageId
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
@@ -192,7 +192,7 @@ final class MessageQueueSQLite implements StoresMessages
 	 * @param IdentifiesQueue $queueName
 	 * @param int             $countMessages
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 * @return \Generator|CarriesInformation[]
 	 */
 	public function getUndispatched( IdentifiesQueue $queueName, int $countMessages = 1 ) : \Generator
@@ -224,7 +224,7 @@ final class MessageQueueSQLite implements StoresMessages
 	/**
 	 * @param IdentifiesQueue $queueName
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function flushQueue( IdentifiesQueue $queueName ) : void
 	{
@@ -246,7 +246,7 @@ final class MessageQueueSQLite implements StoresMessages
 	}
 
 	/**
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function flushAllQueues() : void
 	{
@@ -264,7 +264,7 @@ final class MessageQueueSQLite implements StoresMessages
 	/**
 	 * @param IdentifiesQueue $queueName
 	 *
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 * @return ProvidesQueueStatus
 	 */
 	public function getQueueStatus( IdentifiesQueue $queueName ) : ProvidesQueueStatus
@@ -293,7 +293,7 @@ final class MessageQueueSQLite implements StoresMessages
 	}
 
 	/**
-	 * @throws \hollodotme\PHPMQ\Exceptions\RuntimeException
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 * @return \Generator|ProvidesQueueStatus[]
 	 */
 	public function getAllQueueStatus() : \Generator

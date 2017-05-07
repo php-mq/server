@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Interfaces;
+namespace PHPMQ\Server\Interfaces;
 
 /**
  * Interface CarriesInformation
- * @package hollodotme\PHPMQ\Interfaces
+ * @package PHPMQ\Server\Interfaces
  */
 interface CarriesInformation
 {

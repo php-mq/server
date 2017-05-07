@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol;
+namespace PHPMQ\Server\Protocol;
 
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\Types\MessageType;
 
 /**
  * Class MessageHeader
- * @package hollodotme\PHPMQ\Protocol
+ * @package PHPMQ\Server\Protocol
  */
 final class MessageHeader extends AbstractPacket
 {

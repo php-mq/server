@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Storage\Interfaces;
+namespace PHPMQ\Server\Storage\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
 
 /**
  * Interface ProvidesQueueStatus
- * @package hollodotme\PHPMQ\Storage\Interfaces
+ * @package PHPMQ\Server\Storage\Interfaces
  */
 interface ProvidesQueueStatus
 {

@@ -3,20 +3,20 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ;
+namespace PHPMQ\Server;
 
-use hollodotme\PHPMQ\Endpoint\Constants\SocketDomain;
-use hollodotme\PHPMQ\Endpoint\Constants\SocketType;
-use hollodotme\PHPMQ\Endpoint\Endpoint;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
-use hollodotme\PHPMQ\Endpoint\Interfaces\IdentifiesSocketAddress;
-use hollodotme\PHPMQ\Endpoint\Types\UnixDomainSocket;
-use hollodotme\PHPMQ\MessageDispatchers\MessageDispatcher;
-use hollodotme\PHPMQ\MessageHandlers\AcknowledgementHandler;
-use hollodotme\PHPMQ\MessageHandlers\ConsumeRequestHandler;
-use hollodotme\PHPMQ\MessageHandlers\MessageC2EHandler;
-use hollodotme\PHPMQ\Storage\Interfaces\ConfiguresMessageQueue;
-use hollodotme\PHPMQ\Storage\MessageQueueSQLite;
+use PHPMQ\Server\Endpoint\Constants\SocketDomain;
+use PHPMQ\Server\Endpoint\Constants\SocketType;
+use PHPMQ\Server\Endpoint\Endpoint;
+use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
+use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
+use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
+use PHPMQ\Server\MessageDispatchers\MessageDispatcher;
+use PHPMQ\Server\MessageHandlers\AcknowledgementHandler;
+use PHPMQ\Server\MessageHandlers\ConsumeRequestHandler;
+use PHPMQ\Server\MessageHandlers\MessageC2EHandler;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\MessageQueueSQLite;
 use Psr\Log\AbstractLogger;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -40,7 +40,7 @@ $endpointConfig = new class implements ConfiguresEndpoint
 
 	public function getBindToAddress() : IdentifiesSocketAddress
 	{
-		return new UnixDomainSocket( '/tmp/phpmq.sock' );
+		return new UnixDomainSocket( '/tmp/phpmq.server.sock' );
 	}
 
 	public function getListenBacklog() : int

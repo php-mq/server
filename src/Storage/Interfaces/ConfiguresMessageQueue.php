@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Storage\Interfaces;
+namespace PHPMQ\Server\Storage\Interfaces;
 
 /**
  * Interface ConfiguresMessageQueue
- * @package hollodotme\PHPMQ\Storage\Interfaces
+ * @package PHPMQ\Server\Storage\Interfaces
  */
 interface ConfiguresMessageQueue
 {

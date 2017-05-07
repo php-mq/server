@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Interfaces;
+namespace PHPMQ\Server\Endpoint\Interfaces;
 
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * Interface DispatchesMessages
- * @package hollodotme\PHPMQ\Endpoint\Interfaces
+ * @package PHPMQ\Server\Endpoint\Interfaces
  */
 interface DispatchesMessages extends LoggerAwareInterface
 {

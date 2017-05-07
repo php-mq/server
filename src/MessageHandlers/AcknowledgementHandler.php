@@ -3,21 +3,21 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\MessageHandlers;
+namespace PHPMQ\Server\MessageHandlers;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
-use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
-use hollodotme\PHPMQ\Protocol\Messages\Acknowledgement;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
+use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\Messages\Acknowledgement;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class AcknowledgementHandler
- * @package hollodotme\PHPMQ\MessageHandlers
+ * @package PHPMQ\Server\MessageHandlers
  */
 final class AcknowledgementHandler implements HandlesMessage
 {

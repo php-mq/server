@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Types;
+namespace PHPMQ\Server\Types;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Traits\StringRepresenting;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
  * Class QueueName
- * @package hollodotme\PHPMQ\Types
+ * @package PHPMQ\Server\Types
  */
 final class QueueName implements IdentifiesQueue
 {

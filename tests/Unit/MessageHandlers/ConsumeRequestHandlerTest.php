@@ -3,22 +3,22 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\MessageHandlers;
+namespace PHPMQ\Server\Tests\Unit\MessageHandlers;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Clients\Types\ClientId;
-use hollodotme\PHPMQ\MessageHandlers\ConsumeRequestHandler;
-use hollodotme\PHPMQ\Protocol\Messages\ConsumeRequest;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\SocketMocking;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\Types\ClientId;
+use PHPMQ\Server\MessageHandlers\ConsumeRequestHandler;
+use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 /**
  * Class ConsumeRequestHandlerTest
- * @package hollodotme\PHPMQ\Tests\Unit\MessageHandlers
+ * @package PHPMQ\Server\Tests\Unit\MessageHandlers
  */
 final class ConsumeRequestHandlerTest extends TestCase
 {

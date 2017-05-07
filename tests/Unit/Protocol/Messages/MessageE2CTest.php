@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageE2CTest
- * @package hollodotme\PHPMQ\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
  */
 final class MessageE2CTest extends TestCase
 {

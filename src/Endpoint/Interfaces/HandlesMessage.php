@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Interfaces;
+namespace PHPMQ\Server\Endpoint\Interfaces;
 
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * Interface HandlesMessage
- * @package hollodotme\PHPMQ\Endpoint\Interfaces
+ * @package PHPMQ\Server\Endpoint\Interfaces
  */
 interface HandlesMessage extends LoggerAwareInterface
 {

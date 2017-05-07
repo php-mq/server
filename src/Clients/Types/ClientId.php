@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Clients\Types;
+namespace PHPMQ\Server\Clients\Types;
 
-use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
-use hollodotme\PHPMQ\Traits\StringRepresenting;
+use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
+use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
  * Class ClientId
- * @package hollodotme\PHPMQ\Clients\Types
+ * @package PHPMQ\Server\Clients\Types
  */
 final class ClientId implements IdentifiesClient
 {

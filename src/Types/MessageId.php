@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Types;
+namespace PHPMQ\Server\Types;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Traits\StringRepresenting;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
  * Class MessageId
- * @package hollodotme\PHPMQ\Types
+ * @package PHPMQ\Server\Types
  */
 final class MessageId implements IdentifiesMessage
 {

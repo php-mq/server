@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Interfaces;
+namespace PHPMQ\Server\Protocol\Interfaces;
 
-use hollodotme\PHPMQ\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\MessageHeader;
 
 /**
  * Interface BuildsMessages
- * @package hollodotme\PHPMQ\Endpoint\Interfaces
+ * @package PHPMQ\Server\Endpoint\Interfaces
  */
 interface BuildsMessages
 {

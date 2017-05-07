@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
-use hollodotme\PHPMQ\Protocol\Messages\Acknowledgement;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Messages\Acknowledgement;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class AcknowledgementTest
- * @package hollodotme\PHPMQ\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
  */
 final class AcknowledgementTest extends TestCase
 {

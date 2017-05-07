@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits;
+namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
 /**
  * Trait SocketMocking
- * @package hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
  */
 trait SocketMocking
 {

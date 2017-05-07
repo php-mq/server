@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol;
+namespace PHPMQ\Server\Protocol;
 
-use hollodotme\PHPMQ\Interfaces\RepresentsString;
-use hollodotme\PHPMQ\Traits\StringRepresenting;
+use PHPMQ\Server\Interfaces\RepresentsString;
+use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
  * Class AbstractPacket
- * @package hollodotme\PHPMQ\Protocol
+ * @package PHPMQ\Server\Protocol
  */
 abstract class AbstractPacket implements RepresentsString
 {

@@ -3,22 +3,22 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\MessageHandlers;
+namespace PHPMQ\Server\MessageHandlers;
 
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
-use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
-use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Storage\Interfaces\StoresMessages;
-use hollodotme\PHPMQ\Types\Message;
-use hollodotme\PHPMQ\Types\MessageId;
+use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
+use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\Types\Message;
+use PHPMQ\Server\Types\MessageId;
 use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MessageC2EHandler
- * @package hollodotme\PHPMQ\MessageHandlers
+ * @package PHPMQ\Server\MessageHandlers
  */
 final class MessageC2EHandler implements HandlesMessage
 {

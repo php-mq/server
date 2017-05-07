@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ;
+namespace PHPMQ\Server;
 
-use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $socket = socket_create( AF_UNIX, SOCK_STREAM, 0 );
-socket_connect( $socket, '/tmp/phpmq.sock' );
+socket_connect( $socket, '/tmp/phpmq.server.sock' );
 socket_set_nonblock( $socket );
 
 $message1 = new MessageC2E( new QueueName( 'Test-Queue' ), 'This is a first test' );

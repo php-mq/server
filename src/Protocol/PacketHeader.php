@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol;
+namespace PHPMQ\Server\Protocol;
 
 /**
  * Class PacketHeader
- * @package hollodotme\PHPMQ\Protocol
+ * @package PHPMQ\Server\Protocol
  */
 final class PacketHeader extends AbstractPacket
 {

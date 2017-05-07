@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Traits;
+namespace PHPMQ\Server\Traits;
 
 /**
  * Trait StringRepresenting
- * @package hollodotme\PHPMQ\Traits
+ * @package PHPMQ\Server\Traits
  */
 trait StringRepresenting
 {

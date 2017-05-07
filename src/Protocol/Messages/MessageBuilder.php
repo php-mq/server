@@ -3,21 +3,21 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Messages;
+namespace PHPMQ\Server\Protocol\Messages;
 
-use hollodotme\PHPMQ\Exceptions\LogicException;
-use hollodotme\PHPMQ\Exceptions\RuntimeException;
-use hollodotme\PHPMQ\Protocol\Constants\PacketType;
-use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\MessageHeader;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Exceptions\LogicException;
+use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Protocol\Constants\PacketType;
+use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class MessageBuilder
- * @package hollodotme\PHPMQ\Protocol\Messages
+ * @package PHPMQ\Server\Protocol\Messages
  */
 final class MessageBuilder implements BuildsMessages
 {

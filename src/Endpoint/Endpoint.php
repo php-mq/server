@@ -3,27 +3,27 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint;
+namespace PHPMQ\Server\Endpoint;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Clients\Interfaces\IdentifiesClient;
-use hollodotme\PHPMQ\Clients\Types\ClientId;
-use hollodotme\PHPMQ\Endpoint\Constants\SocketShutdownMode;
-use hollodotme\PHPMQ\Endpoint\Interfaces\AcceptsMessageHandlers;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConfiguresEndpoint;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ConsumesMessages;
-use hollodotme\PHPMQ\Endpoint\Interfaces\DispatchesMessages;
-use hollodotme\PHPMQ\Endpoint\Interfaces\HandlesMessage;
-use hollodotme\PHPMQ\Endpoint\Interfaces\ListensToClients;
-use hollodotme\PHPMQ\Protocol\Interfaces\BuildsMessages;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
+use PHPMQ\Server\Clients\Types\ClientId;
+use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
+use PHPMQ\Server\Endpoint\Interfaces\AcceptsMessageHandlers;
+use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
+use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
+use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
+use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
+use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
+use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class Endpoint
- * @package hollodotme\PHPMQ\Endpoint
+ * @package PHPMQ\Server\Endpoint
  */
 final class Endpoint implements ListensToClients, AcceptsMessageHandlers, LoggerAwareInterface
 {

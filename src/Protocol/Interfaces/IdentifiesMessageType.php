@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Interfaces;
+namespace PHPMQ\Server\Protocol\Interfaces;
 
 /**
  * Interface IdentifiesMessageType
- * @package hollodotme\PHPMQ\Protocol\Interfaces
+ * @package PHPMQ\Server\Protocol\Interfaces
  */
 interface IdentifiesMessageType
 {

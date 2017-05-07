@@ -3,18 +3,18 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Storage;
+namespace PHPMQ\Server\Tests\Unit\Storage;
 
-use hollodotme\PHPMQ\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\StorageMocking;
-use hollodotme\PHPMQ\Types\Message;
-use hollodotme\PHPMQ\Types\MessageId;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMocking;
+use PHPMQ\Server\Types\Message;
+use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageQueueSQLiteTest
- * @package hollodotme\PHPMQ\Tests\Unit\Storage
+ * @package PHPMQ\Server\Tests\Unit\Storage
  */
 final class MessageQueueSQLiteTest extends TestCase
 {

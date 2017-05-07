@@ -3,24 +3,24 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\Protocol\Messages;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
-use hollodotme\PHPMQ\Protocol\Constants\PacketType;
-use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\MessageHeader;
-use hollodotme\PHPMQ\Protocol\Messages\Acknowledgement;
-use hollodotme\PHPMQ\Protocol\Messages\ConsumeRequest;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
-use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Types\MessageId;
+use PHPMQ\Server\Protocol\Constants\PacketType;
+use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Messages\Acknowledgement;
+use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Types\MessageId;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageBuilderTest
- * @package hollodotme\PHPMQ\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
  */
 final class MessageBuilderTest extends TestCase
 {
@@ -131,7 +131,7 @@ final class MessageBuilderTest extends TestCase
 	}
 
 	/**
-	 * @expectedException \hollodotme\phpmq\Exceptions\RuntimeException
+	 * @expectedException \PHPMQ\Server\Exceptions\RuntimeException
 	 */
 	public function testUnknowMessageTypeThrowsException() : void
 	{
@@ -146,7 +146,7 @@ final class MessageBuilderTest extends TestCase
 	}
 
 	/**
-	 * @expectedException \hollodotme\PHPMQ\Exceptions\LogicException
+	 * @expectedException \PHPMQ\Server\Exceptions\LogicException
 	 */
 	public function testWrongPacketCountThrowsException() : void
 	{

@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Interfaces;
+namespace PHPMQ\Server\Protocol\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\RepresentsString;
+use PHPMQ\Server\Interfaces\RepresentsString;
 
 /**
  * Interface CarriesInformation
- * @package hollodotme\PHPMQ\Protocol\Interfaces
+ * @package PHPMQ\Server\Protocol\Interfaces
  */
 interface CarriesInformation extends RepresentsString
 {

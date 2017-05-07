@@ -3,22 +3,22 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Messages;
+namespace PHPMQ\Server\Protocol\Messages;
 
-use hollodotme\PHPMQ\Interfaces\IdentifiesMessage;
-use hollodotme\PHPMQ\Interfaces\IdentifiesQueue;
-use hollodotme\PHPMQ\Protocol\Constants\PacketType;
-use hollodotme\PHPMQ\Protocol\Constants\ProtocolVersion;
-use hollodotme\PHPMQ\Protocol\Interfaces\CarriesInformation;
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
-use hollodotme\PHPMQ\Protocol\MessageHeader;
-use hollodotme\PHPMQ\Protocol\PacketHeader;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Traits\StringRepresenting;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Protocol\Constants\PacketType;
+use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
+use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\PacketHeader;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
  * Class Acknowledgement
- * @package hollodotme\PHPMQ\Protocol\Messages
+ * @package PHPMQ\Server\Protocol\Messages
  */
 final class Acknowledgement implements CarriesInformation
 {

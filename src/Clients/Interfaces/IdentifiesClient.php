@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Clients\Interfaces;
+namespace PHPMQ\Server\Clients\Interfaces;
 
-use hollodotme\PHPMQ\Interfaces\RepresentsString;
+use PHPMQ\Server\Interfaces\RepresentsString;
 
 /**
  * Interface IdentifiesClient
- * @package hollodotme\PHPMQ\Clients\Interfaces
+ * @package PHPMQ\Server\Clients\Interfaces
  */
 interface IdentifiesClient extends RepresentsString
 {

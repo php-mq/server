@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Protocol\Types;
+namespace PHPMQ\Server\Protocol\Types;
 
-use hollodotme\PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
 
 /**
  * Class MessageType
- * @package hollodotme\PHPMQ\Protocol\Types
+ * @package PHPMQ\Server\Protocol\Types
  */
 final class MessageType implements IdentifiesMessageType
 {

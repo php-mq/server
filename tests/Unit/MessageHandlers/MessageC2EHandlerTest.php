@@ -3,23 +3,23 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Tests\Unit\MessageHandlers;
+namespace PHPMQ\Server\Tests\Unit\MessageHandlers;
 
-use hollodotme\PHPMQ\Clients\Client;
-use hollodotme\PHPMQ\Clients\Types\ClientId;
-use hollodotme\PHPMQ\MessageHandlers\MessageC2EHandler;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
-use hollodotme\PHPMQ\Protocol\Messages\MessageC2E;
-use hollodotme\PHPMQ\Protocol\Types\MessageType;
-use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\SocketMocking;
-use hollodotme\PHPMQ\Tests\Unit\Fixtures\Traits\StorageMocking;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\Types\ClientId;
+use PHPMQ\Server\MessageHandlers\MessageC2EHandler;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMocking;
+use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 /**
  * Class MessageC2EHandlerTest
- * @package hollodotme\PHPMQ\Tests\Unit\MessageHandlers
+ * @package PHPMQ\Server\Tests\Unit\MessageHandlers
  */
 final class MessageC2EHandlerTest extends TestCase
 {

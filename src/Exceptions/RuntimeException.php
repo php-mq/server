@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Exceptions;
+namespace PHPMQ\Server\Exceptions;
 
 /**
  * Class RuntimeException
- * @package hollodotme\PHPMQ\Exceptions
+ * @package PHPMQ\Server\Exceptions
  */
 class RuntimeException extends \RuntimeException
 {

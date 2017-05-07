@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Constants;
+namespace PHPMQ\Server\Endpoint\Constants;
 
 /**
  * Class SocketShutdownMode
- * @package hollodotme\PHPMQ\Endpoint\Constants
+ * @package PHPMQ\Server\Endpoint\Constants
  */
 abstract class SocketShutdownMode
 {

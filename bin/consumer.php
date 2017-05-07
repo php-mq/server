@@ -3,21 +3,21 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ;
+namespace PHPMQ\Server;
 
-use hollodotme\PHPMQ\Protocol\Constants\PacketLength;
-use hollodotme\PHPMQ\Protocol\MessageHeader;
-use hollodotme\PHPMQ\Protocol\Messages\Acknowledgement;
-use hollodotme\PHPMQ\Protocol\Messages\ConsumeRequest;
-use hollodotme\PHPMQ\Protocol\Messages\MessageBuilder;
-use hollodotme\PHPMQ\Protocol\Messages\MessageE2C;
-use hollodotme\PHPMQ\Protocol\PacketHeader;
-use hollodotme\PHPMQ\Types\QueueName;
+use PHPMQ\Server\Protocol\Constants\PacketLength;
+use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Messages\Acknowledgement;
+use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
+use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Protocol\PacketHeader;
+use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $socket = socket_create( AF_UNIX, SOCK_STREAM, 0 );
-socket_connect( $socket, '/tmp/phpmq.sock' );
+socket_connect( $socket, '/tmp/phpmq.server.sock' );
 socket_set_nonblock( $socket );
 
 sleep( 1 );

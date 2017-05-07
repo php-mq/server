@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace hollodotme\PHPMQ\Endpoint\Interfaces;
+namespace PHPMQ\Server\Endpoint\Interfaces;
 
 /**
  * Interface ConfiguresEndpoint
- * @package hollodotme\PHPMQ\Endpoint\Interfaces
+ * @package PHPMQ\Server\Endpoint\Interfaces
  */
 interface ConfiguresEndpoint
 {
