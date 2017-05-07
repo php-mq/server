@@ -5,8 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 
 /**
@@ -15,15 +14,9 @@ use PHPMQ\Server\Protocol\Messages\MessageE2C;
  */
 interface ConsumesMessages
 {
-	public function updateConsumptionInfo( IdentifiesQueue $queue, int $messageCount ) : void;
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void;
 
-	public function canConsumeMessages() : bool;
-
-	public function getConsumptionMessageCount() : int;
-
-	public function getConsumptionQueueName() : IdentifiesQueue;
+	public function getConsumptionInfo() : ProvidesConsumptionInfo;
 
 	public function consumeMessage( MessageE2C $message ) : void;
-
-	public function acknowledgeMessage( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
 }

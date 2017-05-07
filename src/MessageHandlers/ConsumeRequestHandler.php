@@ -6,12 +6,14 @@
 namespace PHPMQ\Server\MessageHandlers;
 
 use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -21,6 +23,14 @@ use Psr\Log\LoggerAwareTrait;
 final class ConsumeRequestHandler implements HandlesMessage
 {
 	use LoggerAwareTrait;
+
+	/** @var StoresMessages */
+	private $storage;
+
+	public function __construct( StoresMessages $storage )
+	{
+		$this->storage = $storage;
+	}
 
 	public function acceptsMessageType( IdentifiesMessageType $messageType ) : bool
 	{
@@ -44,20 +54,33 @@ final class ConsumeRequestHandler implements HandlesMessage
 
 		$this->logger->debug( $message->toString() );
 
-		$client->updateConsumptionInfo(
-			$message->getQueueName(),
-			$message->getMessageCount()
-		);
+		$this->cleanUpClientConsumption( $client );
+
+		$consumptionInfo = new ConsumptionInfo( $message->getQueueName(), $message->getMessageCount() );
+		$client->updateConsumptionInfo( $consumptionInfo );
 
 		$this->logger->debug(
 			sprintf(
-				'√ Updated consumption info of client: %s to queue "%s" and count "%s".',
+				'√ Updated consumption info of client: %s to %s',
 				$client->getClientId()->toString(),
-				$client->getConsumptionQueueName()->toString(),
-				$client->getConsumptionMessageCount()
+				$client->getConsumptionInfo()->toString()
 			)
 		);
 
 		$this->logger->debug( '' );
+	}
+
+	private function cleanUpClientConsumption( Client $client ) : void
+	{
+		$consumptionInfo = $client->getConsumptionInfo();
+		$queueName       = $consumptionInfo->getQueueName();
+		$messageIds      = $consumptionInfo->getMessageIds();
+
+		foreach ( $messageIds as $messageId )
+		{
+			$this->storage->markAsUndispatched( $queueName, $messageId );
+
+			$consumptionInfo->removeMessageId( $messageId );
+		}
 	}
 }

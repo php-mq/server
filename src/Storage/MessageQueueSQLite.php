@@ -22,25 +22,30 @@ use PHPMQ\Server\Types\MessageQueueStatus;
  */
 final class MessageQueueSQLite implements StoresMessages
 {
-	private const ERROR_CODE_ENQUEUE          = 100;
+	private const ERROR_CODE_ENQUEUE           = 100;
 
-	private const ERROR_CODE_DEQUEUE          = 200;
+	private const ERROR_CODE_DEQUEUE           = 200;
 
-	private const ERROR_CODE_MARK_DISPATCHED  = 300;
+	private const ERROR_CODE_MARK_DISPATCHED   = 300;
 
-	private const ERROR_CODE_GET_UNDISPATCHED = 400;
+	private const ERROR_CODE_MARK_UNDISPATCHED = 310;
 
-	private const ERROR_CODE_FLUSH_QUEUE      = 500;
+	private const ERROR_CODE_GET_UNDISPATCHED  = 400;
 
-	private const ERROR_CODE_QUEUE_STATUS     = 600;
+	private const ERROR_CODE_FLUSH_QUEUE       = 500;
 
-	private const CREATE_TABLE_QUERY          = 'CREATE TABLE IF NOT EXISTS `queue` (
-													`messageId` CHAR(32) PRIMARY KEY,
-													`queueName` VARCHAR(50),
-													`content` TEXT,
-													`createdAt` INTEGER,
-													`dispatched` INTEGER
-												 )';
+	private const ERROR_CODE_QUEUE_STATUS      = 600;
+
+	private const CREATE_TABLE_QUERY           = 'BEGIN;
+		 CREATE TABLE IF NOT EXISTS `queue` (
+			`messageId` CHAR(32),
+			`queueName` VARCHAR(50),
+			`content` TEXT,
+			`createdAt` INTEGER,
+			`dispatched` INTEGER
+		 );
+		 CREATE UNIQUE INDEX messageIdQueueName ON `queue` (`messageId`, `queueName`);
+		 COMMIT;';
 
 	/** @var ConfiguresMessageQueue */
 	private $config;
@@ -181,8 +186,47 @@ final class MessageQueueSQLite implements StoresMessages
 			$this->getPDO()->rollBack();
 
 			throw new RuntimeException(
-				'Could not mark message as dispatched with ID: ' . $messageId,
+				'Could not mark message as undispatched with ID: ' . $messageId,
 				self::ERROR_CODE_MARK_DISPATCHED,
+				$e
+			);
+		}
+	}
+
+	/**
+	 * @param IdentifiesQueue   $queueName
+	 * @param IdentifiesMessage $messageId
+	 *
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
+	 */
+	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
+	{
+		$this->getPDO()->beginTransaction();
+
+		try
+		{
+			$statement = $this->getPDO()->prepare(
+				'UPDATE `queue` SET `dispatched` = 0 
+				 WHERE `queueName` = :queueName 
+				    AND `messageId` = :messageId'
+			);
+
+			$statement->execute(
+				[
+					'queueName' => $queueName->toString(),
+					'messageId' => $messageId->toString(),
+				]
+			);
+
+			$this->getPDO()->commit();
+		}
+		catch ( \PDOException $e )
+		{
+			$this->getPDO()->rollBack();
+
+			throw new RuntimeException(
+				'Could not mark message as dispatched with ID: ' . $messageId,
+				self::ERROR_CODE_MARK_UNDISPATCHED,
 				$e
 			);
 		}
@@ -217,7 +261,7 @@ final class MessageQueueSQLite implements StoresMessages
 		}
 		catch ( \PDOException $e )
 		{
-			throw new RuntimeException( 'Could not get queue status', self::ERROR_CODE_GET_UNDISPATCHED, $e );
+			throw new RuntimeException( 'Could not get undispatched messages', self::ERROR_CODE_GET_UNDISPATCHED, $e );
 		}
 	}
 
@@ -308,7 +352,7 @@ final class MessageQueueSQLite implements StoresMessages
 				 FROM `queue` WHERE 1 GROUP BY `queueName`'
 			);
 
-			while ( $statusData = (array)$statement->fetch( \PDO::FETCH_ASSOC ) )
+			while ( $statusData = $statement->fetch( \PDO::FETCH_ASSOC ) )
 			{
 				yield new MessageQueueStatus( $statusData );
 			}

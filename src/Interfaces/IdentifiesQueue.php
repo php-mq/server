@@ -11,4 +11,5 @@ namespace PHPMQ\Server\Interfaces;
  */
 interface IdentifiesQueue extends RepresentsString
 {
+	public function equals( IdentifiesQueue $other ) : bool;
 }

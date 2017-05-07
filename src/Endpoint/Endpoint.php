@@ -6,13 +6,14 @@
 namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Clients\Client;
-use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
+use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
+use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
+use PHPMQ\Server\Clients\Interfaces\CollectsClients;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
 use PHPMQ\Server\Endpoint\Interfaces\AcceptsMessageHandlers;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
-use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
 use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
@@ -35,7 +36,7 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	/** @var resource */
 	private $socket;
 
-	/** @var array|Client[] */
+	/** @var CollectsClients */
 	private $clients;
 
 	/** @var bool */
@@ -47,17 +48,13 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	/** @var array|HandlesMessage[] */
 	private $messageHandlers;
 
-	/** @var DispatchesMessages */
-	private $messageDispatcher;
-
-	public function __construct( ConfiguresEndpoint $config, DispatchesMessages $messageDispatcher )
+	public function __construct( ConfiguresEndpoint $config, CollectsClients $clientCollection )
 	{
-		$this->config            = $config;
-		$this->clients           = [];
-		$this->listening         = false;
-		$this->messageBuilder    = new MessageBuilder();
-		$this->messageHandlers   = [];
-		$this->messageDispatcher = $messageDispatcher;
+		$this->config          = $config;
+		$this->clients         = $clientCollection;
+		$this->listening       = false;
+		$this->messageBuilder  = new MessageBuilder();
+		$this->messageHandlers = [];
 	}
 
 	public function addMessageHandlers( HandlesMessage ...$messageHandlers ) : void
@@ -82,31 +79,17 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 		{
 			$this->checkForNewClient();
 
-			foreach ( $this->getActiveClients() as $client )
+			foreach ( $this->clients->getActive() as $client )
 			{
-				if ( $client->isDisconnected() )
+				$message = $this->readMessageFromClient( $client );
+
+				if ( null !== $message )
 				{
-					$this->logger->debug( 'Client disconnected: ' . $client->getClientId() );
-
-					$this->removeClient( $client->getClientId() );
-
-					continue;
+					$this->handleMessageFromClient( $client, $message );
 				}
-
-				$message = $client->readMessage();
-
-				if ( null === $message )
-				{
-					continue;
-				}
-
-				$this->handleMessageFromClient( $client, $message );
 			}
 
-			foreach ( $this->clients as $client )
-			{
-				$this->messageDispatcher->dispatchMessages( $client );
-			}
+			$this->clients->dispatchMessages();
 		}
 	}
 
@@ -149,38 +132,28 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 			$clientId = ClientId::generate();
 			$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
 
-			$this->logger->debug( 'New client connected: ' . $clientId );
-
-			$this->clients[ $clientId->toString() ] = $client;
+			$this->clients->add( $client );
 		}
 	}
 
-	/**
-	 * @return array|Client[]
-	 */
-	private function getActiveClients() : array
+	private function readMessageFromClient( Client $client ) : ?CarriesInformation
 	{
-		if ( empty( $this->clients ) )
+		try
 		{
-			return [];
+			return $client->readMessage();
 		}
-
-		$reads  = [];
-		$writes = $exepts = null;
-
-		foreach ( $this->clients as $client )
+		catch ( ReadFailedException $e )
 		{
-			$client->collectSocket( $reads );
+			$this->logger->alert( $e->getMessage() );
+
+			return null;
 		}
+		catch ( ClientDisconnectedException $e )
+		{
+			$this->clients->remove( $client );
 
-		socket_select( $reads, $writes, $exepts, 0 );
-
-		return array_intersect_key( $this->clients, $reads );
-	}
-
-	private function removeClient( IdentifiesClient $clientId ) : void
-	{
-		unset( $this->clients[ $clientId->toString() ] );
+			return null;
+		}
 	}
 
 	private function handleMessageFromClient( ConsumesMessages $client, CarriesInformation $message ) : void

@@ -12,6 +12,7 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMocking;
 use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -22,21 +23,24 @@ use Psr\Log\NullLogger;
  */
 final class ConsumeRequestHandlerTest extends TestCase
 {
+	use StorageMocking;
 	use SocketMocking;
 
 	public function setUp() : void
 	{
+		$this->setUpStorage();
 		$this->setUpSockets();
 	}
 
 	public function tearDown() : void
 	{
 		$this->tearDownSockets();
+		$this->tearDownStorage();
 	}
 
 	public function testAcceptsConsumeRequestMessages() : void
 	{
-		$handler = new ConsumeRequestHandler();
+		$handler = new ConsumeRequestHandler( $this->messageQueue );
 		$handler->setLogger( new NullLogger() );
 		$messageType = new MessageType( MessageType::CONSUME_REQUEST );
 
@@ -48,13 +52,13 @@ final class ConsumeRequestHandlerTest extends TestCase
 		$client         = new Client( ClientId::generate(), $this->socketClient, new MessageBuilder() );
 		$queueName      = new QueueName( 'Test-Queue' );
 		$consumeRequest = new ConsumeRequest( $queueName, 5 );
-		$handler        = new ConsumeRequestHandler();
+		$handler        = new ConsumeRequestHandler( $this->messageQueue );
 		$handler->setLogger( new NullLogger() );
 
 		$handler->handle( $consumeRequest, $client );
 
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( $queueName, $client->getConsumptionQueueName() );
-		$this->assertSame( 5, $client->getConsumptionMessageCount() );
+		$this->assertTrue( $client->getConsumptionInfo()->canConsume() );
+		$this->assertSame( $queueName, $client->getConsumptionInfo()->getQueueName() );
+		$this->assertSame( 5, $client->getConsumptionInfo()->getMessageCount() );
 	}
 }

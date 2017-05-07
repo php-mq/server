@@ -28,4 +28,9 @@ final class QueueName implements IdentifiesQueue
 	{
 		return $this->queueName;
 	}
+
+	public function equals( IdentifiesQueue $other ) : bool
+	{
+		return ($this->toString() === $other->toString());
+	}
 }

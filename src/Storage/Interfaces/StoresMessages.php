@@ -21,6 +21,8 @@ interface StoresMessages
 
 	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
 
+	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
+
 	/**
 	 * @param IdentifiesQueue $queueName
 	 * @param int             $countMessages

@@ -57,14 +57,18 @@ final class AcknowledgementHandler implements HandlesMessage
 
 		$this->logger->debug( '√ Message dequeued' );
 
-		$client->acknowledgeMessage( $message->getQueueName(), $message->getMessageId() );
+		$consumptionInfo = $client->getConsumptionInfo();
+
+		if ( $consumptionInfo->getQueueName()->equals( $message->getQueueName() ) )
+		{
+			$consumptionInfo->removeMessageId( $message->getMessageId() );
+		}
 
 		$this->logger->debug(
 			sprintf(
-				'√ Updated consumption info of client: %s to queue "%s" and count "%s".',
+				'√ Updated consumption info of client: %s to %s',
 				$client->getClientId()->toString(),
-				$client->getConsumptionQueueName()->toString(),
-				$client->getConsumptionMessageCount()
+				$consumptionInfo->toString()
 			)
 		);
 

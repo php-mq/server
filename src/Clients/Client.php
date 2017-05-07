@@ -5,11 +5,13 @@
 
 namespace PHPMQ\Server\Clients;
 
+use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
+use PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException;
+use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
+use PHPMQ\Server\Clients\Exceptions\WriteFailedException;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
+use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
-use PHPMQ\Server\Exceptions\RuntimeException;
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
@@ -32,26 +34,15 @@ final class Client implements ConsumesMessages
 	/** @var BuildsMessages */
 	private $messageBuilder;
 
-	/** @var bool */
-	private $isDisconnected;
-
-	/** @var array|IdentifiesMessage */
-	private $consumedMessageIds;
-
-	/** @var int */
-	private $consumptionMessageCount;
-
-	/** @var IdentifiesQueue */
-	private $consumptionQueueName;
+	/** @var ProvidesConsumptionInfo */
+	private $consumptionInfo;
 
 	public function __construct( IdentifiesClient $clientId, $socket, BuildsMessages $messageBuilder )
 	{
-		$this->clientId                = $clientId;
-		$this->socket                  = $socket;
-		$this->messageBuilder          = $messageBuilder;
-		$this->isDisconnected          = false;
-		$this->consumedMessageIds      = [];
-		$this->consumptionMessageCount = 0;
+		$this->clientId        = $clientId;
+		$this->socket          = $socket;
+		$this->messageBuilder  = $messageBuilder;
+		$this->consumptionInfo = new NullConsumptionInfo();
 	}
 
 	public function getClientId() : IdentifiesClient
@@ -64,17 +55,18 @@ final class Client implements ConsumesMessages
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
 
-	public function readMessage() : ?CarriesInformation
+	/**
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
+	 * @return CarriesInformation
+	 */
+	public function readMessage() : CarriesInformation
 	{
 		$buffer = '';
 		$bytes  = socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
 
 		$this->guardReadBytes( $bytes );
-
-		if ( $this->hasClientClosedConnection( $buffer ) )
-		{
-			return null;
-		}
+		$this->guardClientIsConnected( $buffer );
 
 		$messageHeader = MessageHeader::fromString( $buffer );
 		$packetCount   = $messageHeader->getMessageType()->getPacketCount();
@@ -86,22 +78,14 @@ final class Client implements ConsumesMessages
 			$buffer = '';
 			$bytes  = socket_recv( $this->socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
 			$this->guardReadBytes( $bytes );
-
-			if ( $this->hasClientClosedConnection( $buffer ) )
-			{
-				return null;
-			}
+			$this->guardClientIsConnected( $buffer );
 
 			$packetHeader = PacketHeader::fromString( $buffer );
 
 			$buffer = '';
 			$bytes  = socket_recv( $this->socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
 			$this->guardReadBytes( $bytes );
-
-			if ( $this->hasClientClosedConnection( $buffer ) )
-			{
-				return null;
-			}
+			$this->guardClientIsConnected( $buffer );
 
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
@@ -109,83 +93,66 @@ final class Client implements ConsumesMessages
 		return $this->messageBuilder->buildMessage( $messageHeader, $packets );
 	}
 
+	/**
+	 * @param bool|null|int $bytes
+	 *
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
+	 */
 	private function guardReadBytes( $bytes ) : void
 	{
 		if ( false === $bytes )
 		{
-			throw new RuntimeException(
+			throw new ReadFailedException(
 				'socket_recv() failed; reason: '
 				. socket_strerror( socket_last_error( $this->socket ) )
 			);
 		}
 	}
 
-	private function hasClientClosedConnection( ?string $buffer ) : bool
+	/**
+	 * @param null|string $buffer
+	 *
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 */
+	private function guardClientIsConnected( ?string $buffer ) : void
 	{
 		if ( null === $buffer )
 		{
-			$this->isDisconnected = true;
-
-			return true;
+			throw new ClientDisconnectedException(
+				sprintf( 'Client has disconnected. [Client ID: %s]', $this->clientId )
+			);
 		}
-
-		return false;
 	}
 
-	public function isDisconnected() : bool
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void
 	{
-		return $this->isDisconnected;
-	}
-
-	public function updateConsumptionInfo( IdentifiesQueue $queueName, int $messageCount ) : void
-	{
-		$this->consumptionQueueName    = $queueName;
-		$this->consumptionMessageCount = $messageCount;
-
-		if ( !isset( $this->consumedMessageIds[ $queueName->toString() ] ) )
+		if ( count( $this->consumptionInfo->getMessageIds() ) > 0 )
 		{
-			$this->consumedMessageIds[ $queueName->toString() ] = [];
-		}
-	}
-
-	public function canConsumeMessages() : bool
-	{
-		return ($this->getConsumptionMessageCount() > 0);
-	}
-
-	public function getConsumptionMessageCount() : int
-	{
-		$queueName = '';
-		if ( null !== $this->consumptionQueueName )
-		{
-			$queueName = $this->consumptionQueueName->toString();
+			throw new ClientHasPendingMessagesException( 'Cannot update consumption info.' );
 		}
 
-		return ($this->consumptionMessageCount - count( $this->consumedMessageIds[ $queueName ] ?? [] ));
+		$this->consumptionInfo = $consumptionInfo;
 	}
 
-	public function getConsumptionQueueName() : IdentifiesQueue
+	public function getConsumptionInfo() : ProvidesConsumptionInfo
 	{
-		return $this->consumptionQueueName;
+		return $this->consumptionInfo;
 	}
 
+	/**
+	 * @param MessageE2C $message
+	 *
+	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
+	 */
 	public function consumeMessage( MessageE2C $message ) : void
 	{
 		$bytes = socket_write( $this->socket, $message->toString() );
 
 		if ( false === $bytes )
 		{
-			throw new RuntimeException( 'Could not write message to client socket.' );
+			throw new WriteFailedException( 'Could not write message to client socket.' );
 		}
 
-		$this->consumedMessageIds[ $message->getQueueName()->toString() ][] = $message->getMessageId();
-	}
-
-	public function acknowledgeMessage( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
-	{
-		$key         = $queueName->toString();
-		$consumedIds = $this->consumedMessageIds[ $key ] ?? [];
-
-		$this->consumedMessageIds[ $key ] = array_diff( $consumedIds, [ $messageId ] );
+		$this->consumptionInfo->addMessageId( $message->getMessageId() );
 	}
 }

@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Tests\Unit\MessageHandlers;
 
 use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\MessageHandlers\AcknowledgementHandler;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
@@ -54,7 +55,10 @@ final class AcknowledgementHandlerTest extends TestCase
 	{
 		$queueName = new QueueName( 'Test-Queue' );
 		$client    = new Client( ClientId::generate(), $this->socketClient, new MessageBuilder() );
-		$client->updateConsumptionInfo( $queueName, 1 );
+
+		$consumptionInfo = new ConsumptionInfo( $queueName, 1 );
+
+		$client->updateConsumptionInfo( $consumptionInfo );
 
 		$messageId       = MessageId::generate();
 		$message         = new Message( $messageId, 'Unit-Test' );
@@ -68,7 +72,7 @@ final class AcknowledgementHandlerTest extends TestCase
 
 		$this->messageQueue->markAsDispached( $queueName, $messageId );
 
-		$this->assertFalse( $client->canConsumeMessages() );
+		$this->assertFalse( $client->getConsumptionInfo()->canConsume() );
 
 		$this->assertSame( 0, $this->messageQueue->getQueueStatus( $queueName )->getCountUndispatched() );
 		$this->assertSame( 1, $this->messageQueue->getQueueStatus( $queueName )->getCountDispatched() );
@@ -82,6 +86,6 @@ final class AcknowledgementHandlerTest extends TestCase
 		$this->assertSame( 0, $this->messageQueue->getQueueStatus( $queueName )->getCountDispatched() );
 		$this->assertSame( 0, $this->messageQueue->getQueueStatus( $queueName )->getCountTotal() );
 
-		$this->assertTrue( $client->canConsumeMessages() );
+		$this->assertTrue( $client->getConsumptionInfo()->canConsume() );
 	}
 }

@@ -5,6 +5,8 @@
 
 namespace PHPMQ\Server;
 
+use PHPMQ\Server\Clients\ClientCollection;
+use PHPMQ\Server\DisconnectHandlers\ClientDisconnectHandler;
 use PHPMQ\Server\Endpoint\Constants\SocketDomain;
 use PHPMQ\Server\Endpoint\Constants\SocketType;
 use PHPMQ\Server\Endpoint\Endpoint;
@@ -61,7 +63,7 @@ $logger = new class extends AbstractLogger
 {
 	public function log( $level, $message, array $context = [] )
 	{
-		printf( "%s\n", sprintf( $message, ...$context ) );
+		printf( "[%s]: %s\n", $level, sprintf( $message, ...$context ) );
 	}
 };
 
@@ -69,12 +71,18 @@ $storage    = new MessageQueueSQLite( $storageConfig );
 $dispatcher = new MessageDispatcher( $storage );
 $dispatcher->setLogger( $logger );
 
-$endoint = new Endpoint( $endpointConfig, $dispatcher );
+$clientCollection = new ClientCollection( $dispatcher );
+$clientCollection->setLogger( $logger );
+
+$clientDisconnectHandler = new ClientDisconnectHandler( $storage );
+$clientCollection->addDisconnectHandlers( $clientDisconnectHandler );
+
+$endoint = new Endpoint( $endpointConfig, $clientCollection );
 $endoint->setLogger( $logger );
 
 $endoint->addMessageHandlers(
 	new MessageC2EHandler( $storage ),
-	new ConsumeRequestHandler(),
+	new ConsumeRequestHandler( $storage ),
 	new AcknowledgementHandler( $storage )
 );
 

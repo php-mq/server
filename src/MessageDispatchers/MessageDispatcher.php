@@ -33,21 +33,22 @@ final class MessageDispatcher implements DispatchesMessages
 	 */
 	public function dispatchMessages( ConsumesMessages $client ) : void
 	{
-		if ( !$client->canConsumeMessages() )
+		$consumptionInfo = $client->getConsumptionInfo();
+
+		if ( !$consumptionInfo->canConsume() )
 		{
 			return;
 		}
 
-		$queueName    = $client->getConsumptionQueueName();
-		$messageCount = $client->getConsumptionMessageCount();
+		$queueName    = $consumptionInfo->getQueueName();
+		$messageCount = $consumptionInfo->getMessageCount();
 		$messages     = $this->storage->getUndispatched( $queueName, $messageCount );
 
 		foreach ( $messages as $message )
 		{
-			$this->logger->debug( '' );
 			$this->logger->debug(
 				sprintf(
-					"Dispatching messages %s to client %s.",
+					'Dispatching messages %s to client %s.',
 					$message->getMessageId(),
 					$client->getClientId()
 				)
@@ -57,12 +58,11 @@ final class MessageDispatcher implements DispatchesMessages
 
 			$client->consumeMessage( $messageE2C );
 
-			$this->logger->debug( '√ Message sent.' );
+			$this->logger->debug( '√ Message sent: ' . $message->getMessageId() );
 
 			$this->storage->markAsDispached( $queueName, $message->getMessageId() );
 
-			$this->logger->debug( '√ Message marked as dispatched.' );
-			$this->logger->debug( '' );
+			$this->logger->debug( '√ Message marked as dispatched: ' . $message->getMessageId() );
 		}
 	}
 }

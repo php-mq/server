@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Tests\Unit\Clients;
 
 use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
@@ -32,16 +33,6 @@ final class ClientTest extends TestCase
 		$this->tearDownSockets();
 	}
 
-	public function testClientIsNotDisconnectedAfterConstruction() : void
-	{
-		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
-
-		$this->assertSame( $clientId, $client->getClientId() );
-		$this->assertSame( (string)$clientId, $client->getClientId()->toString() );
-		$this->assertFalse( $client->isDisconnected() );
-	}
-
 	public function testCanCollectSocket() : void
 	{
 		$clientId        = ClientId::generate();
@@ -63,30 +54,29 @@ final class ClientTest extends TestCase
 		$clientId = ClientId::generate();
 		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
-		$this->assertFalse( $client->canConsumeMessages() );
-		$this->assertSame( 0, $client->getConsumptionMessageCount() );
+		$this->assertFalse( $client->getConsumptionInfo()->canConsume() );
+		$this->assertSame( 0, $client->getConsumptionInfo()->getMessageCount() );
 	}
 
-	public function testCanUpdateConsumptionCount() : void
+	/**
+	 * @expectedException \PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException
+	 */
+	public function testWhenHavingPendingMessagesUpdateConsumptionThrowsException() : void
 	{
 		$queueName = new QueueName( 'Test-Queue' );
 		$clientId  = ClientId::generate();
 		$client    = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
-		$client->updateConsumptionInfo( $queueName, 5 );
+		$consumptionInfo = new ConsumptionInfo( $queueName, 5 );
+		$client->updateConsumptionInfo( $consumptionInfo );
 
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( 5, $client->getConsumptionMessageCount() );
+		$messageId = MessageId::generate();
+		$message   = new MessageE2C( $messageId, $queueName, 'Unit-Test' );
 
-		$client->updateConsumptionInfo( $queueName, 3 );
+		$client->consumeMessage( $message );
 
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( 3, $client->getConsumptionMessageCount() );
-
-		$client->updateConsumptionInfo( $queueName, 0 );
-
-		$this->assertFalse( $client->canConsumeMessages() );
-		$this->assertSame( 0, $client->getConsumptionMessageCount() );
+		$consumptionInfo = new ConsumptionInfo( new QueueName( 'Other-Queue' ), 5 );
+		$client->updateConsumptionInfo( $consumptionInfo );
 	}
 
 	public function testCanConsumeMessages() : void
@@ -95,36 +85,15 @@ final class ClientTest extends TestCase
 		$clientId  = ClientId::generate();
 		$client    = new Client( $clientId, $this->socketClient, new MessageBuilder() );
 
-		$client->updateConsumptionInfo( $queueName, 5 );
-
-		$messageId = MessageId::generate();
-		$message = new MessageE2C( $messageId, $queueName, 'Unit-Test' );
-
-		$client->consumeMessage( $message );
-
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( 4, $client->getConsumptionMessageCount() );
-	}
-
-	public function testCanAcknowledgeMessages() : void
-	{
-		$queueName = new QueueName( 'Test-Queue' );
-		$clientId  = ClientId::generate();
-		$client    = new Client( $clientId, $this->socketClient, new MessageBuilder() );
-
-		$client->updateConsumptionInfo( $queueName, 5 );
+		$consumptionInfo = new ConsumptionInfo( $queueName, 5 );
+		$client->updateConsumptionInfo( $consumptionInfo );
 
 		$messageId = MessageId::generate();
 		$message   = new MessageE2C( $messageId, $queueName, 'Unit-Test' );
 
 		$client->consumeMessage( $message );
 
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( 4, $client->getConsumptionMessageCount() );
-
-		$client->acknowledgeMessage( $queueName, $messageId );
-
-		$this->assertTrue( $client->canConsumeMessages() );
-		$this->assertSame( 5, $client->getConsumptionMessageCount() );
+		$this->assertTrue( $client->getConsumptionInfo()->canConsume() );
+		$this->assertSame( 4, $client->getConsumptionInfo()->getMessageCount() );
 	}
 }

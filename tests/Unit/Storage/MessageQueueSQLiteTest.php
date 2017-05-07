@@ -9,6 +9,7 @@ use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMocking;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\MessageQueueStatus;
 use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
@@ -82,6 +83,32 @@ final class MessageQueueSQLiteTest extends TestCase
 		$this->assertSame( 1, $status->getCountDispatched() );
 	}
 
+	public function testCanMarkMessagesAsUndispatched() : void
+	{
+		$queueName = new QueueName( 'TestQueue' );
+		$message   = $this->getMessage( 'unit-test' );
+
+		$this->messageQueue->enqueue( $queueName, $message );
+
+		$this->messageQueue->markAsDispached( $queueName, $message->getMessageId() );
+
+		$status = $this->messageQueue->getQueueStatus( $queueName );
+
+		$this->assertEquals( $queueName, $status->getQueueName() );
+		$this->assertSame( 1, $status->getCountTotal() );
+		$this->assertSame( 0, $status->getCountUndispatched() );
+		$this->assertSame( 1, $status->getCountDispatched() );
+
+		$this->messageQueue->markAsUndispatched( $queueName, $message->getMessageId() );
+
+		$status = $this->messageQueue->getQueueStatus( $queueName );
+
+		$this->assertEquals( $queueName, $status->getQueueName() );
+		$this->assertSame( 1, $status->getCountTotal() );
+		$this->assertSame( 1, $status->getCountUndispatched() );
+		$this->assertSame( 0, $status->getCountDispatched() );
+	}
+
 	public function testCanDequeueMessages() : void
 	{
 		$queueName = new QueueName( 'TestQueue' );
@@ -135,5 +162,77 @@ final class MessageQueueSQLiteTest extends TestCase
 			$expectedMessages,
 			iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) )
 		);
+	}
+
+	public function testCanFlushAQueue() : void
+	{
+		$queueName = new QueueName( 'TestQueue' );
+		$message1  = $this->getMessage( 'unit-test' );
+		$message2  = $this->getMessage( 'test-unit' );
+		$message3  = $this->getMessage( 'last' );
+
+		$this->messageQueue->enqueue( $queueName, $message1 );
+		$this->messageQueue->enqueue( $queueName, $message2 );
+		$this->messageQueue->enqueue( $queueName, $message3 );
+
+		$status = $this->messageQueue->getQueueStatus( $queueName );
+
+		$this->assertSame( 3, $status->getCountTotal() );
+		$this->assertSame( 3, $status->getCountUndispatched() );
+		$this->assertSame( 0, $status->getCountDispatched() );
+
+		$this->messageQueue->flushQueue( $queueName );
+
+		$status = $this->messageQueue->getQueueStatus( $queueName );
+
+		$this->assertSame( 0, $status->getCountTotal() );
+		$this->assertSame( 0, $status->getCountUndispatched() );
+		$this->assertSame( 0, $status->getCountDispatched() );
+	}
+
+	public function testCanFlushAllQueues() : void
+	{
+		$queueName1 = new QueueName( 'TestQueue1' );
+		$queueName2 = new QueueName( 'TestQueue2' );
+		$message1   = $this->getMessage( 'unit-test' );
+		$message2   = $this->getMessage( 'test-unit' );
+		$message3   = $this->getMessage( 'last' );
+
+		$expectedQueueStatus = [
+			new MessageQueueStatus(
+				[
+					'queueName'         => 'TestQueue1',
+					'countTotal'        => 3,
+					'countUndispatched' => 3,
+					'countDispatched'   => 0,
+				]
+			),
+			new MessageQueueStatus(
+				[
+					'queueName'         => 'TestQueue2',
+					'countTotal'        => 3,
+					'countUndispatched' => 3,
+					'countDispatched'   => 0,
+				]
+			),
+		];
+
+		$this->messageQueue->enqueue( $queueName1, $message1 );
+		$this->messageQueue->enqueue( $queueName1, $message2 );
+		$this->messageQueue->enqueue( $queueName1, $message3 );
+
+		$this->messageQueue->enqueue( $queueName2, $message1 );
+		$this->messageQueue->enqueue( $queueName2, $message2 );
+		$this->messageQueue->enqueue( $queueName2, $message3 );
+
+		$status = $this->messageQueue->getAllQueueStatus();
+
+		$this->assertEquals( $expectedQueueStatus, iterator_to_array( $status ) );
+
+		$this->messageQueue->flushAllQueues();
+
+		$status = $this->messageQueue->getAllQueueStatus();
+
+		$this->assertEquals( [], iterator_to_array( $status ) );
 	}
 }
