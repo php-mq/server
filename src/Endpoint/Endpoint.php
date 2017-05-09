@@ -11,11 +11,12 @@ use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
 use PHPMQ\Server\Clients\Interfaces\CollectsClients;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
-use PHPMQ\Server\Endpoint\Interfaces\AcceptsMessageHandlers;
+use PHPMQ\Server\Endpoint\Events\ClientHasConnectedEvent;
+use PHPMQ\Server\Endpoint\Events\ClientHasDisconnectedEvent;
+use PHPMQ\Server\Endpoint\Events\ClientMessageWasReceivedEvent;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
-use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
-use PHPMQ\Server\Endpoint\Interfaces\HandlesMessage;
 use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
+use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -26,7 +27,7 @@ use Psr\Log\LoggerAwareTrait;
  * Class Endpoint
  * @package PHPMQ\Server\Endpoint
  */
-final class Endpoint implements ListensToClients, AcceptsMessageHandlers, LoggerAwareInterface
+final class Endpoint implements ListensToClients, LoggerAwareInterface
 {
 	use LoggerAwareTrait;
 
@@ -45,26 +46,20 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 	/** @var BuildsMessages */
 	private $messageBuilder;
 
-	/** @var array|HandlesMessage[] */
-	private $messageHandlers;
+	/** @var PublishesEvents */
+	private $eventBus;
 
-	public function __construct( ConfiguresEndpoint $config, CollectsClients $clientCollection )
+	public function __construct(
+		ConfiguresEndpoint $config,
+		CollectsClients $clientCollection,
+		PublishesEvents $eventBus
+	)
 	{
-		$this->config          = $config;
-		$this->clients         = $clientCollection;
-		$this->listening       = false;
-		$this->messageBuilder  = new MessageBuilder();
-		$this->messageHandlers = [];
-	}
-
-	public function addMessageHandlers( HandlesMessage ...$messageHandlers ) : void
-	{
-		foreach ( $messageHandlers as $messageHandler )
-		{
-			$messageHandler->setLogger( $this->logger );
-
-			$this->messageHandlers[] = $messageHandler;
-		}
+		$this->config         = $config;
+		$this->clients        = $clientCollection;
+		$this->listening      = false;
+		$this->messageBuilder = new MessageBuilder();
+		$this->eventBus       = $eventBus;
 	}
 
 	public function startListening() : void
@@ -77,6 +72,8 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 
 		while ( $this->listening )
 		{
+			usleep( 2000 );
+
 			$this->checkForNewClient();
 
 			foreach ( $this->clients->getActive() as $client )
@@ -132,6 +129,8 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 			$clientId = ClientId::generate();
 			$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
 
+			$this->eventBus->publishEvent( new ClientHasConnectedEvent( $client ) );
+
 			$this->clients->add( $client );
 		}
 	}
@@ -150,21 +149,18 @@ final class Endpoint implements ListensToClients, AcceptsMessageHandlers, Logger
 		}
 		catch ( ClientDisconnectedException $e )
 		{
+			$this->eventBus->publishEvent( new ClientHasDisconnectedEvent( $client ) );
+
 			$this->clients->remove( $client );
 
 			return null;
 		}
 	}
 
-	private function handleMessageFromClient( ConsumesMessages $client, CarriesInformation $message ) : void
+	private function handleMessageFromClient( Client $client, CarriesInformation $message ) : void
 	{
-		foreach ( $this->messageHandlers as $messageHandler )
-		{
-			if ( $messageHandler->acceptsMessageType( $message->getMessageType() ) )
-			{
-				$messageHandler->handle( $message, $client );
-			}
-		}
+		$event = new ClientMessageWasReceivedEvent( $message, $client );
+		$this->eventBus->publishEvent( $event );
 	}
 
 	public function endListening() : void

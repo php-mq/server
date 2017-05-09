@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Tests\Unit\Protocol;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Headers;
 
 use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
-use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageHeaderTest
- * @package PHPMQ\Server\Tests\Unit\Protocol
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Headers
  */
 final class MessageHeaderTest extends TestCase
 {

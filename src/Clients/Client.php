@@ -13,11 +13,11 @@ use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
-use PHPMQ\Server\Protocol\MessageHeader;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
-use PHPMQ\Server\Protocol\PacketHeader;
 
 /**
  * Class Client

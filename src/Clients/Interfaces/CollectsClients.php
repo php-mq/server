@@ -6,13 +6,12 @@
 namespace PHPMQ\Server\Clients\Interfaces;
 
 use PHPMQ\Server\Clients\Client;
-use Psr\Log\LoggerAwareInterface;
 
 /**
  * Interface CollectsClients
  * @package PHPMQ\Server\Clients\Interfaces
  */
-interface CollectsClients extends LoggerAwareInterface
+interface CollectsClients
 {
 	public function add( Client $client ) : void;
 

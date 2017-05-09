@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Protocol;
+namespace PHPMQ\Server\Protocol\Headers;
 
 /**
  * Class PacketHeader
- * @package PHPMQ\Server\Protocol
+ * @package PHPMQ\Server\Protocol\Headers
  */
-final class PacketHeader extends AbstractPacket
+final class PacketHeader extends AbstractHeader
 {
 	private const PACKET_ID = 'P';
 

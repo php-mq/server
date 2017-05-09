@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Tests\Unit\Protocol;
+namespace PHPMQ\Server\Tests\Unit\Protocol\Headers;
 
 use PHPMQ\Server\Protocol\Constants\PacketType;
-use PHPMQ\Server\Protocol\PacketHeader;
+use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class PacketHeaderTest
- * @package PHPMQ\Server\Tests\Unit\Protocol
+ * @package PHPMQ\Server\Tests\Unit\Protocol\Headers
  */
 final class PacketHeaderTest extends TestCase
 {

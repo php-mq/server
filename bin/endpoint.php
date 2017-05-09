@@ -6,17 +6,16 @@
 namespace PHPMQ\Server;
 
 use PHPMQ\Server\Clients\ClientCollection;
-use PHPMQ\Server\DisconnectHandlers\ClientDisconnectHandler;
 use PHPMQ\Server\Endpoint\Constants\SocketDomain;
 use PHPMQ\Server\Endpoint\Constants\SocketType;
 use PHPMQ\Server\Endpoint\Endpoint;
+use PHPMQ\Server\Endpoint\EventBus;
+use PHPMQ\Server\Endpoint\EventListeners\ClientConnectionEventListener;
+use PHPMQ\Server\Endpoint\EventListeners\ClientMessageReceivedEventListener;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
 use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\MessageDispatchers\MessageDispatcher;
-use PHPMQ\Server\MessageHandlers\AcknowledgementHandler;
-use PHPMQ\Server\MessageHandlers\ConsumeRequestHandler;
-use PHPMQ\Server\MessageHandlers\MessageC2EHandler;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
 use Psr\Log\AbstractLogger;
@@ -72,18 +71,15 @@ $dispatcher = new MessageDispatcher( $storage );
 $dispatcher->setLogger( $logger );
 
 $clientCollection = new ClientCollection( $dispatcher );
-$clientCollection->setLogger( $logger );
 
-$clientDisconnectHandler = new ClientDisconnectHandler( $storage );
-$clientCollection->addDisconnectHandlers( $clientDisconnectHandler );
-
-$endoint = new Endpoint( $endpointConfig, $clientCollection );
-$endoint->setLogger( $logger );
-
-$endoint->addMessageHandlers(
-	new MessageC2EHandler( $storage ),
-	new ConsumeRequestHandler( $storage ),
-	new AcknowledgementHandler( $storage )
+$eventBus = new EventBus();
+$eventBus->setLogger( $logger );
+$eventBus->addEventListeners(
+	new ClientMessageReceivedEventListener( $storage ),
+	new ClientConnectionEventListener( $storage )
 );
+
+$endoint = new Endpoint( $endpointConfig, $clientCollection, $eventBus );
+$endoint->setLogger( $logger );
 
 $endoint->startListening();

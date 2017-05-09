@@ -8,10 +8,10 @@ namespace PHPMQ\Server\Protocol\Messages;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Protocol\Constants\PacketType;
 use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
-use PHPMQ\Server\Protocol\MessageHeader;
-use PHPMQ\Server\Protocol\PacketHeader;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\Traits\StringRepresenting;
 

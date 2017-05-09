@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Protocol;
+namespace PHPMQ\Server\Protocol\Headers;
 
 use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
 use PHPMQ\Server\Protocol\Types\MessageType;
 
 /**
  * Class MessageHeader
- * @package PHPMQ\Server\Protocol
+ * @package PHPMQ\Server\Protocol\Headers
  */
-final class MessageHeader extends AbstractPacket
+final class MessageHeader extends AbstractHeader
 {
 	private const PACKET_ID = 'H';
 

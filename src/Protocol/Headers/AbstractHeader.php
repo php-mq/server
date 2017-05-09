@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Protocol;
+namespace PHPMQ\Server\Protocol\Headers;
 
 use PHPMQ\Server\Interfaces\RepresentsString;
 use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
- * Class AbstractPacket
- * @package PHPMQ\Server\Protocol
+ * Class AbstractHeader
+ * @package PHPMQ\Server\Protocol\Headers
  */
-abstract class AbstractPacket implements RepresentsString
+abstract class AbstractHeader implements RepresentsString
 {
 	use StringRepresenting;
 

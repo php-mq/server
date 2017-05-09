@@ -7,8 +7,8 @@ namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
 use PHPMQ\Server\Protocol\Constants\PacketType;
 use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
-use PHPMQ\Server\Protocol\MessageHeader;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;

@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Protocol\Interfaces;
 
-use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
 
 /**
  * Interface BuildsMessages

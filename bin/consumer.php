@@ -6,12 +6,12 @@
 namespace PHPMQ\Server;
 
 use PHPMQ\Server\Protocol\Constants\PacketLength;
-use PHPMQ\Server\Protocol\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
-use PHPMQ\Server\Protocol\PacketHeader;
 use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
