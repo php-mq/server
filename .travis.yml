@@ -21,6 +21,7 @@ before_script:
  - mkdir -p vendor/bin
  - composer install -o --prefer-dist --no-interaction
  - mkdir build/logs
+ - echo 'extension = "redis.so"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script:
  - php vendor/bin/phpunit.phar -c build/
