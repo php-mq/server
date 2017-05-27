@@ -1,6 +1,6 @@
 {
 	"name": "php-mq/server",
-	"description": "PHPMQ",
+	"description": "PHP message queue server",
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"license": "MIT",
@@ -35,7 +35,7 @@
 	"extra": {
 		"tools": {
 			"phpunit": {
-				"url": "https://phar.phpunit.de/phpunit-6.1.0.phar",
+				"url": "https://phar.phpunit.de/phpunit-6.1.4.phar",
 				"only-dev": true
 			},
 			"coveralls": {
@@ -43,7 +43,7 @@
 				"only-dev": true
 			},
 			"phpmetrics": {
-				"url": "https://github.com/phpmetrics/PhpMetrics/releases/download/v2.1.0/phpmetrics.phar",
+				"url": "https://github.com/phpmetrics/PhpMetrics/releases/download/v2.2.0/phpmetrics.phar",
 				"only-dev": true
 			}
 		}
