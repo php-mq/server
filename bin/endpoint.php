@@ -16,7 +16,7 @@ use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
 use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\MessageDispatchers\MessageDispatcher;
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
 use Psr\Log\AbstractLogger;
 
@@ -50,7 +50,7 @@ $endpointConfig = new class implements ConfiguresEndpoint
 	}
 };
 
-$storageConfig = new class implements ConfiguresMessageQueue
+$storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
 	public function getMessageQueuePath() : string
 	{

@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Tests\Unit\Storage;
 
 use PHPMQ\Server\Interfaces\CarriesInformation;
-use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\MessageQueueStatus;
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class MessageQueueSQLiteTest extends TestCase
 {
-	use StorageMocking;
+	use StorageMockingSQLite;
 
 	public function setUp() : void
 	{

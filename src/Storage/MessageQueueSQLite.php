@@ -9,7 +9,7 @@ use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
@@ -47,13 +47,13 @@ final class MessageQueueSQLite implements StoresMessages
 		 CREATE UNIQUE INDEX messageIdQueueName ON `queue` (`messageId`, `queueName`);
 		 COMMIT;';
 
-	/** @var ConfiguresMessageQueue */
+	/** @var ConfiguresMessageQueueSQLite */
 	private $config;
 
 	/** @var \PDO */
 	private $pdo;
 
-	public function __construct( ConfiguresMessageQueue $config )
+	public function __construct( ConfiguresMessageQueueSQLite $config )
 	{
 		$this->config = $config;
 	}

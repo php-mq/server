@@ -5,22 +5,22 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueue;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
 
 /**
- * Trait StorageMocking
+ * Trait StorageMockingSQLite
  * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
  */
-trait StorageMocking
+trait StorageMockingSQLite
 {
 	/** @var StoresMessages */
 	private $messageQueue;
 
 	public function setUpStorage() : void
 	{
-		$config = new class() implements ConfiguresMessageQueue
+		$config = new class() implements ConfiguresMessageQueueSQLite
 		{
 			public function getMessageQueuePath() : string
 			{
