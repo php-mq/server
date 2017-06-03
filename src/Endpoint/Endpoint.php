@@ -10,13 +10,9 @@ use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
 use PHPMQ\Server\Clients\Interfaces\CollectsClients;
 use PHPMQ\Server\Clients\Types\ClientId;
-use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
-use PHPMQ\Server\Endpoint\Events\ClientHasConnectedEvent;
-use PHPMQ\Server\Endpoint\Events\ClientHasDisconnectedEvent;
-use PHPMQ\Server\Endpoint\Events\ClientMessageWasReceivedEvent;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
+use PHPMQ\Server\Endpoint\Interfaces\HandlesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
-use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -46,47 +42,63 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	/** @var BuildsMessages */
 	private $messageBuilder;
 
-	/** @var PublishesEvents */
-	private $eventBus;
+	/** @var HandlesMessages */
+	private $messageHandler;
 
 	public function __construct(
 		ConfiguresEndpoint $config,
 		CollectsClients $clientCollection,
-		PublishesEvents $eventBus
+		HandlesMessages $messageHandler
 	)
 	{
 		$this->config         = $config;
 		$this->clients        = $clientCollection;
 		$this->listening      = false;
 		$this->messageBuilder = new MessageBuilder();
-		$this->eventBus       = $eventBus;
+		$this->messageHandler = $messageHandler;
 	}
 
 	public function startListening() : void
 	{
+		$this->registerSignalHandler();
 		$this->establishSocket();
 
 		$this->listening = true;
 
 		$this->logger->debug( 'Start listening for client connections...' );
 
-		while ( $this->listening )
+		$this->loop();
+	}
+
+	private function registerSignalHandler() : void
+	{
+		if ( function_exists( 'pcntl_signal' ) )
 		{
-			usleep( 2000 );
+			pcntl_signal( SIGTERM, [ $this, 'shutDownBySignal' ] );
+			pcntl_signal( SIGINT, [ $this, 'shutDownBySignal' ] );
+		}
+	}
 
-			$this->checkForNewClient();
+	public function shutDownBySignal( int $signal ) : void
+	{
+		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
+		{
+			$this->endListening();
+			exit( 0 );
+		}
+	}
 
-			foreach ( $this->clients->getActive() as $client )
-			{
-				$message = $this->readMessageFromClient( $client );
+	public function endListening() : void
+	{
+		$this->listening = false;
 
-				if ( null !== $message )
-				{
-					$this->handleMessageFromClient( $client, $message );
-				}
-			}
+		if ( null !== $this->socket )
+		{
+			$this->logger->debug( 'Shutting down.' );
 
-			$this->clients->dispatchMessages();
+			$this->clients->shutDown();
+			socket_close( $this->socket );
+			$this->socket = null;
 		}
 	}
 
@@ -118,6 +130,22 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		socket_set_nonblock( $this->socket );
 	}
 
+	private function loop() : void
+	{
+		declare(ticks=1);
+
+		while ( $this->listening )
+		{
+			usleep( 2000 );
+
+			$this->checkForNewClient();
+
+			$this->readMessagesFromActiveClients();
+
+			$this->clients->dispatchMessages();
+		}
+	}
+
 	private function checkForNewClient() : void
 	{
 		$clientSocket = socket_accept( $this->socket );
@@ -129,9 +157,20 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 			$clientId = ClientId::generate();
 			$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
 
-			$this->eventBus->publishEvent( new ClientHasConnectedEvent( $client ) );
-
 			$this->clients->add( $client );
+		}
+	}
+
+	private function readMessagesFromActiveClients() : void
+	{
+		foreach ( $this->clients->getActive() as $client )
+		{
+			$message = $this->readMessageFromClient( $client );
+
+			if ( null !== $message )
+			{
+				$this->messageHandler->handle( $message, $client );
+			}
 		}
 	}
 
@@ -149,29 +188,9 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 		catch ( ClientDisconnectedException $e )
 		{
-			$this->eventBus->publishEvent( new ClientHasDisconnectedEvent( $client ) );
-
 			$this->clients->remove( $client );
 
 			return null;
-		}
-	}
-
-	private function handleMessageFromClient( Client $client, CarriesInformation $message ) : void
-	{
-		$event = new ClientMessageWasReceivedEvent( $message, $client );
-		$this->eventBus->publishEvent( $event );
-	}
-
-	public function endListening() : void
-	{
-		$this->listening = false;
-
-		if ( null !== $this->socket )
-		{
-			socket_shutdown( $this->socket, SocketShutdownMode::READING_WRITING );
-			socket_close( $this->socket );
-			$this->socket = null;
 		}
 	}
 

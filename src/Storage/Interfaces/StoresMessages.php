@@ -8,12 +8,13 @@ namespace PHPMQ\Server\Storage\Interfaces;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use Psr\Log\LoggerAwareInterface;
 
 /**
  * Interface StoresMessages
  * @package PHPMQ\Server\Storage\Interfaces
  */
-interface StoresMessages
+interface StoresMessages extends LoggerAwareInterface
 {
 	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void;
 

@@ -22,7 +22,7 @@ socket_set_nonblock( $socket );
 
 sleep( 1 );
 
-$consumeRequest = new ConsumeRequest( new QueueName( 'Test-Queue' ), 2 );
+$consumeRequest = new ConsumeRequest( new QueueName( 'Example-Queue' ), 1 );
 
 socket_write( $socket, $consumeRequest->toString() );
 

@@ -22,7 +22,7 @@ socket_set_nonblock( $socket );
 
 sleep( 1 );
 
-$consumeRequest = new ConsumeRequest( new QueueName( 'Test-Queue' ), 2 );
+$consumeRequest = new ConsumeRequest( new QueueName( 'Example-Queue' ), 2 );
 
 socket_write( $socket, $consumeRequest->toString() );
 
@@ -31,6 +31,8 @@ echo "Sent consume request\n";
 sleep( 1 );
 
 $messageBuilder = new MessageBuilder();
+
+$countAck = 0;
 
 while ( true )
 {
@@ -87,11 +89,18 @@ while ( true )
 
 		echo "\n{$message->toString()}\n";
 
+		if ( $countAck >= 10 )
+		{
+			break;
+		}
+
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 
 		socket_write( $socket, $acknowledgement->toString() );
 
 		echo "\n√ Message acknowledged.\n--\n";
+
+		$countAck++;
 	}
 }
 

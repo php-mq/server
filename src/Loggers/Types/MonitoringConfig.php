@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Types;
+namespace PHPMQ\Server\Loggers\Types;
 
 /**
  * Class MonitoringConfig
- * @package PHPMQ\Server\Types
+ * @package PHPMQ\Server\Loggers\Types
  */
 final class MonitoringConfig
 {
@@ -27,6 +27,11 @@ final class MonitoringConfig
 	public function isEnabled() : bool
 	{
 		return $this->isEnabled;
+	}
+
+	public function isDisabled() : bool
+	{
+		return !$this->isEnabled;
 	}
 
 	public static function fromCLIOptions() : self

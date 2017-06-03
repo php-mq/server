@@ -25,5 +25,15 @@ socket_write( $socket, $message2->toString() );
 
 echo "√ Sent message 'This is a second test'\n";
 
-socket_shutdown( $socket );
+$message1 = new MessageC2E( new QueueName( 'Example-Queue' ), 'This is a first test' );
+$message2 = new MessageC2E( new QueueName( 'Example-Queue' ), 'This is a second test' );
+
+socket_write( $socket, $message1->toString() );
+
+echo "√ Sent message 'This is a first test'\n";
+
+socket_write( $socket, $message2->toString() );
+
+echo "√ Sent message 'This is a second test'\n";
+
 socket_close( $socket );

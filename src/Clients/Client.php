@@ -11,6 +11,7 @@ use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
 use PHPMQ\Server\Clients\Exceptions\WriteFailedException;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
+use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
@@ -63,7 +64,7 @@ final class Client implements ConsumesMessages
 	public function readMessage() : CarriesInformation
 	{
 		$buffer = '';
-		$bytes  = socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
+		$bytes  = @socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
 
 		$this->guardReadBytes( $bytes );
 		$this->guardClientIsConnected( $buffer );
@@ -76,14 +77,14 @@ final class Client implements ConsumesMessages
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
 			$buffer = '';
-			$bytes  = socket_recv( $this->socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
+			$bytes  = @socket_recv( $this->socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
 			$this->guardReadBytes( $bytes );
 			$this->guardClientIsConnected( $buffer );
 
 			$packetHeader = PacketHeader::fromString( $buffer );
 
 			$buffer = '';
-			$bytes  = socket_recv( $this->socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
+			$bytes  = @socket_recv( $this->socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
 			$this->guardReadBytes( $bytes );
 			$this->guardClientIsConnected( $buffer );
 
@@ -146,7 +147,7 @@ final class Client implements ConsumesMessages
 	 */
 	public function consumeMessage( MessageE2C $message ) : void
 	{
-		$bytes = socket_write( $this->socket, $message->toString() );
+		$bytes = @socket_write( $this->socket, $message->toString() );
 
 		if ( false === $bytes )
 		{
@@ -154,5 +155,10 @@ final class Client implements ConsumesMessages
 		}
 
 		$this->consumptionInfo->addMessageId( $message->getMessageId() );
+	}
+
+	public function shutDown() : void
+	{
+		socket_shutdown( $this->socket, SocketShutdownMode::READING_WRITING );
 	}
 }

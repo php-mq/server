@@ -8,7 +8,7 @@ namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueRedis;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Storage\MessageQueueRedis;
-use PHPMQ\Server\Storage\MessageQueueSQLite;
+use Psr\Log\NullLogger;
 
 /**
  * Trait StorageMockingRedis
@@ -60,6 +60,7 @@ trait StorageMockingRedis
 		};
 
 		$this->messageQueue = new MessageQueueRedis( $config );
+		$this->messageQueue->setLogger( new NullLogger() );
 		$this->messageQueue->flushAllQueues();
 	}
 
