@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Monitors;
+namespace PHPMQ\Server\Loggers\Monitoring;
 
-use PHPMQ\Server\Loggers\Types\ServerMonitoringInfo;
+use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringInfo;
 
 /**
  * Class ServerMonitor
- * @package PHPMQ\Server\Monitors
+ * @package PHPMQ\Server\Loggers\Monitoring
  */
 final class ServerMonitor
 {

@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Types;
+namespace PHPMQ\Server\Loggers\Monitoring\Types;
 
 /**
- * Class MonitoringConfig
- * @package PHPMQ\Server\Loggers\Types
+ * Class ServerMonitoringConfig
+ * @package PHPMQ\Server\Loggers\Monitoring\Types
  */
-final class MonitoringConfig
+final class ServerMonitoringConfig
 {
 	/** @var bool */
 	private $isEnabled = false;
@@ -34,13 +34,17 @@ final class MonitoringConfig
 		return !$this->isEnabled;
 	}
 
-	public static function fromCLIOptions() : self
+	public static function fromCLIOptions( ?array $argv = null ) : self
 	{
-		$config = new self();
+		$config  = new self();
+		$options = [ '-m', '--monitor' ];
 
-		$options = getopt( 'm', [ 'monitor' ] );
+		if ( null === $argv )
+		{
+			$argv = $_SERVER['argv'];
+		}
 
-		if ( array_key_exists( 'm', $options ) || array_key_exists( 'monitor', $options ) )
+		if ( count( array_intersect( $options, $argv ) ) === 1 )
 		{
 			$config->enable();
 		}

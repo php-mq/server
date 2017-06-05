@@ -17,11 +17,11 @@ use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Endpoint\MessageHandler;
 use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\Loggers\CompositeLogger;
-use PHPMQ\Server\Loggers\ServerMonitorLogger;
-use PHPMQ\Server\Loggers\Types\MonitoringConfig;
-use PHPMQ\Server\Loggers\Types\ServerMonitoringInfo;
+use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
+use PHPMQ\Server\Loggers\Monitoring\ServerMonitoringLogger;
+use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringConfig;
+use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringInfo;
 use PHPMQ\Server\MessageDispatchers\MessageDispatcher;
-use PHPMQ\Server\Monitors\ServerMonitor;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
 use Psr\Log\AbstractLogger;
@@ -73,11 +73,11 @@ $outputLogger = new class extends AbstractLogger
 };
 
 $serverMonitor    = new ServerMonitor();
-$monitoringConfig = MonitoringConfig::fromCLIOptions();
+$monitoringConfig = ServerMonitoringConfig::fromCLIOptions();
 
 $logger = new CompositeLogger();
 $logger->addLoggers(
-	new ServerMonitorLogger( $monitoringConfig, $serverMonitor, new ServerMonitoringInfo() ),
+	new ServerMonitoringLogger( $monitoringConfig, $serverMonitor, new ServerMonitoringInfo() ),
 	$outputLogger
 );
 

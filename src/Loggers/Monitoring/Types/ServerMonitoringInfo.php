@@ -3,7 +3,7 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Types;
+namespace PHPMQ\Server\Loggers\Monitoring\Types;
 
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
@@ -12,7 +12,7 @@ use PHPMQ\Server\Types\QueueInfo;
 
 /**
  * Class ServerMonitoringInfo
- * @package PHPMQ\Server\Loggers\Types
+ * @package PHPMQ\Server\Loggers\Monitoring\Types
  */
 final class ServerMonitoringInfo
 {
@@ -29,7 +29,7 @@ final class ServerMonitoringInfo
 
 	public function decrementConnectedClients() : void
 	{
-		$this->connectedClientsCount--;
+		$this->connectedClientsCount = max( 0, $this->connectedClientsCount - 1 );
 	}
 
 	public function getConnectedClientsCount() : int

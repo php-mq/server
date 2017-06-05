@@ -11,7 +11,7 @@ use PHPMQ\Server\Endpoint\Events\ClientHasConnectedEvent;
 use PHPMQ\Server\Endpoint\Events\ClientHasDisconnectedEvent;
 use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
 use PHPMQ\Server\Interfaces\PublishesEvents;
-use PHPMQ\Server\Loggers\Constants\ServerMonitoring;
+use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
 use Psr\Log\LoggerAwareTrait;
 
 /**

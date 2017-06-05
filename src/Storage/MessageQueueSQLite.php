@@ -9,7 +9,7 @@ use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Loggers\Constants\ServerMonitoring;
+use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
