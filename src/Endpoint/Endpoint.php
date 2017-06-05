@@ -79,7 +79,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	public function shutDownBySignal( int $signal ) : void
+	private function shutDownBySignal( int $signal ) : void
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
