@@ -7,12 +7,9 @@ namespace PHPMQ\Server\Endpoint\EventListeners;
 
 use PHPMQ\Server\Clients\Client;
 use PHPMQ\Server\Clients\ConsumptionInfo;
-use PHPMQ\Server\Endpoint\Events\ClientMessageWasReceivedEvent;
-use PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException;
-use PHPMQ\Server\Protocol\Messages\Acknowledgement;
-use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Protocol\Messages\MessageC2E;
-use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Endpoint\Events\AcknowledgementWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Events\ConsumeRequestWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Events\MessageC2EWasReceivedEvent;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
@@ -34,55 +31,25 @@ final class ClientMessageReceivedEventListener extends AbstractEventListener
 	protected function getAcceptedEvents() : array
 	{
 		return [
-			ClientMessageWasReceivedEvent::class,
+			MessageC2EWasReceivedEvent::class,
+			ConsumeRequestWasReceivedEvent::class,
+			AcknowledgementWasReceivedEvent::class,
 		];
 	}
 
-	/**
-	 * @param ClientMessageWasReceivedEvent $event
-	 *
-	 * @throws \PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException
-	 */
-	protected function whenClientMessageWasReceived( ClientMessageWasReceivedEvent $event ) : void
+	protected function whenMessageC2EWasReceived( MessageC2EWasReceivedEvent $event ) : void
 	{
-		$client  = $event->getClient();
-		$message = $event->getMessage();
-
-		$messageType = $message->getMessageType()->getType();
-
-		switch ( $messageType )
-		{
-			case MessageType::MESSAGE_C2E:
-				/** @var MessageC2E $message */
-				$this->handleMessageC2E( $message );
-				break;
-
-			case MessageType::CONSUME_REQUEST:
-				/** @var ConsumeRequest $message */
-				$this->handleConsumeRequest( $message, $client );
-				break;
-
-			case MessageType::ACKNOWLEDGEMENT:
-				/** @var Acknowledgement $message */
-				$this->handleAcknowledgement( $message, $client );
-				break;
-
-			default:
-				throw new InvalidMessageTypeReceivedException(
-					'Unknown message type: ' . $messageType
-				);
-		}
-	}
-
-	private function handleMessageC2E( MessageC2E $messageC2E ) : void
-	{
+		$messageC2E   = $event->getMessageC2E();
 		$storeMessage = new Message( MessageId::generate(), $messageC2E->getContent() );
 
 		$this->storage->enqueue( $messageC2E->getQueueName(), $storeMessage );
 	}
 
-	private function handleConsumeRequest( ConsumeRequest $consumeRequest, Client $client ) : void
+	protected function whenConsumeRequestWasReceived( ConsumeRequestWasReceivedEvent $event ) : void
 	{
+		$client         = $event->getClient();
+		$consumeRequest = $event->getConsumeRequest();
+
 		$this->cleanUpClientConsumption( $client );
 
 		$client->updateConsumptionInfo(
@@ -107,8 +74,11 @@ final class ClientMessageReceivedEventListener extends AbstractEventListener
 		}
 	}
 
-	private function handleAcknowledgement( Acknowledgement $acknowledgement, Client $client ) : void
+	protected function whenAcknowledgementWasReceived( AcknowledgementWasReceivedEvent $event ) : void
 	{
+		$client          = $event->getClient();
+		$acknowledgement = $event->getAcknowledgement();
+
 		$this->storage->dequeue( $acknowledgement->getQueueName(), $acknowledgement->getMessageId() );
 
 		$consumptionInfo = $client->getConsumptionInfo();

@@ -6,10 +6,17 @@
 namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Clients\Client;
-use PHPMQ\Server\Endpoint\Events\ClientMessageWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Events\AcknowledgementWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Events\ConsumeRequestWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Events\MessageC2EWasReceivedEvent;
+use PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException;
 use PHPMQ\Server\Endpoint\Interfaces\HandlesMessages;
 use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Messages\Acknowledgement;
+use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Protocol\Types\MessageType;
 
 /**
  * Class MessageHandler
@@ -27,6 +34,29 @@ final class MessageHandler implements HandlesMessages
 
 	public function handle( CarriesInformation $message, Client $client ) : void
 	{
-		$this->eventBus->publishEvent( new ClientMessageWasReceivedEvent( $message, $client ) );
+		$messageType = $message->getMessageType()->getType();
+
+		switch ( $messageType )
+		{
+			case MessageType::MESSAGE_C2E:
+				/** @var MessageC2E $message */
+				$event = new MessageC2EWasReceivedEvent( $client, $message );
+				break;
+
+			case MessageType::CONSUME_REQUEST:
+				/** @var ConsumeRequest $message */
+				$event = new ConsumeRequestWasReceivedEvent( $client, $message );
+				break;
+
+			case MessageType::ACKNOWLEDGEMENT:
+				/** @var Acknowledgement $message */
+				$event = new AcknowledgementWasReceivedEvent($client, $message);
+				break;
+
+			default:
+				throw new InvalidMessageTypeReceivedException( 'Unknown message type: ' . $messageType );
+		}
+
+		$this->eventBus->publishEvent( $event );
 	}
 }
