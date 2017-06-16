@@ -34,15 +34,11 @@ final class ClientConnectionEventListener extends AbstractEventListener
 	protected function whenClientHasConnected( ClientHasConnectedEvent $event ) : void
 	{
 		$client = $event->getClient();
-
-		$this->logger->debug( 'New client connected: ' . $client->getClientId() );
 	}
 
 	protected function whenClientHasDisconnected( ClientHasDisconnectedEvent $event ) : void
 	{
 		$client = $event->getClient();
-
-		$this->logger->debug( 'Client has disconnected: ' . $client->getClientId() );
 
 		$consumptionInfo = $client->getConsumptionInfo();
 		$queueName       = $consumptionInfo->getQueueName();

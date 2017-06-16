@@ -26,7 +26,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $endpointConfig = new class implements ConfiguresEndpoint
 {
-	public function getSocketAddress(): string
+	public function getSocketAddress() : string
 	{
 		return 'tcp://127.0.0.1:9100';
 	}
@@ -34,7 +34,7 @@ $endpointConfig = new class implements ConfiguresEndpoint
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
-	public function getMessageQueuePath(): string
+	public function getMessageQueuePath() : string
 	{
 		return ':memory:';
 	}
@@ -53,7 +53,7 @@ $monitoringInfo   = new ServerMonitoringInfo();
 $monitor          = new ServerMonitor( $monitoringConfig, $monitoringInfo );
 
 $logger = new CompositeLogger();
-$logger->addLoggers( new ServerMonitoringLogger( $monitoringConfig, $monitoringInfo ) );
+$logger->addLoggers( new ServerMonitoringLogger( $monitoringConfig, $monitoringInfo ), $outputLogger );
 
 $eventBus = new EventBus();
 $eventBus->setLogger( $logger );

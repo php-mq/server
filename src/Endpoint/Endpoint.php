@@ -65,19 +65,20 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		$this->messageBuilder = new MessageBuilder();
 	}
 
-	public function startListening(): void
+	public function startListening() : void
 	{
 		$this->registerSignalHandler();
 		$this->establishSocket();
 
 		$this->listening = true;
 
-		$this->logger->debug( 'Start listening for client connections...' );
+		$socketName = stream_socket_get_name( $this->socket, false );
+		$this->logger->debug( 'Start listening for client connections on: ' . $socketName );
 
 		$this->loop();
 	}
 
-	private function registerSignalHandler(): void
+	private function registerSignalHandler() : void
 	{
 		if ( function_exists( 'pcntl_signal' ) )
 		{
@@ -86,7 +87,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	private function shutDownBySignal( int $signal ): void
+	private function shutDownBySignal( int $signal ) : void
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
@@ -95,7 +96,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	public function endListening(): void
+	public function endListening() : void
 	{
 		$this->listening = false;
 
@@ -109,7 +110,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	private function establishSocket(): void
+	private function establishSocket() : void
 	{
 		if ( null !== $this->socket )
 		{
@@ -126,10 +127,15 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 			throw new RuntimeException( 'Could not establish socket: ' . $errorString );
 		}
 
-		stream_set_blocking( $this->socket, false );
+		$nonBlockingResult = stream_set_blocking( $this->socket, false );
+
+		if ( false === $nonBlockingResult )
+		{
+			throw new RuntimeException( 'Could not set server socket to non-blocking.' );
+		}
 	}
 
-	private function loop(): void
+	private function loop() : void
 	{
 		declare(ticks=1);
 
@@ -147,41 +153,73 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	private function checkForNewClient(): void
+	private function checkForNewClient() : void
 	{
-		$read  = [ $this->socket ];
-		$write = $except = null;
+		$reads  = [ $this->socket ];
+		$writes = $excepts = null;
 
-		if ( stream_select( $read, $write, $except, 0 ) )
+		if ( !@stream_select( $reads, $writes, $excepts, 0 ) )
 		{
-			$clientSocket = stream_socket_accept( $this->socket, 0 );
-
-			if ( $clientSocket !== false )
-			{
-				stream_set_blocking( $clientSocket, false );
-
-				$clientId = ClientId::generate();
-				$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
-
-				$this->clients->add( $client );
-			}
+			return;
 		}
+
+		if ( !in_array( $this->socket, $reads, true ) )
+		{
+			return;
+		}
+
+		$clientSocket = stream_socket_accept( $this->socket, 0 );
+
+		if ( false === $clientSocket )
+		{
+			throw new RuntimeException( 'Failed to accept client socket.' );
+		}
+
+		$clientName = stream_socket_get_name( $clientSocket, true );
+
+		if ( empty( $clientName ) )
+		{
+			throw new RuntimeException( 'Failed to get client name.' );
+		}
+
+		$nonBlockingResult = stream_set_blocking( $clientSocket, false );
+
+		if ( false === $nonBlockingResult )
+		{
+			throw new RuntimeException( 'Failed to set client socket non-blocking.' );
+		}
+
+		$clientId = new ClientId( $clientName );
+		$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
+
+		$this->clients->add( $client );
 	}
 
-	private function readMessagesFromActiveClients(): void
+	private function readMessagesFromActiveClients() : void
 	{
 		foreach ( $this->clients->getActive() as $client )
 		{
-			$message = $this->readMessageFromClient( $client );
-
-			if ( null !== $message )
-			{
-				$this->messageHandler->handle( $message, $client );
-			}
+			$this->handleMessagesFromClient( $client, $this->readMessagesFromClient( $client ) );
 		}
 	}
 
-	private function readMessageFromClient( Client $client ): ?CarriesInformation
+	private function readMessagesFromClient( Client $client ) : \Generator
+	{
+		do
+		{
+			$message = $this->readMessageFromClient( $client );
+
+			if ( null === $message )
+			{
+				break;
+			}
+
+			yield $message;
+		}
+		while ( $client->hasUnreadData() );
+	}
+
+	private function readMessageFromClient( Client $client ) : ?CarriesInformation
 	{
 		try
 		{
@@ -198,6 +236,16 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 			$this->clients->remove( $client );
 
 			return null;
+		}
+	}
+
+	public function handleMessagesFromClient( Client $client, iterable $messages ) : void
+	{
+		foreach ( $messages as $message )
+		{
+			echo $message, "\n\n";
+
+			$this->messageHandler->handle( $message, $client );
 		}
 	}
 

@@ -44,12 +44,12 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo = new NullConsumptionInfo();
 	}
 
-	public function getClientId(): IdentifiesClient
+	public function getClientId() : IdentifiesClient
 	{
 		return $this->clientId;
 	}
 
-	public function collectSocket( array &$sockets ): void
+	public function collectSocket( array &$sockets ) : void
 	{
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
@@ -57,9 +57,9 @@ final class Client implements ConsumesMessages
 	/**
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
-	 * @return CarriesInformation
+	 * @return null|CarriesInformation
 	 */
-	public function readMessage(): CarriesInformation
+	public function readMessage() : ?CarriesInformation
 	{
 		$bytes = fread( $this->socket, PacketLength::MESSAGE_HEADER );
 		$this->guardReadBytes( $bytes );
@@ -90,7 +90,7 @@ final class Client implements ConsumesMessages
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function guardReadBytes( $bytes ): void
+	private function guardReadBytes( $bytes ) : void
 	{
 		if ( !$bytes )
 		{
@@ -100,7 +100,14 @@ final class Client implements ConsumesMessages
 		}
 	}
 
-	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ): void
+	public function hasUnreadData() : bool
+	{
+		$metaData = stream_get_meta_data( $this->socket );
+
+		return (true !== $metaData['eof'] || $metaData['unread_bytes'] > 0);
+	}
+
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void
 	{
 		if ( count( $this->consumptionInfo->getMessageIds() ) > 0 )
 		{
@@ -110,7 +117,7 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo = $consumptionInfo;
 	}
 
-	public function getConsumptionInfo(): ProvidesConsumptionInfo
+	public function getConsumptionInfo() : ProvidesConsumptionInfo
 	{
 		return $this->consumptionInfo;
 	}
@@ -120,7 +127,7 @@ final class Client implements ConsumesMessages
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
 	 */
-	public function consumeMessage( MessageE2C $message ): void
+	public function consumeMessage( MessageE2C $message ) : void
 	{
 		$bytes = fwrite( $this->socket, $message->toString() );
 
@@ -132,7 +139,7 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo->addMessageId( $message->getMessageId() );
 	}
 
-	public function shutDown(): void
+	public function shutDown() : void
 	{
 		stream_socket_shutdown( $this->socket, STREAM_SHUT_RDWR );
 	}

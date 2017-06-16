@@ -50,6 +50,10 @@ final class ClientMessageReceivedEventListener extends AbstractEventListener
 		$client         = $event->getClient();
 		$consumeRequest = $event->getConsumeRequest();
 
+		$this->logger->debug( 'Consume request received from client ' . $client->getClientId() );
+		$this->logger->debug( '- For queue name: ' . $consumeRequest->getQueueName() );
+		$this->logger->debug( '- Message count: ' . $consumeRequest->getMessageCount() );
+
 		$this->cleanUpClientConsumption( $client );
 
 		$client->updateConsumptionInfo(
