@@ -16,19 +16,14 @@ use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$socket = socket_create( AF_UNIX, SOCK_STREAM, 0 );
-socket_connect( $socket, '/tmp/phpmq.server.sock' );
-socket_set_nonblock( $socket );
-
-sleep( 1 );
+$socket = stream_socket_client( 'tcp://127.0.0.1:9100' );
+stream_set_blocking( $socket, false );
 
 $consumeRequest = new ConsumeRequest( new QueueName( 'Test-Queue' ), 2 );
 
-socket_write( $socket, $consumeRequest->toString() );
+fwrite( $socket, $consumeRequest->toString() );
 
 echo "Sent consume request\n";
-
-sleep( 1 );
 
 $messageBuilder = new MessageBuilder();
 
@@ -39,38 +34,33 @@ while ( true )
 	$reads  = [ $socket ];
 	$writes = $excepts = null;
 
-	socket_select( $reads, $writes, $excepts, 0 );
+	stream_select( $reads, $writes, $excepts, 0 );
 
 	if ( count( $reads ) === 0 )
 	{
 		continue;
 	}
 
-	$buffer = '';
-	$bytes  = socket_recv( $socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
+	$bytes = fread( $socket, PacketLength::MESSAGE_HEADER );
 
-	if ( $bytes !== false )
+	if ( $bytes )
 	{
-		if ( null === $buffer )
-		{
-			echo "Endpoint disconnected.\n";
-			break;
-		}
+		usleep( 300000 );
 
-		$messageHeader = MessageHeader::fromString( $buffer );
+		echo "\n\n" . var_export( $bytes, true ) . "\n\n";
+
+		$messageHeader = MessageHeader::fromString( $bytes );
 		$packetCount   = $messageHeader->getMessageType()->getPacketCount();
 
 		$packets = [];
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$buffer = '';
-			socket_recv( $socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
+			$buffer = fread( $socket, PacketLength::PACKET_HEADER );
 
 			$packetHeader = PacketHeader::fromString( $buffer );
 
-			$buffer = '';
-			socket_recv( $socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
+			$buffer = fread( $socket, $packetHeader->getContentLength() );
 
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
@@ -89,10 +79,15 @@ while ( true )
 
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 
-		socket_write( $socket, $acknowledgement->toString() );
+		fwrite( $socket, $acknowledgement->toString() );
 
 		echo "\n√ Message acknowledged.\n--\n";
 	}
+	else
+	{
+		echo "Endpoint disconnected.\n";
+		break;
+	}
 }
 
-socket_close( $socket );
+fclose( $socket );

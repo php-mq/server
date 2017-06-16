@@ -7,11 +7,9 @@ namespace PHPMQ\Server\Clients;
 
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException;
-use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
 use PHPMQ\Server\Clients\Exceptions\WriteFailedException;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
-use PHPMQ\Server\Endpoint\Constants\SocketShutdownMode;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
@@ -46,12 +44,12 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo = new NullConsumptionInfo();
 	}
 
-	public function getClientId() : IdentifiesClient
+	public function getClientId(): IdentifiesClient
 	{
 		return $this->clientId;
 	}
 
-	public function collectSocket( array &$sockets ) : void
+	public function collectSocket( array &$sockets ): void
 	{
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
@@ -61,34 +59,27 @@ final class Client implements ConsumesMessages
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
 	 * @return CarriesInformation
 	 */
-	public function readMessage() : CarriesInformation
+	public function readMessage(): CarriesInformation
 	{
-		$buffer = '';
-		$bytes  = @socket_recv( $this->socket, $buffer, PacketLength::MESSAGE_HEADER, MSG_WAITALL );
-
+		$bytes = fread( $this->socket, PacketLength::MESSAGE_HEADER );
 		$this->guardReadBytes( $bytes );
-		$this->guardClientIsConnected( $buffer );
 
-		$messageHeader = MessageHeader::fromString( $buffer );
+		$messageHeader = MessageHeader::fromString( $bytes );
 		$packetCount   = $messageHeader->getMessageType()->getPacketCount();
 
 		$packets = [];
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$buffer = '';
-			$bytes  = @socket_recv( $this->socket, $buffer, PacketLength::PACKET_HEADER, MSG_WAITALL );
+			$bytes = fread( $this->socket, PacketLength::PACKET_HEADER );
 			$this->guardReadBytes( $bytes );
-			$this->guardClientIsConnected( $buffer );
 
-			$packetHeader = PacketHeader::fromString( $buffer );
+			$packetHeader = PacketHeader::fromString( $bytes );
 
-			$buffer = '';
-			$bytes  = @socket_recv( $this->socket, $buffer, $packetHeader->getContentLength(), MSG_WAITALL );
+			$bytes = fread( $this->socket, $packetHeader->getContentLength() );
 			$this->guardReadBytes( $bytes );
-			$this->guardClientIsConnected( $buffer );
 
-			$packets[ $packetHeader->getPacketType() ] = $buffer;
+			$packets[ $packetHeader->getPacketType() ] = $bytes;
 		}
 
 		return $this->messageBuilder->buildMessage( $messageHeader, $packets );
@@ -97,27 +88,11 @@ final class Client implements ConsumesMessages
 	/**
 	 * @param bool|null|int $bytes
 	 *
-	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
-	 */
-	private function guardReadBytes( $bytes ) : void
-	{
-		if ( false === $bytes )
-		{
-			throw new ReadFailedException(
-				'socket_recv() failed; reason: '
-				. socket_strerror( socket_last_error( $this->socket ) )
-			);
-		}
-	}
-
-	/**
-	 * @param null|string $buffer
-	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function guardClientIsConnected( ?string $buffer ) : void
+	private function guardReadBytes( $bytes ): void
 	{
-		if ( null === $buffer )
+		if ( !$bytes )
 		{
 			throw new ClientDisconnectedException(
 				sprintf( 'Client has disconnected. [Client ID: %s]', $this->clientId )
@@ -125,7 +100,7 @@ final class Client implements ConsumesMessages
 		}
 	}
 
-	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ): void
 	{
 		if ( count( $this->consumptionInfo->getMessageIds() ) > 0 )
 		{
@@ -135,7 +110,7 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo = $consumptionInfo;
 	}
 
-	public function getConsumptionInfo() : ProvidesConsumptionInfo
+	public function getConsumptionInfo(): ProvidesConsumptionInfo
 	{
 		return $this->consumptionInfo;
 	}
@@ -145,9 +120,9 @@ final class Client implements ConsumesMessages
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
 	 */
-	public function consumeMessage( MessageE2C $message ) : void
+	public function consumeMessage( MessageE2C $message ): void
 	{
-		$bytes = @socket_write( $this->socket, $message->toString() );
+		$bytes = fwrite( $this->socket, $message->toString() );
 
 		if ( false === $bytes )
 		{
@@ -157,8 +132,8 @@ final class Client implements ConsumesMessages
 		$this->consumptionInfo->addMessageId( $message->getMessageId() );
 	}
 
-	public function shutDown() : void
+	public function shutDown(): void
 	{
-		socket_shutdown( $this->socket, SocketShutdownMode::READING_WRITING );
+		stream_socket_shutdown( $this->socket, STREAM_SHUT_RDWR );
 	}
 }

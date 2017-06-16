@@ -13,6 +13,8 @@ use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
 use PHPMQ\Server\Endpoint\Interfaces\HandlesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
+use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -30,11 +32,17 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	/** @var ConfiguresEndpoint */
 	private $config;
 
-	/** @var resource */
-	private $socket;
-
 	/** @var CollectsClients */
 	private $clients;
+
+	/** @var HandlesMessages */
+	private $messageHandler;
+
+	/** @var ServerMonitor */
+	private $monitor;
+
+	/** @var resource */
+	private $socket;
 
 	/** @var bool */
 	private $listening;
@@ -42,23 +50,22 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	/** @var BuildsMessages */
 	private $messageBuilder;
 
-	/** @var HandlesMessages */
-	private $messageHandler;
-
 	public function __construct(
 		ConfiguresEndpoint $config,
 		CollectsClients $clientCollection,
-		HandlesMessages $messageHandler
+		HandlesMessages $messageHandler,
+		ServerMonitor $monitor
 	)
 	{
 		$this->config         = $config;
 		$this->clients        = $clientCollection;
+		$this->messageHandler = $messageHandler;
+		$this->monitor        = $monitor;
 		$this->listening      = false;
 		$this->messageBuilder = new MessageBuilder();
-		$this->messageHandler = $messageHandler;
 	}
 
-	public function startListening() : void
+	public function startListening(): void
 	{
 		$this->registerSignalHandler();
 		$this->establishSocket();
@@ -70,7 +77,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		$this->loop();
 	}
 
-	private function registerSignalHandler() : void
+	private function registerSignalHandler(): void
 	{
 		if ( function_exists( 'pcntl_signal' ) )
 		{
@@ -79,7 +86,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	private function shutDownBySignal( int $signal ) : void
+	private function shutDownBySignal( int $signal ): void
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
@@ -88,7 +95,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	public function endListening() : void
+	public function endListening(): void
 	{
 		$this->listening = false;
 
@@ -97,40 +104,32 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 			$this->logger->debug( 'Shutting down.' );
 
 			$this->clients->shutDown();
-			socket_close( $this->socket );
+			fclose( $this->socket );
 			$this->socket = null;
 		}
 	}
 
-	private function establishSocket() : void
+	private function establishSocket(): void
 	{
 		if ( null !== $this->socket )
 		{
 			return;
 		}
 
-		$this->socket = socket_create(
-			$this->config->getSocketDomain(),
-			$this->config->getSocketType(),
-			$this->config->getSocketProtocol()
-		);
+		$errorNumber = null;
+		$errorString = null;
 
-		if ( file_exists( $this->config->getBindToAddress()->getAddress() ) )
+		$this->socket = @stream_socket_server( $this->config->getSocketAddress(), $errorNumber, $errorString );
+
+		if ( $this->socket === false )
 		{
-			@unlink( $this->config->getBindToAddress()->getAddress() );
+			throw new RuntimeException( 'Could not establish socket: ' . $errorString );
 		}
 
-		socket_bind(
-			$this->socket,
-			$this->config->getBindToAddress()->getAddress(),
-			$this->config->getBindToAddress()->getPort()
-		);
-
-		socket_listen( $this->socket, $this->config->getListenBacklog() );
-		socket_set_nonblock( $this->socket );
+		stream_set_blocking( $this->socket, false );
 	}
 
-	private function loop() : void
+	private function loop(): void
 	{
 		declare(ticks=1);
 
@@ -143,25 +142,33 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 			$this->readMessagesFromActiveClients();
 
 			$this->clients->dispatchMessages();
+
+			$this->monitor->refresh();
 		}
 	}
 
-	private function checkForNewClient() : void
+	private function checkForNewClient(): void
 	{
-		$clientSocket = socket_accept( $this->socket );
+		$read  = [ $this->socket ];
+		$write = $except = null;
 
-		if ( $clientSocket !== false )
+		if ( stream_select( $read, $write, $except, 0 ) )
 		{
-			socket_set_nonblock( $clientSocket );
+			$clientSocket = stream_socket_accept( $this->socket, 0 );
 
-			$clientId = ClientId::generate();
-			$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
+			if ( $clientSocket !== false )
+			{
+				stream_set_blocking( $clientSocket, false );
 
-			$this->clients->add( $client );
+				$clientId = ClientId::generate();
+				$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
+
+				$this->clients->add( $client );
+			}
 		}
 	}
 
-	private function readMessagesFromActiveClients() : void
+	private function readMessagesFromActiveClients(): void
 	{
 		foreach ( $this->clients->getActive() as $client )
 		{
@@ -174,7 +181,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	private function readMessageFromClient( Client $client ) : ?CarriesInformation
+	private function readMessageFromClient( Client $client ): ?CarriesInformation
 	{
 		try
 		{

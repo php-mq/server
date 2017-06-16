@@ -23,18 +23,23 @@ final class QueueInfo
 		$this->messageInfos = $messageInfos;
 	}
 
-	public function getQueueName() : string
+	public function getQueueName(): string
 	{
 		return $this->queueName;
 	}
 
-	public function getSize() : int
+	public function getSize(): int
 	{
-		return count( $this->messageInfos );
+		return (int)array_sum( array_column( $this->messageInfos, 'size' ) );
 	}
 
-	public function getMessageInfos() : array
+	public function getMessageInfos(): array
 	{
 		return $this->messageInfos;
+	}
+
+	public function getMessageCount(): int
+	{
+		return count( $this->messageInfos );
 	}
 }

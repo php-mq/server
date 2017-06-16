@@ -38,7 +38,7 @@ final class ClientCollection implements CollectsClients
 		$this->eventBus          = $eventBus;
 	}
 
-	public function add( Client $client ) : void
+	public function add( Client $client ): void
 	{
 		$this->clients[ $client->getClientId()->toString() ] = $client;
 
@@ -52,7 +52,7 @@ final class ClientCollection implements CollectsClients
 		);
 	}
 
-	public function remove( Client $client ) : void
+	public function remove( Client $client ): void
 	{
 		$this->eventBus->publishEvent( new ClientHasDisconnectedEvent( $client ) );
 
@@ -66,7 +66,7 @@ final class ClientCollection implements CollectsClients
 		unset( $this->clients[ $client->getClientId()->toString() ] );
 	}
 
-	public function getActive() : array
+	public function getActive(): array
 	{
 		if ( empty( $this->clients ) )
 		{
@@ -81,12 +81,14 @@ final class ClientCollection implements CollectsClients
 			$client->collectSocket( $reads );
 		}
 
-		socket_select( $reads, $writes, $exepts, 0 );
+		stream_select( $reads, $writes, $exepts, 300000 );
+
+		echo count(array_intersect_key( $this->clients, $reads )), "\n";
 
 		return array_intersect_key( $this->clients, $reads );
 	}
 
-	public function dispatchMessages() : void
+	public function dispatchMessages(): void
 	{
 		$clients = $this->clients;
 
@@ -98,7 +100,7 @@ final class ClientCollection implements CollectsClients
 		}
 	}
 
-	private function dispatchMessagesToClient( Client $client ) : void
+	private function dispatchMessagesToClient( Client $client ): void
 	{
 		try
 		{
@@ -110,7 +112,7 @@ final class ClientCollection implements CollectsClients
 		}
 	}
 
-	public function shutDown() : void
+	public function shutDown(): void
 	{
 		foreach ( $this->clients as $client )
 		{

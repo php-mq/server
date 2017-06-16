@@ -6,16 +6,12 @@
 namespace PHPMQ\Server;
 
 use PHPMQ\Server\Clients\ClientCollection;
-use PHPMQ\Server\Endpoint\Constants\SocketDomain;
-use PHPMQ\Server\Endpoint\Constants\SocketType;
 use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\Endpoint\EventBus;
 use PHPMQ\Server\Endpoint\EventListeners\ClientConnectionEventListener;
 use PHPMQ\Server\Endpoint\EventListeners\ClientMessageReceivedEventListener;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
-use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Endpoint\MessageHandler;
-use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\Loggers\CompositeLogger;
 use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
 use PHPMQ\Server\Loggers\Monitoring\ServerMonitoringLogger;
@@ -30,35 +26,15 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $endpointConfig = new class implements ConfiguresEndpoint
 {
-	public function getSocketDomain() : int
+	public function getSocketAddress(): string
 	{
-		return SocketDomain::UNIX;
-	}
-
-	public function getSocketType() : int
-	{
-		return SocketType::STREAM;
-	}
-
-	public function getSocketProtocol() : int
-	{
-		return 0;
-	}
-
-	public function getBindToAddress() : IdentifiesSocketAddress
-	{
-		return new UnixDomainSocket( '/tmp/phpmq.server.sock' );
-	}
-
-	public function getListenBacklog() : int
-	{
-		return SOMAXCONN;
+		return 'tcp://127.0.0.1:9100';
 	}
 };
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
-	public function getMessageQueuePath() : string
+	public function getMessageQueuePath(): string
 	{
 		return ':memory:';
 	}
@@ -72,14 +48,12 @@ $outputLogger = new class extends AbstractLogger
 	}
 };
 
-$serverMonitor    = new ServerMonitor();
 $monitoringConfig = ServerMonitoringConfig::fromCLIOptions();
+$monitoringInfo   = new ServerMonitoringInfo();
+$monitor          = new ServerMonitor( $monitoringConfig, $monitoringInfo );
 
 $logger = new CompositeLogger();
-$logger->addLoggers(
-	new ServerMonitoringLogger( $monitoringConfig, $serverMonitor, new ServerMonitoringInfo() ),
-	$outputLogger
-);
+$logger->addLoggers( new ServerMonitoringLogger( $monitoringConfig, $monitoringInfo ) );
 
 $eventBus = new EventBus();
 $eventBus->setLogger( $logger );
@@ -100,7 +74,7 @@ $eventBus->addEventListeners(
 
 $messageHandler = new MessageHandler( $eventBus );
 
-$endoint = new Endpoint( $endpointConfig, $clientCollection, $messageHandler );
+$endoint = new Endpoint( $endpointConfig, $clientCollection, $messageHandler, $monitor );
 $endoint->setLogger( $logger );
 
 $endoint->startListening();

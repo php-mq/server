@@ -23,23 +23,13 @@ final class ServerMonitoringLogger extends AbstractLogger
 	/** @var ServerMonitoringInfo */
 	private $serverMonitoringInfo;
 
-	/** @var ServerMonitor */
-	private $serverMonitor;
-
 	public function __construct(
 		ServerMonitoringConfig $config,
-		ServerMonitor $serverMonitor,
 		ServerMonitoringInfo $serverMonitoringInfo
 	)
 	{
 		$this->config               = $config;
 		$this->serverMonitoringInfo = $serverMonitoringInfo;
-		$this->serverMonitor        = $serverMonitor;
-
-		if ( $this->config->isEnabled() )
-		{
-			$this->serverMonitor->refresh( $this->serverMonitoringInfo );
-		}
 	}
 
 	public function log( $level, $message, array $context = [] ) : void
@@ -49,12 +39,7 @@ final class ServerMonitoringLogger extends AbstractLogger
 			return;
 		}
 
-		if ( $level !== LogLevel::DEBUG )
-		{
-			return;
-		}
-
-		if ( !isset( $context['monitoring'] ) )
+		if ( $level !== LogLevel::DEBUG || !isset( $context['monitoring'] ) )
 		{
 			return;
 		}
@@ -93,7 +78,5 @@ final class ServerMonitoringLogger extends AbstractLogger
 				$this->serverMonitoringInfo->flushAllQueues();
 				break;
 		}
-
-		$this->serverMonitor->refresh( $this->serverMonitoringInfo );
 	}
 }
