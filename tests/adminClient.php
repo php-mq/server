@@ -15,7 +15,9 @@ if ( !stream_set_blocking( $clientSocket, false ) )
 	die( 'Failed to set client socket non-blocking.' );
 }
 
-fwrite( $clientSocket, 'This is a test' );
+fwrite( $clientSocket, '12345678' );
+
+fwrite( $clientSocket, '12345678' );
 
 while ( true )
 {
@@ -27,15 +29,21 @@ while ( true )
 		continue;
 	}
 
-	$buffer = fread( $clientSocket, 1024 );
-
-	if ( empty( $buffer ) )
+	do
 	{
-		echo "Server disconnected.\n";
-		break;
-	}
+		$buffer = fread( $clientSocket, 2 );
 
-	echo $buffer;
+		if ( empty( $buffer ) )
+		{
+			echo "Server disconnected.\n";
+			break 2;
+		}
+
+		echo $buffer, "\n";
+
+		$meta = stream_get_meta_data( $clientSocket );
+	}
+	while ( $meta['unread_bytes'] > 0 );
 }
 
 fclose( $clientSocket );

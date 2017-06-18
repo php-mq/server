@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\MessageDispatchers;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
@@ -29,7 +29,7 @@ final class MessageDispatcher implements DispatchesMessages
 	}
 
 	/**
-	 * @param ConsumesMessages|Client $client
+	 * @param ConsumesMessages|MessageQueueClient $client
 	 */
 	public function dispatchMessages( ConsumesMessages $client ) : void
 	{

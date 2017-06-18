@@ -13,6 +13,7 @@ use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
 use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * Class ClientCollection
@@ -22,7 +23,7 @@ final class ClientCollection implements CollectsClients
 {
 	use LoggerAwareTrait;
 
-	/** @var array|Client[] */
+	/** @var array|MessageQueueClient[] */
 	private $clients;
 
 	/** @var DispatchesMessages */
@@ -36,9 +37,11 @@ final class ClientCollection implements CollectsClients
 		$this->clients           = [];
 		$this->messageDispatcher = $messageDispatcher;
 		$this->eventBus          = $eventBus;
+
+		$this->setLogger( new NullLogger() );
 	}
 
-	public function add( Client $client ) : void
+	public function add( MessageQueueClient $client ) : void
 	{
 		$this->clients[ $client->getClientId()->toString() ] = $client;
 
@@ -52,12 +55,12 @@ final class ClientCollection implements CollectsClients
 		);
 	}
 
-	public function remove( Client $client ) : void
+	public function remove( MessageQueueClient $client ) : void
 	{
 		$this->eventBus->publishEvent( new ClientHasDisconnectedEvent( $client ) );
 
 		$this->logger->debug(
-			sprintf( 'Client with ID %s disconnected', $client->getClientId()->toString() ),
+			sprintf( 'MessageQueueClient with ID %s disconnected', $client->getClientId()->toString() ),
 			[
 				'monitoring' => ServerMonitoring::CLIENT_DISCONNECTED,
 			]
@@ -101,7 +104,7 @@ final class ClientCollection implements CollectsClients
 		}
 	}
 
-	private function dispatchMessagesToClient( Client $client ) : void
+	private function dispatchMessagesToClient( MessageQueueClient $client ) : void
 	{
 		try
 		{

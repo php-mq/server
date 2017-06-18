@@ -5,21 +5,24 @@
 
 namespace PHPMQ\Server\Endpoint;
 
-use PHPMQ\Server\Clients\Client;
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
 use PHPMQ\Server\Clients\Interfaces\CollectsClients;
+use PHPMQ\Server\Clients\MessageQueueClient;
+use PHPMQ\Server\Clients\MessageQueueClientPool;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
 use PHPMQ\Server\Endpoint\Interfaces\HandlesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
-use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Endpoint\Sockets\ServerSocket;
 use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Endpoint
@@ -28,9 +31,6 @@ use Psr\Log\LoggerAwareTrait;
 final class Endpoint implements ListensToClients, LoggerAwareInterface
 {
 	use LoggerAwareTrait;
-
-	/** @var ConfiguresEndpoint */
-	private $config;
 
 	/** @var CollectsClients */
 	private $clients;
@@ -41,11 +41,14 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	/** @var ServerMonitor */
 	private $monitor;
 
-	/** @var resource */
-	private $socket;
+	/** @var ServerSocket */
+	private $messageQueueServerSocket;
 
-	/** @var bool */
-	private $listening;
+	/** @var MessageQueueClientPool */
+	private $messageQueueClients;
+
+	/** @var ServerSocket */
+	private $adminServerSocket;
 
 	/** @var BuildsMessages */
 	private $messageBuilder;
@@ -57,23 +60,32 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		ServerMonitor $monitor
 	)
 	{
-		$this->config         = $config;
+		$this->messageQueueServerSocket = new ServerSocket( $config->getMessageQueueServerAddress() );
+		$this->adminServerSocket        = new ServerSocket( $config->getAdminServerAddress() );
+
 		$this->clients        = $clientCollection;
 		$this->messageHandler = $messageHandler;
 		$this->monitor        = $monitor;
-		$this->listening      = false;
 		$this->messageBuilder = new MessageBuilder();
+
+		$this->setLogger( new NullLogger() );
 	}
 
-	public function startListening() : void
+	public function setLogger( LoggerInterface $logger ) : void
+	{
+		$this->logger = $logger;
+
+		$this->messageQueueServerSocket->setLogger( $logger );
+		$this->adminServerSocket->setLogger( $logger );
+		$this->clients->setLogger( $logger );
+	}
+
+	public function run() : void
 	{
 		$this->registerSignalHandler();
-		$this->establishSocket();
 
-		$this->listening = true;
-
-		$socketName = stream_socket_get_name( $this->socket, false );
-		$this->logger->debug( 'Start listening for client connections on: ' . $socketName );
+		$this->messageQueueServerSocket->startListening();
+		$this->adminServerSocket->startListening();
 
 		$this->loop();
 	}
@@ -91,119 +103,85 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
-			$this->endListening();
+			$this->shutdown();
 			exit( 0 );
 		}
 	}
 
-	public function endListening() : void
+	public function shutdown() : void
 	{
-		$this->listening = false;
+		$this->logger->debug( 'Shutting endpoint down...' );
 
-		if ( null !== $this->socket )
-		{
-			$this->logger->debug( 'Shutting down.' );
+		$this->clients->shutDown();
 
-			$this->clients->shutDown();
-			fclose( $this->socket );
-			$this->socket = null;
-		}
-	}
+		$this->messageQueueServerSocket->endListening();
+		$this->adminServerSocket->endListening();
 
-	private function establishSocket() : void
-	{
-		if ( null !== $this->socket )
-		{
-			return;
-		}
-
-		$errorNumber = null;
-		$errorString = null;
-
-		$this->socket = @stream_socket_server( $this->config->getSocketAddress(), $errorNumber, $errorString );
-
-		if ( $this->socket === false )
-		{
-			throw new RuntimeException( 'Could not establish socket: ' . $errorString );
-		}
-
-		$nonBlockingResult = stream_set_blocking( $this->socket, false );
-
-		if ( false === $nonBlockingResult )
-		{
-			throw new RuntimeException( 'Could not set server socket to non-blocking.' );
-		}
+		$this->logger->debug( 'Good bye.' );
 	}
 
 	private function loop() : void
 	{
 		declare(ticks=1);
 
-		while ( $this->listening )
+		while ( $this->socketsAreListening() )
 		{
 			usleep( 2000 );
 
-			$this->checkForNewClient();
+			$this->messageQueueServerSocket->checkForNewClient( [ $this, 'handleNewMessageQueueClient' ] );
+			$this->adminServerSocket->checkForNewClient( [ $this, 'handleNewAdminClient' ] );
 
-			$this->readMessagesFromActiveClients();
-
-			$this->clients->dispatchMessages();
-
-			$this->monitor->refresh();
+//			$this->readMessagesFromActiveClients();
+//
+//			$this->clients->dispatchMessages();
+//
+//			$this->monitor->refresh();
 		}
 	}
 
-	private function checkForNewClient() : void
+	private function socketsAreListening() : bool
 	{
-		$reads  = [ $this->socket ];
-		$writes = $excepts = null;
+		return ($this->messageQueueServerSocket->isListening() || $this->adminServerSocket->isListening());
+	}
 
-		if ( !@stream_select( $reads, $writes, $excepts, 0 ) )
-		{
-			return;
-		}
-
-		if ( !in_array( $this->socket, $reads, true ) )
-		{
-			return;
-		}
-
-		$clientSocket = stream_socket_accept( $this->socket, 0 );
-
-		if ( false === $clientSocket )
-		{
-			throw new RuntimeException( 'Failed to accept client socket.' );
-		}
-
-		$clientName = stream_socket_get_name( $clientSocket, true );
-
-		if ( empty( $clientName ) )
-		{
-			throw new RuntimeException( 'Failed to get client name.' );
-		}
-
-		$nonBlockingResult = stream_set_blocking( $clientSocket, false );
-
-		if ( false === $nonBlockingResult )
-		{
-			throw new RuntimeException( 'Failed to set client socket non-blocking.' );
-		}
+	public function handleNewMessageQueueClient( ServerSocket $socket, string $clientName, $clientSocket ) : void
+	{
+		$this->logger->debug(
+			sprintf(
+				'New message queue client %s connected to server socket %s.',
+				$clientName,
+				$socket->getName()
+			)
+		);
 
 		$clientId = new ClientId( $clientName );
-		$client   = new Client( $clientId, $clientSocket, $this->messageBuilder );
+		$client   = new MessageQueueClient( $clientId, $clientSocket, $this->messageBuilder );
 
 		$this->clients->add( $client );
+	}
+
+	public function handleNewAdminClient( ServerSocket $socket, string $clientName, $clientSocket ) : void
+	{
+		$this->logger->debug(
+			sprintf(
+				'New admin client %s connected to server socket %s.',
+				$clientName,
+				$socket->getName()
+			)
+		);
 	}
 
 	private function readMessagesFromActiveClients() : void
 	{
 		foreach ( $this->clients->getActive() as $client )
 		{
-			$this->handleMessagesFromClient( $client, $this->readMessagesFromClient( $client ) );
+			$messages = $this->readMessagesFromClient( $client );
+
+			$this->handleMessagesFromClient( $client, $messages );
 		}
 	}
 
-	private function readMessagesFromClient( Client $client ) : \Generator
+	private function readMessagesFromClient( MessageQueueClient $client ) : \Generator
 	{
 		do
 		{
@@ -219,7 +197,7 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		while ( $client->hasUnreadData() );
 	}
 
-	private function readMessageFromClient( Client $client ) : ?CarriesInformation
+	private function readMessageFromClient( MessageQueueClient $client ) : ?CarriesInformation
 	{
 		try
 		{
@@ -239,18 +217,16 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 		}
 	}
 
-	public function handleMessagesFromClient( Client $client, iterable $messages ) : void
+	public function handleMessagesFromClient( MessageQueueClient $client, iterable $messages ) : void
 	{
 		foreach ( $messages as $message )
 		{
-			echo $message, "\n\n";
-
 			$this->messageHandler->handle( $message, $client );
 		}
 	}
 
 	public function __destruct()
 	{
-		$this->endListening();
+		$this->shutdown();
 	}
 }

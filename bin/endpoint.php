@@ -11,7 +11,9 @@ use PHPMQ\Server\Endpoint\EventBus;
 use PHPMQ\Server\Endpoint\EventListeners\ClientConnectionEventListener;
 use PHPMQ\Server\Endpoint\EventListeners\ClientMessageReceivedEventListener;
 use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
-use PHPMQ\Server\Endpoint\MessageHandler;
+use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
+use PHPMQ\Server\Endpoint\MessageQueueMessageHandler;
+use PHPMQ\Server\Endpoint\Types\NetworkSocket;
 use PHPMQ\Server\Loggers\CompositeLogger;
 use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
 use PHPMQ\Server\Loggers\Monitoring\ServerMonitoringLogger;
@@ -26,9 +28,14 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $endpointConfig = new class implements ConfiguresEndpoint
 {
-	public function getSocketAddress() : string
+	public function getMessageQueueServerAddress() : IdentifiesSocketAddress
 	{
-		return 'tcp://127.0.0.1:9100';
+		return new NetworkSocket( '127.0.0.1', 9100 );
+	}
+
+	public function getAdminServerAddress() : IdentifiesSocketAddress
+	{
+		return new NetworkSocket( '127.0.0.1', 9101 );
 	}
 };
 
@@ -65,16 +72,15 @@ $dispatcher = new MessageDispatcher( $storage );
 $dispatcher->setLogger( $logger );
 
 $clientCollection = new ClientCollection( $dispatcher, $eventBus );
-$clientCollection->setLogger( $logger );
 
 $eventBus->addEventListeners(
 	new ClientMessageReceivedEventListener( $storage ),
 	new ClientConnectionEventListener( $storage )
 );
 
-$messageHandler = new MessageHandler( $eventBus );
+$messageHandler = new MessageQueueMessageHandler( $eventBus );
 
 $endoint = new Endpoint( $endpointConfig, $clientCollection, $messageHandler, $monitor );
 $endoint->setLogger( $logger );
 
-$endoint->startListening();
+$endoint->run();

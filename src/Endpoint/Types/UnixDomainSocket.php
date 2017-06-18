@@ -21,13 +21,8 @@ final class UnixDomainSocket implements IdentifiesSocketAddress
 		$this->socketPath = $socketPath;
 	}
 
-	public function getAddress() : string
+	public function getSocketAddress() : string
 	{
-		return $this->socketPath;
-	}
-
-	public function getPort() : int
-	{
-		return 0;
+		return sprintf( 'unix://%s', $this->socketPath );
 	}
 }

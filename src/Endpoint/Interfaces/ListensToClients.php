@@ -11,7 +11,7 @@ namespace PHPMQ\Server\Endpoint\Interfaces;
  */
 interface ListensToClients
 {
-	public function startListening() : void;
+	public function run() : void;
 
-	public function endListening() : void;
+	public function shutdown() : void;
 }

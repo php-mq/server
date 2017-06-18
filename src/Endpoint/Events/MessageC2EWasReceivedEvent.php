@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Events;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 
@@ -15,19 +15,19 @@ use PHPMQ\Server\Protocol\Messages\MessageC2E;
  */
 final class MessageC2EWasReceivedEvent implements CarriesEventData
 {
-	/** @var Client */
+	/** @var MessageQueueClient */
 	private $client;
 
 	/** @var MessageC2E */
 	private $messageC2E;
 
-	public function __construct( Client $client, MessageC2E $messageC2E )
+	public function __construct( MessageQueueClient $client, MessageC2E $messageC2E )
 	{
 		$this->client     = $client;
 		$this->messageC2E = $messageC2E;
 	}
 
-	public function getClient() : Client
+	public function getClient() : MessageQueueClient
 	{
 		return $this->client;
 	}

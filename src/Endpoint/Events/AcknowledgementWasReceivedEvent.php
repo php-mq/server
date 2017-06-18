@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Events;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 
@@ -15,19 +15,19 @@ use PHPMQ\Server\Protocol\Messages\Acknowledgement;
  */
 final class AcknowledgementWasReceivedEvent implements CarriesEventData
 {
-	/** @var Client */
+	/** @var MessageQueueClient */
 	private $client;
 
 	/** @var Acknowledgement */
 	private $acknowledgement;
 
-	public function __construct( Client $client, Acknowledgement $acknowledgement )
+	public function __construct( MessageQueueClient $client, Acknowledgement $acknowledgement )
 	{
 		$this->client          = $client;
 		$this->acknowledgement = $acknowledgement;
 	}
 
-	public function getClient() : Client
+	public function getClient() : MessageQueueClient
 	{
 		return $this->client;
 	}

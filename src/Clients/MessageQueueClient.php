@@ -19,10 +19,10 @@ use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 
 /**
- * Class Client
+ * Class MessageQueueClient
  * @package PHPMQ\Server\Clients
  */
-final class Client implements ConsumesMessages
+final class MessageQueueClient implements ConsumesMessages
 {
 	/** @var IdentifiesClient */
 	private $clientId;
@@ -95,7 +95,7 @@ final class Client implements ConsumesMessages
 		if ( !$bytes )
 		{
 			throw new ClientDisconnectedException(
-				sprintf( 'Client has disconnected. [Client ID: %s]', $this->clientId )
+				sprintf( 'MessageQueueClient has disconnected. [MessageQueueClient ID: %s]', $this->clientId )
 			);
 		}
 	}
@@ -104,7 +104,7 @@ final class Client implements ConsumesMessages
 	{
 		$metaData = stream_get_meta_data( $this->socket );
 
-		return (true !== $metaData['eof'] || $metaData['unread_bytes'] > 0);
+		return ($metaData['unread_bytes'] > 0);
 	}
 
 	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void

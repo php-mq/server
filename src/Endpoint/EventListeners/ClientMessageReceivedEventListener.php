@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\EventListeners;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Endpoint\Events\AcknowledgementWasReceivedEvent;
 use PHPMQ\Server\Endpoint\Events\ConsumeRequestWasReceivedEvent;
@@ -64,7 +64,7 @@ final class ClientMessageReceivedEventListener extends AbstractEventListener
 		);
 	}
 
-	private function cleanUpClientConsumption( Client $client ) : void
+	private function cleanUpClientConsumption( MessageQueueClient $client ) : void
 	{
 		$consumptionInfo = $client->getConsumptionInfo();
 		$queueName       = $consumptionInfo->getQueueName();

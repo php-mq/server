@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Endpoint\Events\AcknowledgementWasReceivedEvent;
 use PHPMQ\Server\Endpoint\Events\ConsumeRequestWasReceivedEvent;
 use PHPMQ\Server\Endpoint\Events\MessageC2EWasReceivedEvent;
@@ -19,10 +19,10 @@ use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
 
 /**
- * Class MessageHandler
+ * Class MessageQueueMessageHandler
  * @package PHPMQ\Server\Endpoint
  */
-final class MessageHandler implements HandlesMessages
+final class MessageQueueMessageHandler implements HandlesMessages
 {
 	/** @var PublishesEvents */
 	private $eventBus;
@@ -32,7 +32,7 @@ final class MessageHandler implements HandlesMessages
 		$this->eventBus = $eventBus;
 	}
 
-	public function handle( CarriesInformation $message, Client $client ) : void
+	public function handle( CarriesInformation $message, MessageQueueClient $client ) : void
 	{
 		$messageType = $message->getMessageType()->getType();
 

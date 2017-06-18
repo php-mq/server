@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Clients;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -37,7 +37,7 @@ final class ClientTest extends TestCase
 	{
 		$clientId        = ClientId::generate();
 		$socket          = $this->socketClient;
-		$client          = new Client( $clientId, $socket, new MessageBuilder() );
+		$client          = new MessageQueueClient( $clientId, $socket, new MessageBuilder() );
 		$expectedSockets = [
 			$clientId->toString() => $socket,
 		];
@@ -52,7 +52,7 @@ final class ClientTest extends TestCase
 	public function testCannotConsumeMessagesAfterConstruction() : void
 	{
 		$clientId = ClientId::generate();
-		$client   = new Client( $clientId, $this->socketClient, new MessageBuilder() );
+		$client   = new MessageQueueClient( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$this->assertFalse( $client->getConsumptionInfo()->canConsume() );
 		$this->assertSame( 0, $client->getConsumptionInfo()->getMessageCount() );
@@ -65,7 +65,7 @@ final class ClientTest extends TestCase
 	{
 		$queueName = new QueueName( 'Test-Queue' );
 		$clientId  = ClientId::generate();
-		$client    = new Client( $clientId, $this->socketClient, new MessageBuilder() );
+		$client    = new MessageQueueClient( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$consumptionInfo = new ConsumptionInfo( $queueName, 5 );
 		$client->updateConsumptionInfo( $consumptionInfo );
@@ -83,7 +83,7 @@ final class ClientTest extends TestCase
 	{
 		$queueName = new QueueName( 'Test-Queue' );
 		$clientId  = ClientId::generate();
-		$client    = new Client( $clientId, $this->socketClient, new MessageBuilder() );
+		$client    = new MessageQueueClient( $clientId, $this->socketClient, new MessageBuilder() );
 
 		$consumptionInfo = new ConsumptionInfo( $queueName, 5 );
 		$client->updateConsumptionInfo( $consumptionInfo );

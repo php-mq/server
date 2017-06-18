@@ -33,16 +33,4 @@ fwrite( $socket, $message2->toString() );
 
 echo "√ Sent message 'This is a second test'\n";
 
-$message1 = new MessageC2E( new QueueName( 'Example-Queue' ), 'This is a first test' );
-$message2 = new MessageC2E( new QueueName( 'Example-Queue' ), 'This is a second test' );
-
-fwrite( $socket, $message1->toString() );
-
-echo "√ Sent message 'This is a first test'\n";
-
-fwrite( $socket, $message2->toString() );
-
-echo "√ Sent message 'This is a second test'\n";
-
-fwrite( $socket, '' );
 fclose( $socket );

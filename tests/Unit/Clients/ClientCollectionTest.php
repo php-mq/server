@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Clients;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\ClientCollection;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
@@ -39,7 +39,7 @@ final class ClientCollectionTest extends TestCase
 
 	public function testCanDispatchMessages() : void
 	{
-		$client = new Client( ClientId::generate(), $this->socketClient, new MessageBuilder() );
+		$client = new MessageQueueClient( ClientId::generate(), $this->socketClient, new MessageBuilder() );
 
 		$dispatcher = new class implements DispatchesMessages
 		{
@@ -100,7 +100,7 @@ final class ClientCollectionTest extends TestCase
 
 	public function testCanGetActiveClients() : void
 	{
-		$client     = new Client( ClientId::generate(), $this->socketClient, new MessageBuilder() );
+		$client     = new MessageQueueClient( ClientId::generate(), $this->socketClient, new MessageBuilder() );
 		$dispatcher = $this->getEmptyDispatcher();
 		$eventBus   = $this->getEmptyEventBus();
 		$collection = new ClientCollection( $dispatcher, $eventBus );

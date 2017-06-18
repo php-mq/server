@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Clients\Interfaces;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -14,12 +14,12 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface CollectsClients extends LoggerAwareInterface
 {
-	public function add( Client $client ) : void;
+	public function add( MessageQueueClient $client ) : void;
 
-	public function remove( Client $client ) : void;
+	public function remove( MessageQueueClient $client ) : void;
 
 	/**
-	 * @return array|Client[]
+	 * @return array|MessageQueueClient[]
 	 */
 	public function getActive() : array;
 

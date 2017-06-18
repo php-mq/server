@@ -11,5 +11,7 @@ namespace PHPMQ\Server\Endpoint\Interfaces;
  */
 interface ConfiguresEndpoint
 {
-	public function getSocketAddress(): string;
+	public function getMessageQueueServerAddress() : IdentifiesSocketAddress;
+
+	public function getAdminServerAddress() : IdentifiesSocketAddress;
 }

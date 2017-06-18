@@ -47,17 +47,25 @@ while ( true )
 			continue;
 		}
 
-		$buffer = fread( $read, 1024 );
-
-		if ( empty( $buffer ) )
+		do
 		{
-			echo "Client disconnected.\n";
 
-			$clientSockets = array_diff( $clientSockets, [ $read ] );
-			continue;
+			$buffer = fread( $read, 8 );
+
+			if ( empty( $buffer ) )
+			{
+				echo "Client disconnected.\n";
+
+				$clientSockets = array_diff( $clientSockets, [ $read ] );
+				continue;
+			}
+
+			echo "{$buffer}\n";
+
+			fwrite( $read, 'OK' );
+
+			$meta = stream_get_meta_data( $read );
 		}
-
-		echo "{$buffer}\n";
-		fwrite( $read, 'OK' );
+		while ( $meta['unread_bytes'] > 0 );
 	}
 }

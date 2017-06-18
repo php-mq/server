@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Events;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 
@@ -15,19 +15,19 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
  */
 final class ConsumeRequestWasReceivedEvent implements CarriesEventData
 {
-	/** @var Client */
+	/** @var MessageQueueClient */
 	private $client;
 
 	/** @var ConsumeRequest */
 	private $consumeRequest;
 
-	public function __construct( Client $client, ConsumeRequest $consumeRequest )
+	public function __construct( MessageQueueClient $client, ConsumeRequest $consumeRequest )
 	{
 		$this->client         = $client;
 		$this->consumeRequest = $consumeRequest;
 	}
 
-	public function getClient() : Client
+	public function getClient() : MessageQueueClient
 	{
 		return $this->client;
 	}

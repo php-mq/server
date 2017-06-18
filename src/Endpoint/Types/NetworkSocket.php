@@ -25,13 +25,8 @@ final class NetworkSocket implements IdentifiesSocketAddress
 		$this->port      = $port;
 	}
 
-	public function getAddress() : string
+	public function getSocketAddress() : string
 	{
-		return $this->ipAddress;
-	}
-
-	public function getPort() : int
-	{
-		return $this->port;
+		return sprintf( 'tcp://%s:%s', $this->ipAddress, $this->port );
 	}
 }

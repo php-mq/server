@@ -5,14 +5,14 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 
 /**
- * Class MessageHandler
+ * Class MessageQueueMessageHandler
  * @package PHPMQ\Server\Endpoint
  */
 interface HandlesMessages
 {
-	public function handle( CarriesInformation $message, Client $client ) : void;
+	public function handle( CarriesInformation $message, MessageQueueClient $client ) : void;
 }

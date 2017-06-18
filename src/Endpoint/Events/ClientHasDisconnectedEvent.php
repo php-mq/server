@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Events;
 
-use PHPMQ\Server\Clients\Client;
+use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
@@ -14,15 +14,15 @@ use PHPMQ\Server\Interfaces\CarriesEventData;
  */
 final class ClientHasDisconnectedEvent implements CarriesEventData
 {
-	/** @var Client */
+	/** @var MessageQueueClient */
 	private $client;
 
-	public function __construct( Client $client )
+	public function __construct( MessageQueueClient $client )
 	{
 		$this->client = $client;
 	}
 
-	public function getClient() : Client
+	public function getClient() : MessageQueueClient
 	{
 		return $this->client;
 	}
