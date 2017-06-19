@@ -10,19 +10,19 @@ use PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException;
 use PHPMQ\Server\Clients\Exceptions\WriteFailedException;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
-use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Headers\PacketHeader;
-use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Servers\Interfaces\CommunicatesWithServer;
 
 /**
  * Class MessageQueueClient
  * @package PHPMQ\Server\Clients
  */
-final class MessageQueueClient implements ConsumesMessages
+final class MessageQueueClient implements CommunicatesWithServer
 {
 	/** @var IdentifiesClient */
 	private $clientId;
@@ -30,17 +30,13 @@ final class MessageQueueClient implements ConsumesMessages
 	/** @var resource */
 	private $socket;
 
-	/** @var BuildsMessages */
-	private $messageBuilder;
-
 	/** @var ProvidesConsumptionInfo */
 	private $consumptionInfo;
 
-	public function __construct( IdentifiesClient $clientId, $socket, BuildsMessages $messageBuilder )
+	public function __construct( IdentifiesClient $clientId, $socket )
 	{
 		$this->clientId        = $clientId;
 		$this->socket          = $socket;
-		$this->messageBuilder  = $messageBuilder;
 		$this->consumptionInfo = new NullConsumptionInfo();
 	}
 
@@ -54,14 +50,25 @@ final class MessageQueueClient implements ConsumesMessages
 		$sockets[ $this->clientId->toString() ] = $this->socket;
 	}
 
-	/**
-	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 * @throws \PHPMQ\Server\Clients\Exceptions\ReadFailedException
-	 * @return null|CarriesInformation
-	 */
-	public function readMessage() : ?CarriesInformation
+	public function read( int $bytes ) : string
 	{
-		$bytes = fread( $this->socket, PacketLength::MESSAGE_HEADER );
+		return (string)fread( $this->socket, $bytes );
+	}
+
+	public function write( string $data ) : int
+	{
+		return (int)fwrite( $this->socket, $data );
+	}
+
+	/**
+	 * @param MessageBuilder $messageBuilder
+	 *
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 * @return CarriesInformation
+	 */
+	public function readMessage( MessageBuilder $messageBuilder ) : CarriesInformation
+	{
+		$bytes = $this->read( PacketLength::MESSAGE_HEADER );
 		$this->guardReadBytes( $bytes );
 
 		$messageHeader = MessageHeader::fromString( $bytes );
@@ -71,18 +78,18 @@ final class MessageQueueClient implements ConsumesMessages
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$bytes = fread( $this->socket, PacketLength::PACKET_HEADER );
+			$bytes = $this->read( PacketLength::PACKET_HEADER );
 			$this->guardReadBytes( $bytes );
 
 			$packetHeader = PacketHeader::fromString( $bytes );
 
-			$bytes = fread( $this->socket, $packetHeader->getContentLength() );
+			$bytes = $this->read( $packetHeader->getContentLength() );
 			$this->guardReadBytes( $bytes );
 
 			$packets[ $packetHeader->getPacketType() ] = $bytes;
 		}
 
-		return $this->messageBuilder->buildMessage( $messageHeader, $packets );
+		return $messageBuilder->buildMessage( $messageHeader, $packets );
 	}
 
 	/**
@@ -129,9 +136,9 @@ final class MessageQueueClient implements ConsumesMessages
 	 */
 	public function consumeMessage( MessageE2C $message ) : void
 	{
-		$bytes = fwrite( $this->socket, $message->toString() );
+		$bytes = $this->write( $message->toString() );
 
-		if ( false === $bytes )
+		if ( 0 === $bytes )
 		{
 			throw new WriteFailedException( 'Could not write message to client socket.' );
 		}

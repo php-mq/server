@@ -29,16 +29,16 @@ final class MessageQueueStatus implements ProvidesQueueStatus
 
 	public function getCountTotal() : int
 	{
-		return (int)$this->statusData['countTotal'] ?? -1;
+		return (int)($this->statusData['countTotal'] ?? -1);
 	}
 
 	public function getCountUndispatched() : int
 	{
-		return (int)$this->statusData['countUndispatched'] ?? -1;
+		return (int)($this->statusData['countUndispatched'] ?? -1);
 	}
 
 	public function getCountDispatched() : int
 	{
-		return (int)$this->statusData['countDispatched'] ?? -1;
+		return (int)($this->statusData['countDispatched'] ?? -1);
 	}
 }

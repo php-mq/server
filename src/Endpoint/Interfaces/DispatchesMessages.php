@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
+use PHPMQ\Server\Servers\Interfaces\CommunicatesWithServer;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -13,5 +14,5 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface DispatchesMessages extends LoggerAwareInterface
 {
-	public function dispatchMessages( ConsumesMessages $client ) : void;
+	public function dispatchMessages( CommunicatesWithServer $client ) : void;
 }

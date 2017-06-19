@@ -12,7 +12,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Trait StorageMockingSQLite
- * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
  */
 trait StorageMockingSQLite
 {

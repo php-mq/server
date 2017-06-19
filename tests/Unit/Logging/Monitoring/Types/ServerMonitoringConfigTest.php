@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class ServerMonitoringConfigTest
- * @package PHPMQ\Server\Tests\Unit\Logging\Monitoring\Types
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Logging\Monitoring\Types
  */
 final class ServerMonitoringConfigTest extends TestCase
 {

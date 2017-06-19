@@ -13,7 +13,7 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface PublishesEvents extends LoggerAwareInterface
 {
-	public function addEventListeners( ListensToEvents ...$eventListeners ) : void;
+	public function addEventHandlers( HandlesEvents ...$eventListeners ) : void;
 
 	public function publishEvent( CarriesEventData $event ) : void;
 }

@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class ServerMonitoringInfoTest
- * @package PHPMQ\Server\Tests\Unit\Logging\Monitoring\Types
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Logging\Monitoring\Types
  */
 final class ServerMonitoringInfoTest extends TestCase
 {

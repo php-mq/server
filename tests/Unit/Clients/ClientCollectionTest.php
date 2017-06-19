@@ -11,7 +11,7 @@ use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Interfaces\ConsumesMessages;
 use PHPMQ\Server\Endpoint\Interfaces\DispatchesMessages;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Interfaces\ListensToEvents;
+use PHPMQ\Server\Interfaces\HandlesEvents;
 use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
@@ -21,7 +21,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Class ClientCollectionTest
- * @package PHPMQ\Server\Tests\Unit\Clients
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Clients
  */
 final class ClientCollectionTest extends TestCase
 {
@@ -73,7 +73,7 @@ final class ClientCollectionTest extends TestCase
 		{
 			use LoggerAwareTrait;
 
-			public function addEventListeners( ListensToEvents ...$eventListeners ) : void
+			public function addEventHandlers( HandlesEvents ...$eventListeners ) : void
 			{
 				// TODO: Implement addEventListeners() method.
 			}

@@ -5,87 +5,49 @@
 
 namespace PHPMQ\Server\Endpoint;
 
-use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
-use PHPMQ\Server\Clients\Exceptions\ReadFailedException;
-use PHPMQ\Server\Clients\Interfaces\CollectsClients;
-use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Clients\MessageQueueClientPool;
-use PHPMQ\Server\Clients\Types\ClientId;
-use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
-use PHPMQ\Server\Endpoint\Interfaces\HandlesMessages;
-use PHPMQ\Server\Endpoint\Interfaces\ListensToClients;
-use PHPMQ\Server\Endpoint\Sockets\ServerSocket;
-use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
-use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
-use PHPMQ\Server\Protocol\Messages\MessageBuilder;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
+use PHPMQ\Server\EventBus;
 
 /**
  * Class Endpoint
  * @package PHPMQ\Server\Endpoint
  */
-final class Endpoint implements ListensToClients, LoggerAwareInterface
+final class Endpoint
 {
-	use LoggerAwareTrait;
+	/** @var array|ListensForActivity[] */
+	private $servers;
 
-	/** @var CollectsClients */
-	private $clients;
+	/** @var bool */
+	private $isRunning;
 
-	/** @var HandlesMessages */
-	private $messageHandler;
+	/** @var EventBus */
+	private $eventBus;
 
-	/** @var ServerMonitor */
-	private $monitor;
-
-	/** @var ServerSocket */
-	private $messageQueueServerSocket;
-
-	/** @var MessageQueueClientPool */
-	private $messageQueueClients;
-
-	/** @var ServerSocket */
-	private $adminServerSocket;
-
-	/** @var BuildsMessages */
-	private $messageBuilder;
-
-	public function __construct(
-		ConfiguresEndpoint $config,
-		CollectsClients $clientCollection,
-		HandlesMessages $messageHandler,
-		ServerMonitor $monitor
-	)
+	public function __construct( EventBus $eventBus )
 	{
-		$this->messageQueueServerSocket = new ServerSocket( $config->getMessageQueueServerAddress() );
-		$this->adminServerSocket        = new ServerSocket( $config->getAdminServerAddress() );
-
-		$this->clients        = $clientCollection;
-		$this->messageHandler = $messageHandler;
-		$this->monitor        = $monitor;
-		$this->messageBuilder = new MessageBuilder();
-
-		$this->setLogger( new NullLogger() );
+		$this->servers   = [];
+		$this->isRunning = false;
+		$this->eventBus  = $eventBus;
 	}
 
-	public function setLogger( LoggerInterface $logger ) : void
+	public function registerServers( ListensForActivity ...$servers ) : void
 	{
-		$this->logger = $logger;
-
-		$this->messageQueueServerSocket->setLogger( $logger );
-		$this->adminServerSocket->setLogger( $logger );
-		$this->clients->setLogger( $logger );
+		foreach ( $servers as $server )
+		{
+			$this->servers[] = $server;
+		}
 	}
 
 	public function run() : void
 	{
 		$this->registerSignalHandler();
 
-		$this->messageQueueServerSocket->startListening();
-		$this->adminServerSocket->startListening();
+		foreach ( $this->servers as $server )
+		{
+			$server->start();
+		}
+
+		$this->isRunning = true;
 
 		$this->loop();
 	}
@@ -110,118 +72,42 @@ final class Endpoint implements ListensToClients, LoggerAwareInterface
 
 	public function shutdown() : void
 	{
-		$this->logger->debug( 'Shutting endpoint down...' );
+		$this->isRunning = false;
 
-		$this->clients->shutDown();
-
-		$this->messageQueueServerSocket->endListening();
-		$this->adminServerSocket->endListening();
-
-		$this->logger->debug( 'Good bye.' );
+		foreach ( $this->servers as $server )
+		{
+			$server->stop();
+		}
 	}
 
 	private function loop() : void
 	{
 		declare(ticks=1);
 
-		while ( $this->socketsAreListening() )
+		while ( $this->isRunning )
 		{
 			usleep( 2000 );
 
-			$this->messageQueueServerSocket->checkForNewClient( [ $this, 'handleNewMessageQueueClient' ] );
-			$this->adminServerSocket->checkForNewClient( [ $this, 'handleNewAdminClient' ] );
-
-//			$this->readMessagesFromActiveClients();
-//
-//			$this->clients->dispatchMessages();
-//
-//			$this->monitor->refresh();
+			$this->handleServerEvents();
 		}
 	}
 
-	private function socketsAreListening() : bool
+	private function handleServerEvents() : void
 	{
-		return ($this->messageQueueServerSocket->isListening() || $this->adminServerSocket->isListening());
-	}
-
-	public function handleNewMessageQueueClient( ServerSocket $socket, string $clientName, $clientSocket ) : void
-	{
-		$this->logger->debug(
-			sprintf(
-				'New message queue client %s connected to server socket %s.',
-				$clientName,
-				$socket->getName()
-			)
-		);
-
-		$clientId = new ClientId( $clientName );
-		$client   = new MessageQueueClient( $clientId, $clientSocket, $this->messageBuilder );
-
-		$this->clients->add( $client );
-	}
-
-	public function handleNewAdminClient( ServerSocket $socket, string $clientName, $clientSocket ) : void
-	{
-		$this->logger->debug(
-			sprintf(
-				'New admin client %s connected to server socket %s.',
-				$clientName,
-				$socket->getName()
-			)
-		);
-	}
-
-	private function readMessagesFromActiveClients() : void
-	{
-		foreach ( $this->clients->getActive() as $client )
+		foreach ( $this->servers as $server )
 		{
-			$messages = $this->readMessagesFromClient( $client );
-
-			$this->handleMessagesFromClient( $client, $messages );
+			$this->emitServerEvents( $server );
 		}
 	}
 
-	private function readMessagesFromClient( MessageQueueClient $client ) : \Generator
+	private function emitServerEvents( ListensForActivity $server ) : void
 	{
-		do
+		foreach ( $server->getEvents() as $event )
 		{
-			$message = $this->readMessageFromClient( $client );
-
-			if ( null === $message )
+			if ( null !== $event )
 			{
-				break;
+				$this->eventBus->publishEvent( $event );
 			}
-
-			yield $message;
-		}
-		while ( $client->hasUnreadData() );
-	}
-
-	private function readMessageFromClient( MessageQueueClient $client ) : ?CarriesInformation
-	{
-		try
-		{
-			return $client->readMessage();
-		}
-		catch ( ReadFailedException $e )
-		{
-			$this->logger->alert( $e->getMessage() );
-
-			return null;
-		}
-		catch ( ClientDisconnectedException $e )
-		{
-			$this->clients->remove( $client );
-
-			return null;
-		}
-	}
-
-	public function handleMessagesFromClient( MessageQueueClient $client, iterable $messages ) : void
-	{
-		foreach ( $messages as $message )
-		{
-			$this->messageHandler->handle( $message, $client );
 		}
 	}
 

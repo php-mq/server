@@ -12,7 +12,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Trait StorageMockingRedis
- * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
  */
 trait StorageMockingRedis
 {

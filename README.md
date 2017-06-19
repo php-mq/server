@@ -3,7 +3,7 @@
 [![Total Downloads](https://poser.pugx.org/php-mq/server/downloads)](https://packagist.org/packages/php-mq/server) 
 [![Coverage Status](https://coveralls.io/repos/github/php-mq/server/badge.svg?branch=master)](https://coveralls.io/github/php-mq/server?branch=master)
 
-# PHPMQ\Server
+# PHPMQ\MessageQueueServer
 
 A lightweight PHP message queue
 

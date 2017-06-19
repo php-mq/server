@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageE2CTest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Messages
  */
 final class MessageE2CTest extends TestCase
 {

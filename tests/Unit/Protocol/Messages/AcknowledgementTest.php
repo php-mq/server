@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class AcknowledgementTest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Messages
  */
 final class AcknowledgementTest extends TestCase
 {

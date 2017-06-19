@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class ClientTest
- * @package PHPMQ\Server\Tests\Unit\Clients
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Clients
  */
 final class ClientTest extends TestCase
 {

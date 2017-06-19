@@ -35,7 +35,7 @@ while ( true )
 
 		if ( empty( $buffer ) )
 		{
-			echo "Server disconnected.\n";
+			echo "MessageQueueServer disconnected.\n";
 			break 2;
 		}
 

@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringRepresentingTest
- * @package PHPMQ\Server\Tests\Unit\Traits
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Traits
  */
 final class StringRepresentingTest extends TestCase
 {

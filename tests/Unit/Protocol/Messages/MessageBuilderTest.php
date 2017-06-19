@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageBuilderTest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Messages
  */
 final class MessageBuilderTest extends TestCase
 {

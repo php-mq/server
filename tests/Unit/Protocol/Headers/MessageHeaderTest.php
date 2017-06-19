@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageHeaderTest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Headers
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Headers
  */
 final class MessageHeaderTest extends TestCase
 {

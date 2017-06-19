@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConsumeRequestTest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Messages
  */
 final class ConsumeRequestTest extends TestCase
 {

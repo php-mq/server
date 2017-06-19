@@ -7,7 +7,7 @@ namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
 /**
  * Trait SocketMocking
- * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
  */
 trait SocketMocking
 {

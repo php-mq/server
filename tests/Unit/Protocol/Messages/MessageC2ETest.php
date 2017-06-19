@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MessageC2ETest
- * @package PHPMQ\Server\Tests\Unit\Protocol\Messages
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Protocol\Messages
  */
 final class MessageC2ETest extends TestCase
 {

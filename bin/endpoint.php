@@ -5,39 +5,19 @@
 
 namespace PHPMQ\Server;
 
-use PHPMQ\Server\Clients\ClientCollection;
 use PHPMQ\Server\Endpoint\Endpoint;
-use PHPMQ\Server\Endpoint\EventBus;
-use PHPMQ\Server\Endpoint\EventListeners\ClientConnectionEventListener;
-use PHPMQ\Server\Endpoint\EventListeners\ClientMessageReceivedEventListener;
-use PHPMQ\Server\Endpoint\Interfaces\ConfiguresEndpoint;
-use PHPMQ\Server\Endpoint\Interfaces\IdentifiesSocketAddress;
-use PHPMQ\Server\Endpoint\MessageQueueMessageHandler;
-use PHPMQ\Server\Endpoint\Types\NetworkSocket;
+use PHPMQ\Server\EventHandlers\ClientConnectionEventHandler;
+use PHPMQ\Server\EventHandlers\ClientMessageReceivedEventHandler;
 use PHPMQ\Server\Loggers\CompositeLogger;
-use PHPMQ\Server\Loggers\Monitoring\ServerMonitor;
-use PHPMQ\Server\Loggers\Monitoring\ServerMonitoringLogger;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringConfig;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringInfo;
-use PHPMQ\Server\MessageDispatchers\MessageDispatcher;
+use PHPMQ\Server\Servers\AdminServer;
+use PHPMQ\Server\Servers\MessageQueueServer;
+use PHPMQ\Server\Servers\ServerSocket;
+use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
 use Psr\Log\AbstractLogger;
 
 require __DIR__ . '/../vendor/autoload.php';
-
-$endpointConfig = new class implements ConfiguresEndpoint
-{
-	public function getMessageQueueServerAddress() : IdentifiesSocketAddress
-	{
-		return new NetworkSocket( '127.0.0.1', 9100 );
-	}
-
-	public function getAdminServerAddress() : IdentifiesSocketAddress
-	{
-		return new NetworkSocket( '127.0.0.1', 9101 );
-	}
-};
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
@@ -55,12 +35,8 @@ $outputLogger = new class extends AbstractLogger
 	}
 };
 
-$monitoringConfig = ServerMonitoringConfig::fromCLIOptions();
-$monitoringInfo   = new ServerMonitoringInfo();
-$monitor          = new ServerMonitor( $monitoringConfig, $monitoringInfo );
-
 $logger = new CompositeLogger();
-$logger->addLoggers( new ServerMonitoringLogger( $monitoringConfig, $monitoringInfo ), $outputLogger );
+$logger->addLoggers( $outputLogger );
 
 $eventBus = new EventBus();
 $eventBus->setLogger( $logger );
@@ -68,19 +44,18 @@ $eventBus->setLogger( $logger );
 $storage = new MessageQueueSQLite( $storageConfig );
 $storage->setLogger( $logger );
 
-$dispatcher = new MessageDispatcher( $storage );
-$dispatcher->setLogger( $logger );
-
-$clientCollection = new ClientCollection( $dispatcher, $eventBus );
-
-$eventBus->addEventListeners(
-	new ClientMessageReceivedEventListener( $storage ),
-	new ClientConnectionEventListener( $storage )
+$eventBus->addEventHandlers(
+	new ClientMessageReceivedEventHandler( $storage ),
+	new ClientConnectionEventHandler( $storage )
 );
 
-$messageHandler = new MessageQueueMessageHandler( $eventBus );
+$messageQueueServerSocket = new ServerSocket( new NetworkSocket( '127.0.0.1', 9100 ) );
+$adminServerSocket        = new ServerSocket( new NetworkSocket( '127.0.0.1', 9101 ) );
 
-$endoint = new Endpoint( $endpointConfig, $clientCollection, $messageHandler, $monitor );
-$endoint->setLogger( $logger );
+$endoint = new Endpoint( $eventBus );
+$endoint->registerServers(
+	new MessageQueueServer( $messageQueueServerSocket ),
+	new AdminServer( $adminServerSocket )
+);
 
 $endoint->run();
