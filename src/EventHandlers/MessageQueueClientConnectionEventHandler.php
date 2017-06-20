@@ -10,10 +10,10 @@ use PHPMQ\Server\Events\MessageQueueClientDisconnected;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
- * Class ClientConnectionEventHandler
+ * Class MessageQueueClientConnectionEventHandler
  * @package PHPMQ\Server\EventHandlers
  */
-final class ClientConnectionEventHandler extends AbstractEventHandler
+final class MessageQueueClientConnectionEventHandler extends AbstractEventHandler
 {
 	/** @var StoresMessages */
 	private $storage;
@@ -34,6 +34,8 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 	protected function whenMessageQueueClientConnected( MessageQueueClientConnected $event ) : void
 	{
 		$client = $event->getMessageQueueClient();
+
+		$this->logger->debug( 'New message queue client connected: ' . $client->getClientId() );
 	}
 
 	protected function whenMessageQueueClientDisconnected( MessageQueueClientDisconnected $event ) : void
@@ -50,5 +52,7 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 
 			$consumptionInfo->removeMessageId( $messageId );
 		}
+
+		$this->logger->debug( 'Message queue client disconnected: ' . $client->getClientId() );
 	}
 }

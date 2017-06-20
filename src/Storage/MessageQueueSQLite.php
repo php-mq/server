@@ -9,14 +9,12 @@ use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\MessageQueueStatus;
-use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MessageQueueSQLite
@@ -24,8 +22,6 @@ use Psr\Log\LoggerAwareTrait;
  */
 final class MessageQueueSQLite implements StoresMessages
 {
-	use LoggerAwareTrait;
-
 	private const ERROR_CODE_ENQUEUE           = 100;
 
 	private const ERROR_CODE_DEQUEUE           = 200;
@@ -91,19 +87,6 @@ final class MessageQueueSQLite implements StoresMessages
 			);
 
 			$this->getPDO()->commit();
-
-			$this->logger->debug(
-				sprintf(
-					'Message with ID %s enqueued in %s.',
-					$message->getMessageId()->toString(),
-					$queueName->toString()
-				),
-				[
-					'monitoring' => ServerMonitoring::MESSAGE_ENQUEUED,
-					'queueName'  => $queueName,
-					'message'    => $message,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{
@@ -158,19 +141,6 @@ final class MessageQueueSQLite implements StoresMessages
 			);
 
 			$this->getPDO()->commit();
-
-			$this->logger->debug(
-				sprintf(
-					'Message with ID %s dequeued from %s.',
-					$messageId->toString(),
-					$queueName->toString()
-				),
-				[
-					'monitoring' => ServerMonitoring::MESSAGE_DEQUEUED,
-					'queueName'  => $queueName,
-					'messageId'  => $messageId,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{
@@ -210,19 +180,6 @@ final class MessageQueueSQLite implements StoresMessages
 			);
 
 			$this->getPDO()->commit();
-
-			$this->logger->debug(
-				sprintf(
-					'Message with ID %s marked as dispatched in %s.',
-					$messageId->toString(),
-					$queueName->toString()
-				),
-				[
-					'monitoring' => ServerMonitoring::MESSAGE_DISPATCHED,
-					'queueName'  => $queueName,
-					'messageId'  => $messageId,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{
@@ -262,19 +219,6 @@ final class MessageQueueSQLite implements StoresMessages
 			);
 
 			$this->getPDO()->commit();
-
-			$this->logger->debug(
-				sprintf(
-					'Message with ID %s marked as undispatched in %s.',
-					$messageId->toString(),
-					$queueName->toString()
-				),
-				[
-					'monitoring' => ServerMonitoring::MESSAGE_UNDISPATCHED,
-					'queueName'  => $queueName,
-					'messageId'  => $messageId,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{
@@ -336,14 +280,6 @@ final class MessageQueueSQLite implements StoresMessages
 			$statment->execute( [ 'queueName' => $queueName->toString() ] );
 
 			$this->getPDO()->commit();
-
-			$this->logger->debug(
-				sprintf( 'Queue %s flushed.', $queueName->toString() ),
-				[
-					'monitoring' => ServerMonitoring::QUEUE_FLUSHED,
-					'queueName'  => $queueName,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{
@@ -362,13 +298,6 @@ final class MessageQueueSQLite implements StoresMessages
 		{
 			$this->getPDO()->exec( 'DROP TABLE IF EXISTS `queue`' );
 			$this->getPDO()->exec( self::CREATE_TABLE_QUERY );
-
-			$this->logger->debug(
-				'All queues flushed.',
-				[
-					'monitoring' => ServerMonitoring::ALL_QUEUES_FLUSHED,
-				]
-			);
 		}
 		catch ( \PDOException $e )
 		{

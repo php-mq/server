@@ -11,6 +11,8 @@ namespace PHPMQ\Server\Servers\Interfaces;
  */
 interface EstablishesActivityListener
 {
+	public function getName() : string;
+
 	public function startListening() : void;
 
 	public function endListening() : void;

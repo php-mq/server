@@ -11,7 +11,7 @@ use Psr\Log\LoggerAwareInterface;
  * Interface PublishesEvents
  * @package PHPMQ\Server\Interfaces
  */
-interface PublishesEvents extends LoggerAwareInterface
+interface PublishesEvents
 {
 	public function addEventHandlers( HandlesEvents ...$eventListeners ) : void;
 

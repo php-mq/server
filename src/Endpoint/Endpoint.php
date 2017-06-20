@@ -7,6 +7,7 @@ namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
 use PHPMQ\Server\EventBus;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Endpoint
@@ -23,17 +24,23 @@ final class Endpoint
 	/** @var EventBus */
 	private $eventBus;
 
-	public function __construct( EventBus $eventBus )
+	/** @var LoggerInterface */
+	private $logger;
+
+	public function __construct( EventBus $eventBus, LoggerInterface $logger )
 	{
 		$this->servers   = [];
 		$this->isRunning = false;
 		$this->eventBus  = $eventBus;
+		$this->logger    = $logger;
 	}
 
 	public function registerServers( ListensForActivity ...$servers ) : void
 	{
 		foreach ( $servers as $server )
 		{
+			$server->setLogger( $this->logger );
+
 			$this->servers[] = $server;
 		}
 	}
@@ -58,6 +65,8 @@ final class Endpoint
 		{
 			pcntl_signal( SIGTERM, [ $this, 'shutDownBySignal' ] );
 			pcntl_signal( SIGINT, [ $this, 'shutDownBySignal' ] );
+
+			$this->logger->debug( 'Registered signal handler.' );
 		}
 	}
 
@@ -78,6 +87,8 @@ final class Endpoint
 		{
 			$server->stop();
 		}
+
+		$this->servers = [];
 	}
 
 	private function loop() : void
@@ -113,6 +124,9 @@ final class Endpoint
 
 	public function __destruct()
 	{
-		$this->shutdown();
+		if ( !empty( $this->servers ) )
+		{
+			$this->shutdown();
+		}
 	}
 }

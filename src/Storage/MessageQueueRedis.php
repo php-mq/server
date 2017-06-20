@@ -9,7 +9,6 @@ use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueRedis;
 use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
@@ -17,7 +16,6 @@ use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\MessageQueueStatus;
 use PHPMQ\Server\Types\QueueName;
-use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MessageQueueRedis
@@ -25,8 +23,6 @@ use Psr\Log\LoggerAwareTrait;
  */
 final class MessageQueueRedis implements StoresMessages
 {
-	use LoggerAwareTrait;
-
 	private const PREFIX_DEFAULT         = 'PHPMQ:';
 
 	private const BGSAVE_DEFAULT         = 0;
@@ -63,19 +59,6 @@ final class MessageQueueRedis implements StoresMessages
 			)->exec();
 
 		$this->bgSave( 'enqueue' );
-
-		$this->logger->debug(
-			sprintf(
-				'Message with ID %s enqueued in %s.',
-				$message->getMessageId()->toString(),
-				$queueName->toString()
-			),
-			[
-				'monitoring' => ServerMonitoring::MESSAGE_ENQUEUED,
-				'queueName'  => $queueName,
-				'message'    => $message,
-			]
-		);
 	}
 
 	private function bgSave( string $methodName ) : void
@@ -166,19 +149,6 @@ final class MessageQueueRedis implements StoresMessages
 		     ->exec();
 
 		$this->bgSave( 'dequeue' );
-
-		$this->logger->debug(
-			sprintf(
-				'Message with ID %s dequeued from %s.',
-				$messageId->toString(),
-				$queueName->toString()
-			),
-			[
-				'monitoring' => ServerMonitoring::MESSAGE_DEQUEUED,
-				'queueName'  => $queueName,
-				'messageId'  => $messageId,
-			]
-		);
 	}
 
 	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
@@ -190,19 +160,6 @@ final class MessageQueueRedis implements StoresMessages
 		     ->exec();
 
 		$this->bgSave( 'markAsDispatched' );
-
-		$this->logger->debug(
-			sprintf(
-				'Message with ID %s marked as dispatched in %s.',
-				$messageId->toString(),
-				$queueName->toString()
-			),
-			[
-				'monitoring' => ServerMonitoring::MESSAGE_DISPATCHED,
-				'queueName'  => $queueName,
-				'messageId'  => $messageId,
-			]
-		);
 	}
 
 	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
@@ -214,19 +171,6 @@ final class MessageQueueRedis implements StoresMessages
 		     ->exec();
 
 		$this->bgSave( 'markAsUndispatched' );
-
-		$this->logger->debug(
-			sprintf(
-				'Message with ID %s marked as undispatched in %s.',
-				$messageId->toString(),
-				$queueName->toString()
-			),
-			[
-				'monitoring' => ServerMonitoring::MESSAGE_UNDISPATCHED,
-				'queueName'  => $queueName,
-				'messageId'  => $messageId,
-			]
-		);
 	}
 
 	public function getUndispatched( IdentifiesQueue $queueName, int $countMessages = 1 ) : \Generator
@@ -280,14 +224,6 @@ final class MessageQueueRedis implements StoresMessages
 		$this->getRedis()->del( $undispatchedQueueKey, $dispatchedQueueKey, ...$messageIds );
 
 		$this->bgSave( 'flushQueue' );
-
-		$this->logger->debug(
-			sprintf( 'Queue %s flushed.', $queueName->toString() ),
-			[
-				'monitoring' => ServerMonitoring::QUEUE_FLUSHED,
-				'queueName'  => $queueName,
-			]
-		);
 	}
 
 	public function flushAllQueues() : void
@@ -295,13 +231,6 @@ final class MessageQueueRedis implements StoresMessages
 		$this->getRedis()->flushDB();
 
 		$this->bgSave( 'flushAllQueues' );
-
-		$this->logger->debug(
-			'All queues flushed.',
-			[
-				'monitoring' => ServerMonitoring::ALL_QUEUES_FLUSHED,
-			]
-		);
 	}
 
 	public function getQueueStatus( IdentifiesQueue $queueName ) : ProvidesQueueStatus

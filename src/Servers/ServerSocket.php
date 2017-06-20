@@ -9,18 +9,13 @@ use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Servers\Interfaces\ProvidesClientInfo;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\NullLogger;
 
 /**
  * Class ServerSocket
  * @package PHPMQ\Server\Servers
  */
-final class ServerSocket implements LoggerAwareInterface, EstablishesActivityListener
+final class ServerSocket implements EstablishesActivityListener
 {
-	use LoggerAwareTrait;
-
 	/** @var resource */
 	private $socket;
 
@@ -34,21 +29,17 @@ final class ServerSocket implements LoggerAwareInterface, EstablishesActivityLis
 	{
 		$this->socketAddress = $socketAddress;
 		$this->listening     = false;
+	}
 
-		$this->setLogger( new NullLogger() );
+	public function getName() : string
+	{
+		return $this->socketAddress->getSocketAddress();
 	}
 
 	public function startListening() : void
 	{
 		$this->establishSocket();
 		$this->makeSocketNonBlocking();
-
-		$this->logger->debug(
-			sprintf(
-				'Start listening for client connections on: %s',
-				$this->socketAddress->getSocketAddress()
-			)
-		);
 
 		$this->listening = true;
 	}
@@ -114,13 +105,6 @@ final class ServerSocket implements LoggerAwareInterface, EstablishesActivityLis
 		}
 
 		$this->socket = null;
-
-		$this->logger->debug(
-			sprintf(
-				'Stopped listening for client connections on: %s',
-				$this->socketAddress->getSocketAddress()
-			)
-		);
 	}
 
 	public function getNewClient() : ?ProvidesClientInfo

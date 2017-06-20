@@ -15,10 +15,10 @@ use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 
 /**
- * Class ClientMessageReceivedEventHandler
+ * Class MessageQueueClientInboundEventHandler
  * @package PHPMQ\Server\EventHandlers
  */
-final class ClientMessageReceivedEventHandler extends AbstractEventHandler
+final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 {
 	/** @var StoresMessages */
 	private $storage;
@@ -83,7 +83,23 @@ final class ClientMessageReceivedEventHandler extends AbstractEventHandler
 		$client          = $event->getClient();
 		$acknowledgement = $event->getAcknowledgement();
 
+		$this->logger->debug(
+			sprintf(
+				'<fg:blue>«« Received acknowledgement for message %s from client %s<:fg>',
+				$acknowledgement->getMessageId()->toString(),
+				$client->getClientId()->toString()
+			)
+		);
+
 		$this->storage->dequeue( $acknowledgement->getQueueName(), $acknowledgement->getMessageId() );
+
+		$this->logger->debug(
+			sprintf(
+				'<fg:red>√ Dequeued message %s from queue %s<:fg>',
+				$acknowledgement->getMessageId()->toString(),
+				$acknowledgement->getQueueName()
+			)
+		);
 
 		$consumptionInfo = $client->getConsumptionInfo();
 

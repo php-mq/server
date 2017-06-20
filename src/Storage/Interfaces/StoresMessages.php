@@ -14,7 +14,7 @@ use Psr\Log\LoggerAwareInterface;
  * Interface StoresMessages
  * @package PHPMQ\Server\Storage\Interfaces
  */
-interface StoresMessages extends LoggerAwareInterface
+interface StoresMessages
 {
 	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void;
 

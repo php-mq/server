@@ -8,7 +8,7 @@ namespace PHPMQ\Server;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Interfaces\HandlesEvents;
 use PHPMQ\Server\Interfaces\PublishesEvents;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class EventBus
@@ -16,14 +16,16 @@ use Psr\Log\LoggerAwareTrait;
  */
 final class EventBus implements PublishesEvents
 {
-	use LoggerAwareTrait;
-
 	/** @var array|HandlesEvents[] */
 	private $eventListeners;
 
-	public function __construct()
+	/** @var LoggerInterface */
+	private $logger;
+
+	public function __construct( LoggerInterface $logger )
 	{
 		$this->eventListeners = [];
+		$this->logger         = $logger;
 	}
 
 	public function addEventHandlers( HandlesEvents ...$eventListeners ) : void

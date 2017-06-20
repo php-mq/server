@@ -5,11 +5,13 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
+use Psr\Log\LoggerAwareInterface;
+
 /**
  * Interface ListensForActivity
  * @package PHPMQ\Server\Endpoint\Interfaces
  */
-interface ListensForActivity
+interface ListensForActivity extends LoggerAwareInterface
 {
 	public function start() : void;
 
