@@ -60,7 +60,6 @@ trait StorageMockingRedis
 		};
 
 		$this->messageQueue = new MessageQueueRedis( $config );
-		$this->messageQueue->setLogger( new NullLogger() );
 		$this->messageQueue->flushAllQueues();
 	}
 

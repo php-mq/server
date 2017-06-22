@@ -8,7 +8,6 @@ namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Storage\MessageQueueSQLite;
-use Psr\Log\NullLogger;
 
 /**
  * Trait StorageMockingSQLite
@@ -19,22 +18,21 @@ trait StorageMockingSQLite
 	/** @var StoresMessages */
 	private $messageQueue;
 
-	public function setUpStorage() : void
+	public function setUpStorage(): void
 	{
 		$config = new class() implements ConfiguresMessageQueueSQLite
 		{
-			public function getMessageQueuePath() : string
+			public function getMessageQueuePath(): string
 			{
 				return ':memory:';
 			}
 		};
 
 		$this->messageQueue = new MessageQueueSQLite( $config );
-		$this->messageQueue->setLogger( new NullLogger() );
 		$this->messageQueue->flushAllQueues();
 	}
 
-	public function tearDownStorage() : void
+	public function tearDownStorage(): void
 	{
 		$this->messageQueue->flushAllQueues();
 		$this->messageQueue = null;

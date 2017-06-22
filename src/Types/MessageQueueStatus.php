@@ -22,23 +22,23 @@ final class MessageQueueStatus implements ProvidesQueueStatus
 		$this->statusData = $statusData;
 	}
 
-	public function getQueueName() : IdentifiesQueue
+	public function getQueueName(): IdentifiesQueue
 	{
 		return new QueueName( (string)$this->statusData['queueName'] );
 	}
 
-	public function getCountTotal() : int
+	public function getCountTotal(): int
 	{
-		return (int)($this->statusData['countTotal'] ?? -1);
+		return (int)($this->statusData['countTotal'] ?? 0);
 	}
 
-	public function getCountUndispatched() : int
+	public function getCountUndispatched(): int
 	{
-		return (int)($this->statusData['countUndispatched'] ?? -1);
+		return (int)($this->statusData['countUndispatched'] ?? 0);
 	}
 
-	public function getCountDispatched() : int
+	public function getCountDispatched(): int
 	{
-		return (int)($this->statusData['countDispatched'] ?? -1);
+		return (int)($this->statusData['countDispatched'] ?? 0);
 	}
 }
