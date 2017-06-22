@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class ConsumptionInfoTest extends TestCase
 {
-	public function testCanGetConsumableMessageCount() : void
+	public function testCanGetConsumableMessageCount(): void
 	{
 		$messageId = MessageId::generate();
 		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 5 );
@@ -32,7 +32,7 @@ final class ConsumptionInfoTest extends TestCase
 		$this->assertSame( 5, $info->getMessageCount() );
 	}
 
-	public function testCanCheckForConsumption() : void
+	public function testCanCheckForConsumption(): void
 	{
 		$messageId = MessageId::generate();
 		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 1 );
@@ -48,7 +48,7 @@ final class ConsumptionInfoTest extends TestCase
 		$this->assertTrue( $info->canConsume() );
 	}
 
-	public function testCanGetConsumedMessageIds() : void
+	public function testCanGetConsumedMessageIds(): void
 	{
 		$messageId = MessageId::generate();
 		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 1 );
@@ -61,15 +61,17 @@ final class ConsumptionInfoTest extends TestCase
 		$this->assertEquals( [ $messageId ], $info->getMessageIds() );
 	}
 
-	public function testCanGetConsumptionInfoAsString() : void
+	public function testCanGetConsumptionInfoAsString(): void
 	{
 		$expectedString = 'Queue name: "Test-Queue", Message count: 4, Currently consumed: 1';
 		$messageId      = MessageId::generate();
-		$info           = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 4 );
+		$queueName      = new QueueName( 'Test-Queue' );
+		$info           = new ConsumptionInfo( $queueName, 4 );
 
 		$info->addMessageId( $messageId );
 
 		$this->assertSame( $expectedString, (string)$info );
 		$this->assertSame( $expectedString, $info->toString() );
+		$this->assertSame( $queueName, $info->getQueueName() );
 	}
 }

@@ -57,7 +57,7 @@ final class MessageQueueClient implements CommunicatesWithServer
 
 	public function write( string $data ) : int
 	{
-		return (int)fwrite( $this->socket, $data );
+		return (int)(@fwrite( $this->socket, $data ));
 	}
 
 	/**

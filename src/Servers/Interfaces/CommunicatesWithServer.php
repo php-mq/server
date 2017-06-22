@@ -13,13 +13,15 @@ use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
  */
 interface CommunicatesWithServer
 {
-	public function getClientId() : IdentifiesClient;
+	public function getClientId(): IdentifiesClient;
 
-	public function read( int $bytes ) : string;
+	public function read( int $bytes ): string;
 
-	public function hasUnreadData() : bool;
+	public function collectSocket( array &$sockets ): void;
 
-	public function write( string $data ) : int;
+	public function hasUnreadData(): bool;
 
-	public function shutDown() : void;
+	public function write( string $data ): int;
+
+	public function shutDown(): void;
 }

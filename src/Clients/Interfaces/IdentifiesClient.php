@@ -13,5 +13,4 @@ use PHPMQ\Server\Interfaces\RepresentsString;
  */
 interface IdentifiesClient extends RepresentsString
 {
-	public static function generate() : IdentifiesClient;
 }

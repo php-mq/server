@@ -12,27 +12,40 @@ namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 trait SocketMocking
 {
 	/** @var resource */
-	private $socketServer;
+	private $serverSocket;
 
-	/** @var resource */
-	private $socketClient;
-
-	public function setUpSockets() : void
+	public function setUpServerSocket(): void
 	{
-		$this->socketServer = socket_create( AF_UNIX, SOCK_STREAM, 0 );
-		@unlink( '/tmp/mock.sock' );
-		socket_bind( $this->socketServer, '/tmp/mock.sock' );
-		socket_listen( $this->socketServer, SOMAXCONN );
+		$socketAddress = $this->getSocketAddress();
 
-		$this->socketClient = socket_create( AF_UNIX, SOCK_STREAM, 0 );
-		socket_connect( $this->socketClient, '/tmp/mock.sock' );
+		$this->serverSocket = stream_socket_server( $socketAddress );
+		stream_set_blocking( $this->serverSocket, false );
 	}
 
-	public function tearDownSockets() : void
+	private function getSocketAddress(): string
 	{
-		socket_shutdown( $this->socketServer );
-		socket_shutdown( $this->socketClient );
-		socket_close( $this->socketServer );
-		socket_close( $this->socketClient );
+		return 'tcp://127.0.0.1:9005';
+	}
+
+	public function getRemoteClientSocket()
+	{
+		$socket = stream_socket_client( $this->getSocketAddress() );
+		stream_set_blocking( $socket, false );
+
+		return $socket;
+	}
+
+	public function getServerClientSocket()
+	{
+		$socket = stream_socket_accept( $this->serverSocket, 5 );
+		stream_set_blocking( $socket, false );
+
+		return $socket;
+	}
+
+	public function tearDownServerSocket(): void
+	{
+		stream_socket_shutdown( $this->serverSocket, STREAM_SHUT_RDWR );
+		fclose( $this->serverSocket );
 	}
 }

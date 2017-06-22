@@ -24,11 +24,6 @@ final class ClientId implements IdentifiesClient
 		$this->clientId = $clientId;
 	}
 
-	public static function generate() : IdentifiesClient
-	{
-		return new self( bin2hex( random_bytes( 16 ) ) );
-	}
-
 	public function toString() : string
 	{
 		return $this->clientId;

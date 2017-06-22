@@ -17,13 +17,13 @@ final class ClientPool implements TracksClients
 	/** @var array|CommunicatesWithServer[] */
 	private $clients = [];
 
-	public function add( CommunicatesWithServer $client ) : void
+	public function add( CommunicatesWithServer $client ): void
 	{
 		$clientId                               = $client->getClientId();
 		$this->clients[ $clientId->toString() ] = $client;
 	}
 
-	public function remove( CommunicatesWithServer $client ) : void
+	public function remove( CommunicatesWithServer $client ): void
 	{
 		$clientId = $client->getClientId();
 
@@ -35,7 +35,7 @@ final class ClientPool implements TracksClients
 	/**
 	 * @return iterable|CommunicatesWithServer[]
 	 */
-	public function getActive() : iterable
+	public function getActive(): iterable
 	{
 		if ( empty( $this->clients ) )
 		{
@@ -54,11 +54,11 @@ final class ClientPool implements TracksClients
 		{
 			return [];
 		}
-
+		
 		return array_intersect_key( $this->clients, $reads );
 	}
 
-	public function getShuffled() : iterable
+	public function getShuffled(): iterable
 	{
 		$clients = $this->clients;
 
@@ -67,11 +67,13 @@ final class ClientPool implements TracksClients
 		return $clients;
 	}
 
-	public function shutDown() : void
+	public function shutDown(): void
 	{
 		foreach ( $this->clients as $client )
 		{
 			$client->shutDown();
 		}
+
+		$this->clients = [];
 	}
 }
