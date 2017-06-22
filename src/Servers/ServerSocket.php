@@ -31,20 +31,24 @@ final class ServerSocket implements EstablishesActivityListener
 		$this->listening     = false;
 	}
 
-	public function getName() : string
+	public function getName(): string
 	{
 		return $this->socketAddress->getSocketAddress();
 	}
 
-	public function startListening() : void
+	public function startListening(): void
 	{
+		if ( $this->listening )
+		{
+			return;
+		}
 		$this->establishSocket();
 		$this->makeSocketNonBlocking();
 
 		$this->listening = true;
 	}
 
-	private function establishSocket() : void
+	private function establishSocket(): void
 	{
 		$errorNumber = $errorString = null;
 
@@ -57,7 +61,7 @@ final class ServerSocket implements EstablishesActivityListener
 		$this->guardSocketEstablished( $errorNumber, $errorString );
 	}
 
-	private function guardSocketEstablished( ?int $errorNumber, ?string $errorString ) : void
+	private function guardSocketEstablished( ?int $errorNumber, ?string $errorString ): void
 	{
 		if ( false === $this->socket )
 		{
@@ -72,7 +76,7 @@ final class ServerSocket implements EstablishesActivityListener
 		}
 	}
 
-	private function makeSocketNonBlocking() : void
+	private function makeSocketNonBlocking(): void
 	{
 		if ( !stream_set_blocking( $this->socket, false ) )
 		{
@@ -85,7 +89,7 @@ final class ServerSocket implements EstablishesActivityListener
 		}
 	}
 
-	public function endListening() : void
+	public function endListening(): void
 	{
 		$this->listening = false;
 
@@ -107,7 +111,7 @@ final class ServerSocket implements EstablishesActivityListener
 		$this->socket = null;
 	}
 
-	public function getNewClient() : ?ProvidesClientInfo
+	public function getNewClient(): ?ProvidesClientInfo
 	{
 		if ( !$this->isActive() )
 		{
@@ -125,7 +129,7 @@ final class ServerSocket implements EstablishesActivityListener
 		return new ClientInfo( $clientName, $clientSocket );
 	}
 
-	private function isActive() : bool
+	private function isActive(): bool
 	{
 		if ( !$this->listening )
 		{
@@ -138,7 +142,7 @@ final class ServerSocket implements EstablishesActivityListener
 		return (bool)stream_select( $reads, $writes, $excepts, 0 );
 	}
 
-	private function guardClientSocketAccepted( $clientSocket ) : void
+	private function guardClientSocketAccepted( $clientSocket ): void
 	{
 		if ( false === $clientSocket )
 		{
@@ -151,7 +155,7 @@ final class ServerSocket implements EstablishesActivityListener
 		}
 	}
 
-	private function getClientSocketName( $clientSocket ) : string
+	private function getClientSocketName( $clientSocket ): string
 	{
 		$clientSocketName = stream_socket_get_name( $clientSocket, true );
 
@@ -168,7 +172,7 @@ final class ServerSocket implements EstablishesActivityListener
 		return $clientSocketName;
 	}
 
-	private function makeClientSocketNonBlocking( string $clientSocketName, $clientSocket ) : void
+	private function makeClientSocketNonBlocking( string $clientSocketName, $clientSocket ): void
 	{
 		if ( !stream_set_blocking( $clientSocket, false ) )
 		{
