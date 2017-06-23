@@ -3,10 +3,11 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\EventHandlers;
+namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
+use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
@@ -15,10 +16,10 @@ use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 
 /**
- * Class MessageQueueClientInboundEventHandler
- * @package PHPMQ\Server\EventHandlers
+ * Class ClientInboundEventHandler
+ * @package PHPMQ\Server\EventHandlers\MessageQueue
  */
-final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
+final class ClientInboundEventHandler extends AbstractEventHandler
 {
 	/** @var StoresMessages */
 	private $storage;
@@ -28,7 +29,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		$this->storage = $storage;
 	}
 
-	protected function getAcceptedEvents() : array
+	protected function getAcceptedEvents(): array
 	{
 		return [
 			ClientSentMessageC2E::class,
@@ -37,7 +38,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		];
 	}
 
-	protected function whenMessageQueueClientSentMessageC2E( ClientSentMessageC2E $event ): void
+	protected function whenClientSentMessageC2E( ClientSentMessageC2E $event ): void
 	{
 		$messageC2E   = $event->getMessageC2E();
 		$storeMessage = new Message( MessageId::generate(), $messageC2E->getContent() );
@@ -45,7 +46,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		$this->storage->enqueue( $messageC2E->getQueueName(), $storeMessage );
 	}
 
-	protected function whenMessageQueueClientSentConsumeResquest( ClientSentConsumeResquest $event ): void
+	protected function whenClientSentConsumeResquest( ClientSentConsumeResquest $event ): void
 	{
 		$client         = $event->getClient();
 		$consumeRequest = $event->getConsumeRequest();
@@ -64,7 +65,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		);
 	}
 
-	private function cleanUpClientConsumption( MessageQueueClient $client ) : void
+	private function cleanUpClientConsumption( MessageQueueClient $client ): void
 	{
 		$consumptionInfo = $client->getConsumptionInfo();
 		$queueName       = $consumptionInfo->getQueueName();
@@ -78,7 +79,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		}
 	}
 
-	protected function whenMessageQueueClientSentAcknowledgement( ClientSentAcknowledgement $event ): void
+	protected function whenClientSentAcknowledgement( ClientSentAcknowledgement $event ): void
 	{
 		$client          = $event->getClient();
 		$acknowledgement = $event->getAcknowledgement();

@@ -3,19 +3,20 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\EventHandlers;
+namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
+use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\Events\MessageQueue\ClientGotReadyForConsumingMessages;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
- * Class MessageQueueClientOutboundEventHandler
- * @package PHPMQ\Server\EventHandlers
+ * Class ClientOutboundEventHandler
+ * @package PHPMQ\Server\EventHandlers\MessageQueue
  */
-final class MessageQueueClientOutboundEventHandler extends AbstractEventHandler
+final class ClientOutboundEventHandler extends AbstractEventHandler
 {
 	/** @var StoresMessages */
 	private $storage;
@@ -25,16 +26,14 @@ final class MessageQueueClientOutboundEventHandler extends AbstractEventHandler
 		$this->storage = $storage;
 	}
 
-	protected function getAcceptedEvents() : array
+	protected function getAcceptedEvents(): array
 	{
 		return [
 			ClientGotReadyForConsumingMessages::class,
 		];
 	}
 
-	protected function whenMessageQueueClientGotReadyForConsumingMessages(
-		ClientGotReadyForConsumingMessages $event
-	) : void
+	protected function whenClientGotReadyForConsumingMessages( ClientGotReadyForConsumingMessages $event ): void
 	{
 		$client          = $event->getMessageQueueClient();
 		$consumptionInfo = $client->getConsumptionInfo();
@@ -50,7 +49,7 @@ final class MessageQueueClientOutboundEventHandler extends AbstractEventHandler
 	private function dispatchMessagesToClient(
 		MessageQueueClient $client,
 		ProvidesConsumptionInfo $consumptionInfo
-	) : void
+	): void
 	{
 		$queueName    = $consumptionInfo->getQueueName();
 		$messageCount = $consumptionInfo->getMessageCount();

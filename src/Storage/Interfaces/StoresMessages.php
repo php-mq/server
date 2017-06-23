@@ -8,7 +8,6 @@ namespace PHPMQ\Server\Storage\Interfaces;
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use Psr\Log\LoggerAwareInterface;
 
 /**
  * Interface StoresMessages
@@ -16,13 +15,13 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface StoresMessages
 {
-	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void;
+	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ): void;
 
-	public function dequeue( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
+	public function dequeue( IdentifiesQueue $queueName, IdentifiesMessage $messageId ): void;
 
-	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
+	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ): void;
 
-	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void;
+	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ): void;
 
 	/**
 	 * @param IdentifiesQueue $queueName
@@ -30,16 +29,16 @@ interface StoresMessages
 	 *
 	 * @return \Generator|CarriesInformation[]
 	 */
-	public function getUndispatched( IdentifiesQueue $queueName, int $countMessages = 1 ) : \Generator;
+	public function getUndispatched( IdentifiesQueue $queueName, int $countMessages = 1 ): \Generator;
 
-	public function flushQueue( IdentifiesQueue $queueName ) : void;
+	public function flushQueue( IdentifiesQueue $queueName ): void;
 
-	public function flushAllQueues() : void;
+	public function flushAllQueues(): void;
 
-	public function getQueueStatus( IdentifiesQueue $queueName ) : ProvidesQueueStatus;
+	public function getQueueStatus( IdentifiesQueue $queueName ): ProvidesQueueStatus;
 
 	/**
 	 * @return \Generator|ProvidesQueueStatus[]
 	 */
-	public function getAllQueueStatus() : \Generator;
+	public function getAllQueueStatus(): \Generator;
 }

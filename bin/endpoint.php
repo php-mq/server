@@ -6,11 +6,10 @@
 namespace PHPMQ\Server;
 
 use PHPMQ\Server\Endpoint\Endpoint;
-use PHPMQ\Server\EventHandlers\MessageQueueClientConnectionEventHandler;
-use PHPMQ\Server\EventHandlers\MessageQueueClientInboundEventHandler;
-use PHPMQ\Server\EventHandlers\MessageQueueClientOutboundEventHandler;
+use PHPMQ\Server\EventHandlers\Maintenance;
+use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
-use PHPMQ\Server\Servers\AdminServer;
+use PHPMQ\Server\Servers\MaintenanceServer;
 use PHPMQ\Server\Servers\MessageQueueServer;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
@@ -22,7 +21,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
-	public function getMessageQueuePath() : string
+	public function getMessageQueuePath(): string
 	{
 		return ':memory:';
 	}
@@ -64,18 +63,20 @@ $eventBus = new EventBus( $logger );
 $storage  = new MessageQueueSQLite( $storageConfig );
 
 $eventBus->addEventHandlers(
-	new MessageQueueClientConnectionEventHandler( $storage ),
-	new MessageQueueClientInboundEventHandler( $storage ),
-	new MessageQueueClientOutboundEventHandler( $storage )
+	new MessageQueue\ClientConnectionEventHandler( $storage ),
+	new MessageQueue\ClientInboundEventHandler( $storage ),
+	new MessageQueue\ClientOutboundEventHandler( $storage ),
+	new Maintenance\ClientConnectionEventHandler(),
+	new Maintenance\ClientInboundEventHandler()
 );
 
 $messageQueueServerSocket = new ServerSocket( new NetworkSocket( '127.0.0.1', 9100 ) );
-$adminServerSocket        = new ServerSocket( new NetworkSocket( '127.0.0.1', 9101 ) );
+$maintenanceServerSocket  = new ServerSocket( new NetworkSocket( '127.0.0.1', 9101 ) );
 
 $endoint = new Endpoint( $eventBus, $logger );
 $endoint->registerServers(
 	new MessageQueueServer( $messageQueueServerSocket ),
-	new AdminServer( $adminServerSocket )
+	new MaintenanceServer( $maintenanceServerSocket )
 );
 
 $endoint->run();

@@ -16,48 +16,20 @@ use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
-use PHPMQ\Server\Servers\Interfaces\CommunicatesWithServer;
 
 /**
  * Class MessageQueueClient
  * @package PHPMQ\Server\Clients
  */
-final class MessageQueueClient implements CommunicatesWithServer
+final class MessageQueueClient extends AbstractClient
 {
-	/** @var IdentifiesClient */
-	private $clientId;
-
-	/** @var resource */
-	private $socket;
-
 	/** @var ProvidesConsumptionInfo */
 	private $consumptionInfo;
 
 	public function __construct( IdentifiesClient $clientId, $socket )
 	{
-		$this->clientId        = $clientId;
-		$this->socket          = $socket;
+		parent::__construct( $clientId, $socket );
 		$this->consumptionInfo = new NullConsumptionInfo();
-	}
-
-	public function getClientId() : IdentifiesClient
-	{
-		return $this->clientId;
-	}
-
-	public function collectSocket( array &$sockets ) : void
-	{
-		$sockets[ $this->clientId->toString() ] = $this->socket;
-	}
-
-	public function read( int $bytes ) : string
-	{
-		return (string)fread( $this->socket, $bytes );
-	}
-
-	public function write( string $data ) : int
-	{
-		return (int)(@fwrite( $this->socket, $data ));
 	}
 
 	/**
@@ -66,7 +38,7 @@ final class MessageQueueClient implements CommunicatesWithServer
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @return CarriesInformation
 	 */
-	public function readMessage( MessageBuilder $messageBuilder ) : CarriesInformation
+	public function readMessage( MessageBuilder $messageBuilder ): CarriesInformation
 	{
 		$bytes = $this->read( PacketLength::MESSAGE_HEADER );
 		$this->guardReadBytes( $bytes );
@@ -97,24 +69,17 @@ final class MessageQueueClient implements CommunicatesWithServer
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function guardReadBytes( $bytes ) : void
+	private function guardReadBytes( $bytes ): void
 	{
 		if ( !$bytes )
 		{
 			throw new ClientDisconnectedException(
-				sprintf( 'MessageQueueClient has disconnected. [MessageQueueClient ID: %s]', $this->clientId )
+				sprintf( 'MessageQueueClient has disconnected. [MessageQueueClient ID: %s]', $this->getClientId() )
 			);
 		}
 	}
 
-	public function hasUnreadData() : bool
-	{
-		$metaData = stream_get_meta_data( $this->socket );
-
-		return ($metaData['unread_bytes'] > 0);
-	}
-
-	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ): void
 	{
 		if ( count( $this->consumptionInfo->getMessageIds() ) > 0 )
 		{
@@ -124,7 +89,7 @@ final class MessageQueueClient implements CommunicatesWithServer
 		$this->consumptionInfo = $consumptionInfo;
 	}
 
-	public function getConsumptionInfo() : ProvidesConsumptionInfo
+	public function getConsumptionInfo(): ProvidesConsumptionInfo
 	{
 		return $this->consumptionInfo;
 	}
@@ -134,7 +99,7 @@ final class MessageQueueClient implements CommunicatesWithServer
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
 	 */
-	public function consumeMessage( MessageE2C $message ) : void
+	public function consumeMessage( MessageE2C $message ): void
 	{
 		$bytes = $this->write( $message->toString() );
 
@@ -144,10 +109,5 @@ final class MessageQueueClient implements CommunicatesWithServer
 		}
 
 		$this->consumptionInfo->addMessageId( $message->getMessageId() );
-	}
-
-	public function shutDown() : void
-	{
-		stream_socket_shutdown( $this->socket, STREAM_SHUT_RDWR );
 	}
 }

@@ -3,17 +3,18 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\EventHandlers;
+namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
+use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\Events\MessageQueue\ClientConnected;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
- * Class MessageQueueClientConnectionEventHandler
- * @package PHPMQ\Server\EventHandlers
+ * Class ClientConnectionEventHandler
+ * @package PHPMQ\Server\EventHandlers\MessageQueue
  */
-final class MessageQueueClientConnectionEventHandler extends AbstractEventHandler
+final class ClientConnectionEventHandler extends AbstractEventHandler
 {
 	/** @var StoresMessages */
 	private $storage;
@@ -31,14 +32,14 @@ final class MessageQueueClientConnectionEventHandler extends AbstractEventHandle
 		];
 	}
 
-	protected function whenMessageQueueClientConnected( ClientConnected $event ): void
+	protected function whenClientConnected( ClientConnected $event ): void
 	{
 		$client = $event->getMessageQueueClient();
 
 		$this->logger->debug( 'New message queue client connected: ' . $client->getClientId() );
 	}
 
-	protected function whenMessageQueueClientDisconnected( ClientDisconnected $event ): void
+	protected function whenClientDisconnected( ClientDisconnected $event ): void
 	{
 		$client = $event->getMessageQueueClient();
 
