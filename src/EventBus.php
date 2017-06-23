@@ -17,34 +17,34 @@ use Psr\Log\LoggerInterface;
 final class EventBus implements PublishesEvents
 {
 	/** @var array|HandlesEvents[] */
-	private $eventListeners;
+	private $eventHandlers;
 
 	/** @var LoggerInterface */
 	private $logger;
 
 	public function __construct( LoggerInterface $logger )
 	{
-		$this->eventListeners = [];
-		$this->logger         = $logger;
+		$this->eventHandlers = [];
+		$this->logger        = $logger;
 	}
 
-	public function addEventHandlers( HandlesEvents ...$eventListeners ) : void
+	public function addEventHandlers( HandlesEvents ...$eventHandlers ) : void
 	{
-		foreach ( $eventListeners as $eventListener )
+		foreach ( $eventHandlers as $eventHandler )
 		{
-			$eventListener->setLogger( $this->logger );
+			$eventHandler->setLogger( $this->logger );
 
-			$this->eventListeners[] = $eventListener;
+			$this->eventHandlers[] = $eventHandler;
 		}
 	}
 
 	public function publishEvent( CarriesEventData $event ) : void
 	{
-		foreach ( $this->eventListeners as $eventListener )
+		foreach ( $this->eventHandlers as $eventHandler )
 		{
-			if ( $eventListener->acceptsEvent( $event ) )
+			if ( $eventHandler->acceptsEvent( $event ) )
 			{
-				$eventListener->notify( $event );
+				$eventHandler->notify( $event );
 			}
 		}
 	}
