@@ -3,13 +3,13 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Printers;
+namespace PHPMQ\Server\Monitoring\Printers;
 
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\PrintsMonitoringInfo;
+use PHPMQ\Server\Monitoring\Interfaces\PrintsMonitoringInfo;
 
 /**
  * Class AbstractPrinter
- * @package PHPMQ\Server\Loggers\Monitoring\Printers
+ * @package PHPMQ\Server\Monitoring\Printers
  */
 abstract class AbstractPrinter implements PrintsMonitoringInfo
 {

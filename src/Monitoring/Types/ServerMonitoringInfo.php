@@ -3,18 +3,18 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Types;
+namespace PHPMQ\Server\Monitoring\Types;
 
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\ProvidesMonitoringInfo;
+use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
 use PHPMQ\Server\Types\QueueInfo;
 use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class ServerMonitoringInfo
- * @package PHPMQ\Server\Loggers\Monitoring\Types
+ * @package PHPMQ\Server\Monitoring\Types
  */
 final class ServerMonitoringInfo implements ProvidesMonitoringInfo
 {

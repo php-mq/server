@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Types;
+namespace PHPMQ\Server\Monitoring\Types;
 
 use PHPMQ\Server\Exceptions\RuntimeException;
 
 /**
  * Class ServerMonitoringConfig
- * @package PHPMQ\Server\Loggers\Monitoring\Types
+ * @package PHPMQ\Server\Monitoring\Types
  */
 final class ServerMonitoringConfig
 {

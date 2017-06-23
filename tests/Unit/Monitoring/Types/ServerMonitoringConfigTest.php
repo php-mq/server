@@ -3,14 +3,14 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Tests\Unit\Logging\Monitoring\Types;
+namespace PHPMQ\Server\Tests\Unit\Monitoring\Types;
 
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringConfig;
+use PHPMQ\Server\Monitoring\Types\ServerMonitoringConfig;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ServerMonitoringConfigTest
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Logging\Monitoring\Types
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Monitoring\Types
  */
 final class ServerMonitoringConfigTest extends TestCase
 {
@@ -103,7 +103,7 @@ final class ServerMonitoringConfigTest extends TestCase
 				'argv'              => [
 					0 => '/path/to/script.php',
 					1 => '-m',
-				    2 => '-qTestQueue'
+					2 => '-qTestQueue',
 				],
 				'expectedEnabled'   => true,
 				'expectedQueueName' => 'TestQueue',
@@ -112,7 +112,7 @@ final class ServerMonitoringConfigTest extends TestCase
 				'argv'              => [
 					0 => '/path/to/script.php',
 					1 => '-m',
-				    2 => '--queue=TestQueue'
+					2 => '--queue=TestQueue',
 				],
 				'expectedEnabled'   => true,
 				'expectedQueueName' => 'TestQueue',

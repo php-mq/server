@@ -3,16 +3,16 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Printers;
+namespace PHPMQ\Server\Monitoring\Printers;
 
-use PHPMQ\Server\Loggers\Monitoring\Formatters\ByteFormatter;
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\ProvidesMonitoringInfo;
+use PHPMQ\Server\Monitoring\Formatters\ByteFormatter;
+use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
 use PHPMQ\Server\Types\QueueInfo;
 use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class SingleQueuePrinter
- * @package PHPMQ\Server\Loggers\Monitoring\Printers
+ * @package PHPMQ\Server\Monitoring\Printers
  */
 final class SingleQueuePrinter extends AbstractPrinter
 {

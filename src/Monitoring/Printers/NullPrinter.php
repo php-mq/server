@@ -3,14 +3,14 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Printers;
+namespace PHPMQ\Server\Monitoring\Printers;
 
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\PrintsMonitoringInfo;
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\ProvidesMonitoringInfo;
+use PHPMQ\Server\Monitoring\Interfaces\PrintsMonitoringInfo;
+use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
 
 /**
  * Class NullPrinter
- * @package PHPMQ\Server\Loggers\Monitoring\Printers
+ * @package PHPMQ\Server\Monitoring\Printers
  */
 final class NullPrinter implements PrintsMonitoringInfo
 {

@@ -3,14 +3,14 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Interfaces;
+namespace PHPMQ\Server\Monitoring\Interfaces;
 
 use PHPMQ\Server\Types\QueueInfo;
 use PHPMQ\Server\Types\QueueName;
 
 /**
  * Interface ProvidesMonitoringInfo
- * @package PHPMQ\Server\Loggers\Monitoring\Interfaces
+ * @package PHPMQ\Server\Monitoring\Interfaces
  */
 interface ProvidesMonitoringInfo
 {

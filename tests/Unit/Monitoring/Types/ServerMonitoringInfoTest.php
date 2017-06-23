@@ -3,22 +3,22 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Tests\Unit\Logging\Monitoring\Types;
+namespace PHPMQ\Server\Tests\Unit\Monitoring\Types;
 
 use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringInfo;
+use PHPMQ\Server\Monitoring\Types\ServerMonitoringInfo;
 use PHPMQ\Server\Types\QueueInfo;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ServerMonitoringInfoTest
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Logging\Monitoring\Types
+ * @package PHPMQ\MessageQueueServer\Tests\Unit\Monitoring\Types
  */
 final class ServerMonitoringInfoTest extends TestCase
 {
-	public function testCanIncrementConnectedClients() : void
+	public function testCanIncrementConnectedClients(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -33,7 +33,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertSame( 2, $info->getConnectedClientsCount() );
 	}
 
-	public function testCanDecrementConnectedClients() : void
+	public function testCanDecrementConnectedClients(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -57,7 +57,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertSame( 0, $info->getConnectedClientsCount() );
 	}
 
-	public function testCanAddMessage() : void
+	public function testCanAddMessage(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -87,7 +87,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertEquals( $expectedQueueInfos, $queueInfos );
 	}
 
-	private function getQueueNameMock( string $name ) : \PHPUnit_Framework_MockObject_MockObject
+	private function getQueueNameMock( string $name ): \PHPUnit_Framework_MockObject_MockObject
 	{
 		$queueName = $this->getMockBuilder( IdentifiesQueue::class )
 		                  ->setMethods( [ 'toString' ] )
@@ -103,7 +103,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		string $msgId,
 		string $content,
 		int $createdAt
-	) : \PHPUnit_Framework_MockObject_MockObject
+	): \PHPUnit_Framework_MockObject_MockObject
 	{
 		$messageId = $this->getMessageIdMock( $msgId );
 
@@ -123,7 +123,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		return $message;
 	}
 
-	private function getMessageIdMock( string $msgId ) : \PHPUnit_Framework_MockObject_MockObject
+	private function getMessageIdMock( string $msgId ): \PHPUnit_Framework_MockObject_MockObject
 	{
 		$messageId = $this->getMockBuilder( IdentifiesMessage::class )
 		                  ->setMethods( [ 'toString' ] )
@@ -135,7 +135,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		return $messageId;
 	}
 
-	public function testCanRemoveMessage() : void
+	public function testCanRemoveMessage(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -159,7 +159,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertCount( 0, $queueInfos );
 	}
 
-	public function testCanMarkMessageAsDispatched() : void
+	public function testCanMarkMessageAsDispatched(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -193,7 +193,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertEquals( $expectedQueueInfos, $queueInfos );
 	}
 
-	public function testCanMarkMessageAsUndispatched() : void
+	public function testCanMarkMessageAsUndispatched(): void
 	{
 		$info = new ServerMonitoringInfo();
 
@@ -247,7 +247,7 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertEquals( $expectedQueueInfos, $queueInfos );
 	}
 
-	public function testCanFlushQueues() : void
+	public function testCanFlushQueues(): void
 	{
 		$info = new ServerMonitoringInfo();
 

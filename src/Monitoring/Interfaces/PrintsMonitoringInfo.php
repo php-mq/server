@@ -3,11 +3,11 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Interfaces;
+namespace PHPMQ\Server\Monitoring\Interfaces;
 
 /**
  * Interface PrintsMonitoringInfo
- * @package PHPMQ\Server\Loggers\Monitoring\Interfaces
+ * @package PHPMQ\Server\Monitoring\Interfaces
  */
 interface PrintsMonitoringInfo
 {

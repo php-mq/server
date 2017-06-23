@@ -3,11 +3,11 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring\Constants;
+namespace PHPMQ\Server\Monitoring\Constants;
 
 /**
  * Class ServerMonitoring
- * @package PHPMQ\Server\Loggers\Monitoring\Constants
+ * @package PHPMQ\Server\Monitoring\Constants
  */
 abstract class ServerMonitoring
 {

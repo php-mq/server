@@ -3,17 +3,17 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring;
+namespace PHPMQ\Server\Monitoring;
 
-use PHPMQ\Server\Loggers\Monitoring\Constants\ServerMonitoring;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringConfig;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringInfo;
+use PHPMQ\Server\Monitoring\Constants\ServerMonitoring;
+use PHPMQ\Server\Monitoring\Types\ServerMonitoringConfig;
+use PHPMQ\Server\Monitoring\Types\ServerMonitoringInfo;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
 
 /**
  * Class ServerMonitoringLogger
- * @package PHPMQ\Server\Loggers\Monitoring
+ * @package PHPMQ\Server\Monitoring
  */
 final class ServerMonitoringLogger extends AbstractLogger
 {

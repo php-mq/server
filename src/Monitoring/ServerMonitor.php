@@ -3,19 +3,19 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Loggers\Monitoring;
+namespace PHPMQ\Server\Monitoring;
 
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\PrintsMonitoringInfo;
-use PHPMQ\Server\Loggers\Monitoring\Interfaces\ProvidesMonitoringInfo;
-use PHPMQ\Server\Loggers\Monitoring\Printers\NullPrinter;
-use PHPMQ\Server\Loggers\Monitoring\Printers\OverviewPrinter;
-use PHPMQ\Server\Loggers\Monitoring\Printers\SingleQueuePrinter;
-use PHPMQ\Server\Loggers\Monitoring\Types\ServerMonitoringConfig;
+use PHPMQ\Server\Monitoring\Interfaces\PrintsMonitoringInfo;
+use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
+use PHPMQ\Server\Monitoring\Printers\NullPrinter;
+use PHPMQ\Server\Monitoring\Printers\OverviewPrinter;
+use PHPMQ\Server\Monitoring\Printers\SingleQueuePrinter;
+use PHPMQ\Server\Monitoring\Types\ServerMonitoringConfig;
 use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class ServerMonitor
- * @package PHPMQ\Server\Loggers\Monitoring
+ * @package PHPMQ\Server\Monitoring
  */
 final class ServerMonitor
 {
