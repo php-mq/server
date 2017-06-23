@@ -8,10 +8,10 @@ namespace PHPMQ\Server\EventHandlers\Exceptions;
 use PHPMQ\Server\Exceptions\LogicException;
 
 /**
- * Class EventListenerMethodNotCallableException
+ * Class EventHandlerMethodNotCallableException
  * @package PHPMQ\Server\EventHandlers\Exceptions
  */
-final class EventListenerMethodNotCallableException extends LogicException
+final class EventHandlerMethodNotCallableException extends LogicException
 {
 
 }

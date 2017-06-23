@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\EventHandlers;
 
-use PHPMQ\Server\EventHandlers\Exceptions\EventListenerMethodNotCallableException;
+use PHPMQ\Server\EventHandlers\Exceptions\EventHandlerMethodNotCallableException;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Interfaces\HandlesEvents;
 use Psr\Log\LoggerAwareTrait;
@@ -28,7 +28,7 @@ abstract class AbstractEventHandler implements HandlesEvents
 	/**
 	 * @param CarriesEventData $event
 	 *
-	 * @throws \PHPMQ\Server\EventHandlers\Exceptions\EventListenerMethodNotCallableException
+	 * @throws \PHPMQ\Server\EventHandlers\Exceptions\EventHandlerMethodNotCallableException
 	 */
 	final public function notify( CarriesEventData $event ) : void
 	{
@@ -38,7 +38,7 @@ abstract class AbstractEventHandler implements HandlesEvents
 
 		if ( !is_callable( [ $this, $methodName ] ) )
 		{
-			throw new EventListenerMethodNotCallableException(
+			throw new EventHandlerMethodNotCallableException(
 				'Method ' . $methodName . ' is not callable on ' . get_class( $this )
 			);
 		}
