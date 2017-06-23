@@ -3,17 +3,17 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Events;
+namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 
 /**
- * Class MessageQueueClientSentAcknowledgement
- * @package PHPMQ\Server\Events
+ * Class ClientSentAcknowledgement
+ * @package PHPMQ\Server\Events\MessageQueue
  */
-final class MessageQueueClientSentAcknowledgement implements CarriesEventData
+final class ClientSentAcknowledgement implements CarriesEventData
 {
 	/** @var MessageQueueClient */
 	private $client;

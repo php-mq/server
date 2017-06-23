@@ -9,12 +9,12 @@ use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException;
-use PHPMQ\Server\Events\MessageQueueClientConnected;
-use PHPMQ\Server\Events\MessageQueueClientDisconnected;
-use PHPMQ\Server\Events\MessageQueueClientGotReadyForConsumingMessages;
-use PHPMQ\Server\Events\MessageQueueClientSentAcknowledgement;
-use PHPMQ\Server\Events\MessageQueueClientSentConsumeResquest;
-use PHPMQ\Server\Events\MessageQueueClientSentMessageC2E;
+use PHPMQ\Server\Events\MessageQueue\ClientConnected;
+use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
+use PHPMQ\Server\Events\MessageQueue\ClientGotReadyForConsumingMessages;
+use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
+use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
+use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
@@ -53,7 +53,7 @@ final class MessageQueueServer extends AbstractServer
 
 			$this->getClients()->add( $client );
 
-			yield new MessageQueueClientConnected( $client );
+			yield new ClientConnected( $client );
 		}
 
 		yield from $this->createInboundMessageEvents();
@@ -76,7 +76,7 @@ final class MessageQueueServer extends AbstractServer
 			{
 				$this->getClients()->remove( $client );
 
-				yield new MessageQueueClientDisconnected( $client );
+				yield new ClientDisconnected( $client );
 			}
 		}
 	}
@@ -126,15 +126,15 @@ final class MessageQueueServer extends AbstractServer
 		{
 			case MessageType::MESSAGE_C2E:
 				/** @var MessageC2E $message */
-				return new MessageQueueClientSentMessageC2E( $client, $message );
+				return new ClientSentMessageC2E( $client, $message );
 
 			case MessageType::CONSUME_REQUEST:
 				/** @var ConsumeRequest $message */
-				return new MessageQueueClientSentConsumeResquest( $client, $message );
+				return new ClientSentConsumeResquest( $client, $message );
 
 			case MessageType::ACKNOWLEDGEMENT:
 				/** @var Acknowledgement $message */
-				return new MessageQueueClientSentAcknowledgement( $client, $message );
+				return new ClientSentAcknowledgement( $client, $message );
 
 			default:
 				throw new InvalidMessageTypeReceivedException( 'Unknown message type: ' . $messageType );
@@ -153,7 +153,7 @@ final class MessageQueueServer extends AbstractServer
 
 			if ( $consumptionInfo->canConsume() )
 			{
-				yield new MessageQueueClientGotReadyForConsumingMessages( $client );
+				yield new ClientGotReadyForConsumingMessages( $client );
 			}
 		}
 	}

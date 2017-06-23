@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\EventHandlers;
 
-use PHPMQ\Server\Events\MessageQueueClientConnected;
-use PHPMQ\Server\Events\MessageQueueClientDisconnected;
+use PHPMQ\Server\Events\MessageQueue\ClientConnected;
+use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
@@ -26,19 +26,19 @@ final class MessageQueueClientConnectionEventHandler extends AbstractEventHandle
 	protected function getAcceptedEvents() : array
 	{
 		return [
-			MessageQueueClientConnected::class,
-			MessageQueueClientDisconnected::class,
+			ClientConnected::class,
+			ClientDisconnected::class,
 		];
 	}
 
-	protected function whenMessageQueueClientConnected( MessageQueueClientConnected $event ) : void
+	protected function whenMessageQueueClientConnected( ClientConnected $event ): void
 	{
 		$client = $event->getMessageQueueClient();
 
 		$this->logger->debug( 'New message queue client connected: ' . $client->getClientId() );
 	}
 
-	protected function whenMessageQueueClientDisconnected( MessageQueueClientDisconnected $event ) : void
+	protected function whenMessageQueueClientDisconnected( ClientDisconnected $event ): void
 	{
 		$client = $event->getMessageQueueClient();
 

@@ -7,7 +7,7 @@ namespace PHPMQ\Server\EventHandlers;
 
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\MessageQueueClientGotReadyForConsumingMessages;
+use PHPMQ\Server\Events\MessageQueue\ClientGotReadyForConsumingMessages;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
@@ -28,12 +28,12 @@ final class MessageQueueClientOutboundEventHandler extends AbstractEventHandler
 	protected function getAcceptedEvents() : array
 	{
 		return [
-			MessageQueueClientGotReadyForConsumingMessages::class,
+			ClientGotReadyForConsumingMessages::class,
 		];
 	}
 
 	protected function whenMessageQueueClientGotReadyForConsumingMessages(
-		MessageQueueClientGotReadyForConsumingMessages $event
+		ClientGotReadyForConsumingMessages $event
 	) : void
 	{
 		$client          = $event->getMessageQueueClient();

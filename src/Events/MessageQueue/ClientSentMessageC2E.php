@@ -3,17 +3,17 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Events;
+namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 
 /**
- * Class MessageQueueClientSentMessageC2E
- * @package PHPMQ\Server\Events
+ * Class ClientSentMessageC2E
+ * @package PHPMQ\Server\Events\MessageQueue
  */
-final class MessageQueueClientSentMessageC2E implements CarriesEventData
+final class ClientSentMessageC2E implements CarriesEventData
 {
 	/** @var MessageQueueClient */
 	private $client;

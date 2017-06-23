@@ -7,9 +7,9 @@ namespace PHPMQ\Server\EventHandlers;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\MessageQueueClientSentAcknowledgement;
-use PHPMQ\Server\Events\MessageQueueClientSentConsumeResquest;
-use PHPMQ\Server\Events\MessageQueueClientSentMessageC2E;
+use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
+use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
+use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
@@ -31,13 +31,13 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 	protected function getAcceptedEvents() : array
 	{
 		return [
-			MessageQueueClientSentMessageC2E::class,
-			MessageQueueClientSentConsumeResquest::class,
-			MessageQueueClientSentAcknowledgement::class,
+			ClientSentMessageC2E::class,
+			ClientSentConsumeResquest::class,
+			ClientSentAcknowledgement::class,
 		];
 	}
 
-	protected function whenMessageQueueClientSentMessageC2E( MessageQueueClientSentMessageC2E $event ) : void
+	protected function whenMessageQueueClientSentMessageC2E( ClientSentMessageC2E $event ): void
 	{
 		$messageC2E   = $event->getMessageC2E();
 		$storeMessage = new Message( MessageId::generate(), $messageC2E->getContent() );
@@ -45,7 +45,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		$this->storage->enqueue( $messageC2E->getQueueName(), $storeMessage );
 	}
 
-	protected function whenMessageQueueClientSentConsumeResquest( MessageQueueClientSentConsumeResquest $event ) : void
+	protected function whenMessageQueueClientSentConsumeResquest( ClientSentConsumeResquest $event ): void
 	{
 		$client         = $event->getClient();
 		$consumeRequest = $event->getConsumeRequest();
@@ -78,7 +78,7 @@ final class MessageQueueClientInboundEventHandler extends AbstractEventHandler
 		}
 	}
 
-	protected function whenMessageQueueClientSentAcknowledgement( MessageQueueClientSentAcknowledgement $event ) : void
+	protected function whenMessageQueueClientSentAcknowledgement( ClientSentAcknowledgement $event ): void
 	{
 		$client          = $event->getClient();
 		$acknowledgement = $event->getAcknowledgement();

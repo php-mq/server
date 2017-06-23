@@ -3,16 +3,16 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Events;
+namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
- * Class MessageQueueClientConnected
- * @package PHPMQ\Server\Events
+ * Class ClientDisconnected
+ * @package PHPMQ\Server\Events\MessageQueue
  */
-final class MessageQueueClientConnected implements CarriesEventData
+final class ClientDisconnected implements CarriesEventData
 {
 	/** @var MessageQueueClient */
 	private $messageQueueClient;
