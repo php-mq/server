@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
-use PHPMQ\Server\EventBus;
+use PHPMQ\Server\Interfaces\PublishesEvents;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -21,13 +21,13 @@ final class Endpoint
 	/** @var bool */
 	private $isRunning;
 
-	/** @var EventBus */
+	/** @var PublishesEvents */
 	private $eventBus;
 
 	/** @var LoggerInterface */
 	private $logger;
 
-	public function __construct( EventBus $eventBus, LoggerInterface $logger )
+	public function __construct( PublishesEvents $eventBus, LoggerInterface $logger )
 	{
 		$this->servers   = [];
 		$this->isRunning = false;
@@ -35,7 +35,7 @@ final class Endpoint
 		$this->logger    = $logger;
 	}
 
-	public function registerServers( ListensForActivity ...$servers ) : void
+	public function registerServers( ListensForActivity ...$servers ): void
 	{
 		foreach ( $servers as $server )
 		{
@@ -45,7 +45,7 @@ final class Endpoint
 		}
 	}
 
-	public function run() : void
+	public function run(): void
 	{
 		$this->registerSignalHandler();
 
@@ -59,7 +59,7 @@ final class Endpoint
 		$this->loop();
 	}
 
-	private function registerSignalHandler() : void
+	private function registerSignalHandler(): void
 	{
 		if ( function_exists( 'pcntl_signal' ) )
 		{
@@ -70,7 +70,7 @@ final class Endpoint
 		}
 	}
 
-	private function shutDownBySignal( int $signal ) : void
+	private function shutDownBySignal( int $signal ): void
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
@@ -79,7 +79,7 @@ final class Endpoint
 		}
 	}
 
-	public function shutdown() : void
+	public function shutdown(): void
 	{
 		$this->isRunning = false;
 
@@ -91,7 +91,7 @@ final class Endpoint
 		$this->servers = [];
 	}
 
-	private function loop() : void
+	private function loop(): void
 	{
 		declare(ticks=1);
 
@@ -103,7 +103,7 @@ final class Endpoint
 		}
 	}
 
-	private function handleServerEvents() : void
+	private function handleServerEvents(): void
 	{
 		foreach ( $this->servers as $server )
 		{
@@ -111,7 +111,7 @@ final class Endpoint
 		}
 	}
 
-	private function emitServerEvents( ListensForActivity $server ) : void
+	private function emitServerEvents( ListensForActivity $server ): void
 	{
 		foreach ( $server->getEvents() as $event )
 		{
