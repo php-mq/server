@@ -3,7 +3,7 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Monitoring\Printers;
+namespace PHPMQ\Server\Printers;
 
 use PHPMQ\Server\Monitoring\Formatters\ByteFormatter;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
@@ -11,7 +11,7 @@ use PHPMQ\Server\Types\QueueInfo;
 
 /**
  * Class OverviewPrinter
- * @package PHPMQ\Server\Monitoring\Printers
+ * @package PHPMQ\Server\Printers
  */
 final class OverviewPrinter extends AbstractPrinter
 {

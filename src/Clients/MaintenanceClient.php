@@ -15,7 +15,7 @@ use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
  */
 final class MaintenanceClient extends AbstractClient
 {
-	public function readCommand( BuildsCommands $commandBuilder ): ?TriggersExecution
+	public function readCommand( BuildsCommands $commandBuilder ) : ?TriggersExecution
 	{
 		$bytes = $this->read( 1024 );
 		$this->guardReadBytes( $bytes );
@@ -28,7 +28,7 @@ final class MaintenanceClient extends AbstractClient
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function guardReadBytes( $bytes ): void
+	private function guardReadBytes( $bytes ) : void
 	{
 		if ( !$bytes )
 		{

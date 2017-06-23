@@ -14,4 +14,10 @@ abstract class Command
 	public const START_MONITOR = 'monitor';
 
 	public const SHOW_QUEUE    = 'queue';
+
+	public const HELP          = 'help';
+
+	public const QUIT          = 'quit';
+
+	public const EXIT          = 'exit';
 }

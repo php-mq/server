@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server;
 
+use PHPMQ\Server\Constants\AnsiColors;
 use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
@@ -21,7 +22,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
-	public function getMessageQueuePath(): string
+	public function getMessageQueuePath() : string
 	{
 		return ':memory:';
 	}
@@ -29,29 +30,12 @@ $storageConfig = new class implements ConfiguresMessageQueueSQLite
 
 $outputLogger = new class extends AbstractLogger
 {
-	private const COLORS = [
-		'<:fg>'        => "\e[39m",
-		'<:bg>'        => "\e[49m",
-		'<fg:red>'     => "\e[31m",
-		'<fg:green>'   => "\e[32m",
-		'<fg:yellow>'  => "\e[33m",
-		'<fg:blue>'    => "\e[34m",
-		'<fg:magenta>' => "\e[35m",
-		'<fg:cyan>'    => "\e[36m",
-		'<bg:red>'     => "\e[41m",
-		'<bg:green>'   => "\e[42m",
-		'<bg:yellow>'  => "\e[43m",
-		'<bg:blue>'    => "\e[44m",
-		'<bg:magenta>' => "\e[45m",
-		'<bg:cyan>'    => "\e[46m",
-	];
-
 	public function log( $level, $message, array $context = [] )
 	{
 		printf(
 			"[%s]: %s\n",
 			$level,
-			str_replace( array_keys( self::COLORS ), self::COLORS, $message )
+			str_replace( array_keys( AnsiColors::COLORS ), AnsiColors::COLORS, $message )
 		);
 	}
 };
@@ -62,12 +46,14 @@ $logger->addLoggers( $outputLogger );
 $eventBus = new EventBus( $logger );
 $storage  = new MessageQueueSQLite( $storageConfig );
 
+$cliWriter = new CliWriter();
+
 $eventBus->addEventHandlers(
 	new MessageQueue\ClientConnectionEventHandler( $storage ),
 	new MessageQueue\ClientInboundEventHandler( $storage ),
 	new MessageQueue\ClientOutboundEventHandler( $storage ),
-	new Maintenance\ClientConnectionEventHandler(),
-	new Maintenance\ClientInboundEventHandler()
+	new Maintenance\ClientConnectionEventHandler( $cliWriter ),
+	new Maintenance\ClientInboundEventHandler( $cliWriter )
 );
 
 $messageQueueServerSocket = new ServerSocket( new NetworkSocket( '127.0.0.1', 9100 ) );

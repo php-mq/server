@@ -12,12 +12,16 @@ use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Commands\Constants\Command;
+use PHPMQ\Server\Commands\Exceptions\UnknownCommandException;
+use PHPMQ\Server\Commands\Help;
 use PHPMQ\Server\Commands\ShowQueue;
 use PHPMQ\Server\Commands\StartMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
+use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
@@ -37,7 +41,7 @@ final class MaintenanceServer extends AbstractServer
 		$this->commandBuilder = new CommandBuilder();
 	}
 
-	public function getEvents(): \Generator
+	public function getEvents() : \Generator
 	{
 		$newClientInfo = $this->getSocket()->getNewClient();
 
@@ -54,7 +58,7 @@ final class MaintenanceServer extends AbstractServer
 		yield from $this->createInboundMessageEvents();
 	}
 
-	private function createInboundMessageEvents(): \Generator
+	private function createInboundMessageEvents() : \Generator
 	{
 		/** @var MaintenanceClient $client */
 		foreach ( $this->getClients()->getActive() as $client )
@@ -64,6 +68,10 @@ final class MaintenanceServer extends AbstractServer
 				$commands = $this->readCommandsFromClient( $client );
 
 				yield from $this->createEventsForCommands( $commands, $client );
+			}
+			catch ( UnknownCommandException $e )
+			{
+				yield new ClientSentUnknownCommand( $client, $e->getUnknownCommandString() );
 			}
 			catch ( ClientDisconnectedException $e )
 			{
@@ -80,7 +88,7 @@ final class MaintenanceServer extends AbstractServer
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @return \Generator|TriggersExecution[]
 	 */
-	private function readCommandsFromClient( MaintenanceClient $client ): \Generator
+	private function readCommandsFromClient( MaintenanceClient $client ) : \Generator
 	{
 		do
 		{
@@ -102,7 +110,7 @@ final class MaintenanceServer extends AbstractServer
 	 *
 	 * @return \Generator|CarriesEventData[]
 	 */
-	private function createEventsForCommands( iterable $commands, MaintenanceClient $client ): \Generator
+	private function createEventsForCommands( iterable $commands, MaintenanceClient $client ) : \Generator
 	{
 		/** @var TriggersExecution $command */
 		foreach ( $commands as $command )
@@ -111,17 +119,27 @@ final class MaintenanceServer extends AbstractServer
 		}
 	}
 
-	private function createCommandEvent( TriggersExecution $command, MaintenanceClient $client ): CarriesEventData
+	private function createCommandEvent( TriggersExecution $command, MaintenanceClient $client ) : CarriesEventData
 	{
 		switch ( $command->getName() )
 		{
+			case Command::HELP:
+				/** @var Help $command */
+				return new ClientRequestedHelp( $client, $command );
+				break;
+
 			case Command::START_MONITOR:
 				/** @var StartMonitor $command */
 				return new ClientRequestedMonitor( $client, $command );
+				break;
 
 			case Command::SHOW_QUEUE:
 				/** @var ShowQueue $command */
 				return new ClientRequestedQueueMonitor( $client, $command );
+				break;
+
+			case Command::QUIT:
+				throw new ClientDisconnectedException();
 
 			default:
 				throw new RuntimeException( 'Unknown command name: ' . $command->getName() );

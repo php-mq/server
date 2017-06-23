@@ -8,6 +8,7 @@ namespace PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
+use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 
 /**
  * Class ClientConnectionEventHandler
@@ -15,7 +16,15 @@ use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
  */
 final class ClientConnectionEventHandler extends AbstractEventHandler
 {
-	protected function getAcceptedEvents(): array
+	/** @var PreparesOutputForCli */
+	private $cliWriter;
+
+	public function __construct( PreparesOutputForCli $cliWriter )
+	{
+		$this->cliWriter = $cliWriter;
+	}
+
+	protected function getAcceptedEvents() : array
 	{
 		return [
 			ClientConnected::class,
@@ -23,14 +32,18 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 		];
 	}
 
-	protected function whenClientConnected( ClientConnected $event ): void
+	protected function whenClientConnected( ClientConnected $event ) : void
 	{
 		$client = $event->getMaintenanceClient();
 
 		$this->logger->debug( 'New maintenance client connected: ' . $client->getClientId() );
+
+		$this->cliWriter->clearScreen()->writeLn( 'Welcome! Type "help" to list available commands.' );
+
+		$client->write( $this->cliWriter->get() );
 	}
 
-	protected function whenClientDisconnected( ClientDisconnected $event ): void
+	protected function whenClientDisconnected( ClientDisconnected $event ) : void
 	{
 		$client = $event->getMaintenanceClient();
 
