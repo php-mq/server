@@ -6,10 +6,10 @@
 namespace PHPMQ\Server\Monitoring\Interfaces;
 
 /**
- * Interface PrintsMonitoringInfo
+ * Interface CreatesMonitoringOutput
  * @package PHPMQ\Server\Monitoring\Interfaces
  */
-interface PrintsMonitoringInfo
+interface CreatesMonitoringOutput
 {
-	public function print( ProvidesMonitoringInfo $monitoringInfo ) : void;
+	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ) : string;
 }
