@@ -37,6 +37,18 @@ final class CommandBuilder implements BuildsCommands
 				return new ShowQueue( new QueueName( (string)($arguments[0] ?? '') ) );
 				break;
 
+			case Command::FLUSH_QUEUE:
+				return new FlushQueue( new QueueName( (string)($arguments[0] ?? '') ) );
+				break;
+
+			case Command::FLUSH_ALL_QUEUES:
+				return new FlushAllQueues();
+				break;
+
+			case Command::QUIT_REFRESH:
+				return new QuitRefresh();
+				break;
+
 			case Command::QUIT:
 			case Command::EXIT:
 				return new Quit();
