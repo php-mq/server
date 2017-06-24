@@ -5,7 +5,6 @@
 
 namespace PHPMQ\Server\Servers;
 
-use PHPMQ\Server\Clients\ClientPool;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
 use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
 use PHPMQ\Server\Servers\Interfaces\TracksClients;
@@ -25,10 +24,10 @@ abstract class AbstractServer implements ListensForActivity
 	/** @var TracksClients */
 	private $clients;
 
-	public function __construct( EstablishesActivityListener $socket )
+	public function __construct( EstablishesActivityListener $socket, TracksClients $clients )
 	{
 		$this->socket  = $socket;
-		$this->clients = new ClientPool();
+		$this->clients = $clients;
 	}
 
 	final protected function getSocket() : EstablishesActivityListener
@@ -43,18 +42,18 @@ abstract class AbstractServer implements ListensForActivity
 
 	public function start() : void
 	{
-		$this->socket->startListening();
+		$this->getSocket()->startListening();
 
-		$this->logger->debug( 'Start listening on ' . $this->socket->getName() );
+		$this->logger->debug( 'Start listening on ' . $this->getSocket()->getName() );
 	}
 
 	public function stop() : void
 	{
-		$this->logger->debug( 'Shutting down client connections to ' . $this->socket->getName() );
+		$this->logger->debug( 'Shutting down client connections to ' . $this->getSocket()->getName() );
 
-		$this->clients->shutDown();
-		$this->socket->endListening();
+		$this->getClients()->shutDown();
+		$this->getSocket()->endListening();
 
-		$this->logger->debug( 'Stopped listening on ' . $this->socket->getName() );
+		$this->logger->debug( 'Stopped listening on ' . $this->getSocket()->getName() );
 	}
 }

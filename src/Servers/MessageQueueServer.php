@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Servers;
 
+use PHPMQ\Server\Clients\ClientPool;
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\Types\ClientId;
@@ -35,7 +36,7 @@ final class MessageQueueServer extends AbstractServer
 
 	public function __construct( EstablishesActivityListener $socket )
 	{
-		parent::__construct( $socket );
+		parent::__construct( $socket, new ClientPool() );
 		$this->messageBuilder = new MessageBuilder();
 	}
 
