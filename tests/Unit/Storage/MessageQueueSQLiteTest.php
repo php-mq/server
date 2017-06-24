@@ -5,11 +5,10 @@
 
 namespace PHPMQ\Server\Tests\Unit\Storage;
 
-use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\MessageQueueStatus;
 use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
@@ -34,27 +33,16 @@ final class MessageQueueSQLiteTest extends TestCase
 	public function testCanEnqueueMessages() : void
 	{
 		$queueName = new QueueName( 'TestQueue' );
+		$message   = $this->getMessage( 'unit-test' );
+		$this->messageQueue->enqueue( $queueName, $message );
 
-		$this->messageQueue->enqueue( $queueName, $this->getMessage( 'unit-test' ) );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
-
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 1, $status->getCountTotal() );
-		$this->assertSame( 1, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
-
-		$this->messageQueue->enqueue( $queueName, $this->getMessage( 'test-unit' ) );
-
-		$status = $this->messageQueue->getQueueStatus( $queueName );
-
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 2, $status->getCountTotal() );
-		$this->assertSame( 2, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$this->assertCount( 1, $messages );
+		$this->assertEquals( $message, $messages[0] );
 	}
 
-	private function getMessage( string $content ) : CarriesInformation
+	private function getMessage( string $content ) : ProvidesMessageData
 	{
 		return new Message( MessageId::generate(), $content );
 	}
@@ -66,21 +54,11 @@ final class MessageQueueSQLiteTest extends TestCase
 
 		$this->messageQueue->enqueue( $queueName, $message );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
-
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 1, $status->getCountTotal() );
-		$this->assertSame( 1, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
-
 		$this->messageQueue->markAsDispached( $queueName, $message->getMessageId() );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
 
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 1, $status->getCountTotal() );
-		$this->assertSame( 0, $status->getCountUndispatched() );
-		$this->assertSame( 1, $status->getCountDispatched() );
+		$this->assertCount( 0, $messages );
 	}
 
 	public function testCanMarkMessagesAsUndispatched() : void
@@ -92,21 +70,12 @@ final class MessageQueueSQLiteTest extends TestCase
 
 		$this->messageQueue->markAsDispached( $queueName, $message->getMessageId() );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
-
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 1, $status->getCountTotal() );
-		$this->assertSame( 0, $status->getCountUndispatched() );
-		$this->assertSame( 1, $status->getCountDispatched() );
-
 		$this->messageQueue->markAsUndispatched( $queueName, $message->getMessageId() );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
 
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 1, $status->getCountTotal() );
-		$this->assertSame( 1, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$this->assertCount( 1, $messages );
+		$this->assertEquals( $message, $messages[0] );
 	}
 
 	public function testCanDequeueMessages() : void
@@ -118,22 +87,21 @@ final class MessageQueueSQLiteTest extends TestCase
 		$this->messageQueue->enqueue( $queueName, $message1 );
 		$this->messageQueue->enqueue( $queueName, $message2 );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 2 ) );
 
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 2, $status->getCountTotal() );
-		$this->assertSame( 2, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$this->assertCount( 2, $messages );
 
 		$this->messageQueue->dequeue( $queueName, $message1->getMessageId() );
+
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+
+		$this->assertCount( 1, $messages );
+		$this->assertEquals( $message2, $messages[0] );
+
 		$this->messageQueue->dequeue( $queueName, $message2->getMessageId() );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
-
-		$this->assertEquals( $queueName, $status->getQueueName() );
-		$this->assertSame( 0, $status->getCountTotal() );
-		$this->assertSame( 0, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$this->assertCount( 0, $messages );
 	}
 
 	public function testCanGetUndispatchedMessages() : void
@@ -175,19 +143,15 @@ final class MessageQueueSQLiteTest extends TestCase
 		$this->messageQueue->enqueue( $queueName, $message2 );
 		$this->messageQueue->enqueue( $queueName, $message3 );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) );
 
-		$this->assertSame( 3, $status->getCountTotal() );
-		$this->assertSame( 3, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$this->assertCount( 3, $messages );
 
 		$this->messageQueue->flushQueue( $queueName );
 
-		$status = $this->messageQueue->getQueueStatus( $queueName );
+		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) );
 
-		$this->assertSame( 0, $status->getCountTotal() );
-		$this->assertSame( 0, $status->getCountUndispatched() );
-		$this->assertSame( 0, $status->getCountDispatched() );
+		$this->assertCount( 0, $messages );
 	}
 
 	public function testCanFlushAllQueues() : void
@@ -198,25 +162,6 @@ final class MessageQueueSQLiteTest extends TestCase
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
 
-		$expectedQueueStatus = [
-			new MessageQueueStatus(
-				[
-					'queueName'         => 'TestQueue1',
-					'countTotal'        => 3,
-					'countUndispatched' => 3,
-					'countDispatched'   => 0,
-				]
-			),
-			new MessageQueueStatus(
-				[
-					'queueName'         => 'TestQueue2',
-					'countTotal'        => 3,
-					'countUndispatched' => 3,
-					'countDispatched'   => 0,
-				]
-			),
-		];
-
 		$this->messageQueue->enqueue( $queueName1, $message1 );
 		$this->messageQueue->enqueue( $queueName1, $message2 );
 		$this->messageQueue->enqueue( $queueName1, $message3 );
@@ -225,14 +170,18 @@ final class MessageQueueSQLiteTest extends TestCase
 		$this->messageQueue->enqueue( $queueName2, $message2 );
 		$this->messageQueue->enqueue( $queueName2, $message3 );
 
-		$status = $this->messageQueue->getAllQueueStatus();
+		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
 
-		$this->assertEquals( $expectedQueueStatus, iterator_to_array( $status ) );
+		$this->assertCount( 3, $messages1 );
+		$this->assertCount( 3, $messages2 );
 
 		$this->messageQueue->flushAllQueues();
 
-		$status = $this->messageQueue->getAllQueueStatus();
+		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
 
-		$this->assertEquals( [], iterator_to_array( $status ) );
+		$this->assertCount( 0, $messages1 );
+		$this->assertCount( 0, $messages2 );
 	}
 }
