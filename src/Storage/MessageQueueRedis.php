@@ -6,16 +6,13 @@
 namespace PHPMQ\Server\Storage;
 
 use PHPMQ\Server\Exceptions\RuntimeException;
-use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueRedis;
-use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
+use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\MessageQueueStatus;
-use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class MessageQueueRedis
@@ -42,7 +39,7 @@ final class MessageQueueRedis implements StoresMessages
 		$this->config = $config;
 	}
 
-	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void
+	public function enqueue( IdentifiesQueue $queueName, ProvidesMessageData $message ) : void
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
@@ -231,47 +228,5 @@ final class MessageQueueRedis implements StoresMessages
 		$this->getRedis()->flushDB();
 
 		$this->bgSave( 'flushAllQueues' );
-	}
-
-	public function getQueueStatus( IdentifiesQueue $queueName ) : ProvidesQueueStatus
-	{
-		$undispatchedQueueKey = $this->getUndispatchedQueueKey( $queueName );
-		$dispatchedQueueKey   = $this->getDispatchedQueueKey( $queueName );
-
-		$pipe = $this->getRedis()->multi();
-		$pipe->lLen( $undispatchedQueueKey );
-		$pipe->lLen( $dispatchedQueueKey );
-
-		/** @noinspection PhpVoidFunctionResultUsedInspection */
-		[ $countUndispatched, $countDispatched ] = (array)$pipe->exec();
-
-		return new MessageQueueStatus(
-			[
-				'queueName'         => $queueName->toString(),
-				'countTotal'        => $countDispatched + $countUndispatched,
-				'countUndispatched' => $countUndispatched,
-				'countDispatched'   => $countDispatched,
-			]
-		);
-	}
-
-	public function getAllQueueStatus() : \Generator
-	{
-		$prefix     = $this->getRedis()->getOption( \Redis::OPT_PREFIX );
-		$queueNames = array_unique(
-			array_map(
-				function ( string $key ) use ( $prefix )
-				{
-					return new QueueName( preg_replace( [ "#^{$prefix}queue:#", '#:(un)?dispatched$#' ], '', $key ) );
-				},
-				$this->getRedis()->keys( '*queue:*:*dispatched' )
-			)
-		);
-
-		/** @var IdentifiesQueue $queueName */
-		foreach ( $queueNames as $queueName )
-		{
-			yield $this->getQueueStatus( $queueName );
-		}
 	}
 }

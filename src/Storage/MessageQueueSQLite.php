@@ -6,15 +6,13 @@
 namespace PHPMQ\Server\Storage;
 
 use PHPMQ\Server\Exceptions\RuntimeException;
-use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
-use PHPMQ\Server\Storage\Interfaces\ProvidesQueueStatus;
+use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\MessageQueueStatus;
 
 /**
  * Class MessageQueueSQLite
@@ -33,8 +31,6 @@ final class MessageQueueSQLite implements StoresMessages
 	private const ERROR_CODE_GET_UNDISPATCHED  = 400;
 
 	private const ERROR_CODE_FLUSH_QUEUE       = 500;
-
-	private const ERROR_CODE_QUEUE_STATUS      = 600;
 
 	private const CREATE_TABLE_QUERY           = 'BEGIN;
 		 CREATE TABLE IF NOT EXISTS `queue` (
@@ -59,12 +55,12 @@ final class MessageQueueSQLite implements StoresMessages
 	}
 
 	/**
-	 * @param IdentifiesQueue    $queueName
-	 * @param CarriesInformation $message
+	 * @param IdentifiesQueue     $queueName
+	 * @param ProvidesMessageData $message
 	 *
 	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 */
-	public function enqueue( IdentifiesQueue $queueName, CarriesInformation $message ) : void
+	public function enqueue( IdentifiesQueue $queueName, ProvidesMessageData $message ) : void
 	{
 		$this->getPDO()->beginTransaction();
 
@@ -237,7 +233,7 @@ final class MessageQueueSQLite implements StoresMessages
 	 * @param int             $countMessages
 	 *
 	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
-	 * @return \Generator|CarriesInformation[]
+	 * @return \Generator|ProvidesMessageData[]
 	 */
 	public function getUndispatched( IdentifiesQueue $queueName, int $countMessages = 1 ) : \Generator
 	{
@@ -302,64 +298,6 @@ final class MessageQueueSQLite implements StoresMessages
 		catch ( \PDOException $e )
 		{
 			throw new RuntimeException( 'Could not flush all queues', self::ERROR_CODE_FLUSH_QUEUE, $e );
-		}
-	}
-
-	/**
-	 * @param IdentifiesQueue $queueName
-	 *
-	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
-	 * @return ProvidesQueueStatus
-	 */
-	public function getQueueStatus( IdentifiesQueue $queueName ) : ProvidesQueueStatus
-	{
-		try
-		{
-			$statement = $this->getPDO()->prepare(
-				'SELECT 
-					COUNT(1) AS `countTotal`, 
-					SUM(CASE WHEN `dispatched` = 0 THEN 1 ELSE 0 END) AS `countUndispatched`, 
-					SUM(CASE WHEN `dispatched` = 1 THEN 1 ELSE 0 END) AS `countDispatched` 
-				 FROM `queue` WHERE `queueName` = :queueName'
-			);
-
-			$statement->execute( [ 'queueName' => $queueName->toString() ] );
-
-			$statusData              = (array)$statement->fetch( \PDO::FETCH_ASSOC );
-			$statusData['queueName'] = $queueName->toString();
-
-			return new MessageQueueStatus( $statusData );
-		}
-		catch ( \PDOException $e )
-		{
-			throw new RuntimeException( 'Could not get queue status', self::ERROR_CODE_QUEUE_STATUS, $e );
-		}
-	}
-
-	/**
-	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
-	 * @return \Generator|ProvidesQueueStatus[]
-	 */
-	public function getAllQueueStatus() : \Generator
-	{
-		try
-		{
-			$statement = $this->getPDO()->query(
-				'SELECT `queueName`, 
-					COUNT(1) AS `countTotal`, 
-					SUM(CASE WHEN `dispatched` = 0 THEN 1 ELSE 0 END) AS `countUndispatched`, 
-					SUM(CASE WHEN `dispatched` = 1 THEN 1 ELSE 0 END) AS `countDispatched` 
-				 FROM `queue` WHERE 1 GROUP BY `queueName`'
-			);
-
-			while ( $statusData = $statement->fetch( \PDO::FETCH_ASSOC ) )
-			{
-				yield new MessageQueueStatus( $statusData );
-			}
-		}
-		catch ( \PDOException $e )
-		{
-			throw new RuntimeException( 'Could not get all queue status', self::ERROR_CODE_QUEUE_STATUS, $e );
 		}
 	}
 }
