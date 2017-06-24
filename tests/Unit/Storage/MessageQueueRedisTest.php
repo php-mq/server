@@ -5,11 +5,10 @@
 
 namespace PHPMQ\Server\Tests\Unit\Storage;
 
-use PHPMQ\Server\Interfaces\CarriesInformation;
+use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingRedis;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\MessageQueueStatus;
 use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
@@ -54,7 +53,7 @@ final class MessageQueueRedisTest extends TestCase
 		$this->assertSame( 0, $status->getCountDispatched() );
 	}
 
-	private function getMessage( string $content ) : CarriesInformation
+	private function getMessage( string $content ) : ProvidesMessageData
 	{
 		return new Message( MessageId::generate(), $content );
 	}

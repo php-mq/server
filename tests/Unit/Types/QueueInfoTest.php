@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Types;
 
-use PHPMQ\Server\Types\QueueInfo;
+use PHPMQ\Server\Monitoring\Types\QueueInfo;
 use PHPUnit\Framework\TestCase;
 
 final class QueueInfoTest extends TestCase
