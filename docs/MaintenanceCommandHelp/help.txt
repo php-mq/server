@@ -1,7 +1,7 @@
-<bg:blue>PHPMQ\Server help<:bg> 
-
 <fg:yellow>Available commands<:fg>
 
-* help [command]		- shows this help or help for the specified command
-* monitor			- starts the server monitor
-* queue <QueueName>		- starts the queue monitor for the specified queue
+* help [command]        - shows this help or help for the specified command
+* monitor               - starts the server monitor
+* show <QueueName>      - starts the queue monitor for the specified queue
+* flush <QueueName>     - flushs the the specified queue
+* flushall              - flushs the the specified queue
