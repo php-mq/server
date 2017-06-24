@@ -26,5 +26,7 @@ abstract class AnsiColors
 		'<bg:blue>'    => "\e[44m",
 		'<bg:magenta>' => "\e[45m",
 		'<bg:cyan>'    => "\e[46m",
+		'<alt:>'       => "\e[2m",
+		'<:alt>'       => "\e[0m",
 	];
 }
