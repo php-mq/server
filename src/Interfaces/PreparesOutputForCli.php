@@ -11,7 +11,7 @@ namespace PHPMQ\Server\Interfaces;
  */
 interface PreparesOutputForCli
 {
-	public function clearScreen() : PreparesOutputForCli;
+	public function clearScreen( string $title ) : PreparesOutputForCli;
 
 	public function write( string $content, string ...$args ) : PreparesOutputForCli;
 
@@ -19,5 +19,9 @@ interface PreparesOutputForCli
 
 	public function writeFileContent( string $filePath ) : PreparesOutputForCli;
 
-	public function get() : string;
+	public function getTerminalWidth() : int;
+
+	public function getTerminalHeight() : int;
+
+	public function getOutput() : string;
 }
