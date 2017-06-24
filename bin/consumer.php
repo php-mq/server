@@ -22,7 +22,7 @@ stream_set_blocking( $socket, false );
 $socketName = stream_socket_get_name( $socket, true );
 echo 'Connected to server: ' . $socketName . "\n";
 
-$consumeRequest = new ConsumeRequest( new QueueName( 'Test-Queue' ), 2 );
+$consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 2 );
 
 fwrite( $socket, $consumeRequest->toString() );
 

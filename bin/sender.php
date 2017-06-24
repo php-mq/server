@@ -22,8 +22,8 @@ if ( !stream_set_blocking( $socket, false ) )
 	die( 'Failed to set socket non-blocking' );
 }
 
-$message1 = new MessageC2E( new QueueName( 'Test-Queue' ), 'This is a first test' );
-$message2 = new MessageC2E( new QueueName( 'Test-Queue' ), 'This is a second test' );
+$message1 = new MessageC2E( new QueueName( $argv[1] ), 'This is a first test' );
+$message2 = new MessageC2E( new QueueName( $argv[1] ), 'This is a second test' );
 
 fwrite( $socket, $message1->toString() );
 

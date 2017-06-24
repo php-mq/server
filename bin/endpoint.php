@@ -10,6 +10,8 @@ use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
+use PHPMQ\Server\Monitoring\ServerMonitor;
+use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Servers\MaintenanceServer;
 use PHPMQ\Server\Servers\MessageQueueServer;
 use PHPMQ\Server\Servers\ServerSocket;
@@ -46,20 +48,23 @@ $logger->addLoggers( $outputLogger );
 $eventBus = new EventBus( $logger );
 $storage  = new MessageQueueSQLite( $storageConfig );
 
-$cliWriter = new CliWriter();
+$cliWriter            = new CliWriter();
+$serverMonitoringInfo = new ServerMonitoringInfo();
 
 $eventBus->addEventHandlers(
-	new MessageQueue\ClientConnectionEventHandler( $storage ),
-	new MessageQueue\ClientInboundEventHandler( $storage ),
-	new MessageQueue\ClientOutboundEventHandler( $storage ),
+	new MessageQueue\ClientConnectionEventHandler( $storage, $serverMonitoringInfo ),
+	new MessageQueue\ClientInboundEventHandler( $storage, $serverMonitoringInfo ),
+	new MessageQueue\ClientOutboundEventHandler( $storage, $serverMonitoringInfo ),
 	new Maintenance\ClientConnectionEventHandler( $cliWriter ),
-	new Maintenance\ClientInboundEventHandler( $cliWriter )
+	new Maintenance\ClientInboundEventHandler( $cliWriter, $serverMonitoringInfo )
 );
 
 $messageQueueServerSocket = new ServerSocket( new NetworkSocket( '127.0.0.1', 9100 ) );
 $maintenanceServerSocket  = new ServerSocket( new NetworkSocket( '127.0.0.1', 9101 ) );
 
-$endoint = new Endpoint( $eventBus, $logger );
+$serverMonitor = new ServerMonitor( $serverMonitoringInfo, $cliWriter );
+
+$endoint = new Endpoint( $eventBus, $serverMonitor, $logger );
 $endoint->registerServers(
 	new MessageQueueServer( $messageQueueServerSocket ),
 	new MaintenanceServer( $maintenanceServerSocket )
