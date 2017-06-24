@@ -23,25 +23,22 @@ final class CliWriter implements PreparesOutputForCli
 	/** @var int */
 	private $terminalHeight = 0;
 
-	public function clearScreen() : PreparesOutputForCli
+	public function clearScreen( string $title ) : PreparesOutputForCli
 	{
-		$this->updateTerminalWidth();
+		$this->updateTerminalWidthAndHeight();
 
 		$this->output = "\e[2J\e[0;0H\r\n";
 		$this->output .= "\e[30;42m PHP \e[37;41m MQ \e[30;42m";
-		$this->output .= str_repeat( ' ', $this->terminalWidth - 9 );
+		$this->output .= '- ' . $title;
+		$this->output .= str_repeat( ' ', $this->terminalWidth - 11 - mb_strlen( $title ) );
 		$this->output .= "\e[0m\r\n\n";
 
 		return $this;
 	}
 
-	private function updateTerminalWidth() : void
+	private function updateTerminalWidthAndHeight() : void
 	{
-		$this->terminalWidth = (int)exec( 'tput cols' );
-	}
-
-	private function updateTerminalHeight() : void
-	{
+		$this->terminalWidth  = (int)exec( 'tput cols' );
 		$this->terminalHeight = (int)exec( 'tput lines' );
 	}
 
@@ -64,7 +61,17 @@ final class CliWriter implements PreparesOutputForCli
 		return $this;
 	}
 
-	public function get() : string
+	public function getTerminalWidth() : int
+	{
+		return $this->terminalWidth;
+	}
+
+	public function getTerminalHeight() : int
+	{
+		return $this->terminalHeight;
+	}
+
+	public function getOutput() : string
 	{
 		$this->output .= "\n<fg:blue>phpmq<:fg> > ";
 
