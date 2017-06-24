@@ -13,14 +13,20 @@ use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Commands\Constants\Command;
 use PHPMQ\Server\Commands\Exceptions\UnknownCommandException;
+use PHPMQ\Server\Commands\FlushAllQueues;
+use PHPMQ\Server\Commands\FlushQueue;
 use PHPMQ\Server\Commands\Help;
+use PHPMQ\Server\Commands\QuitRefresh;
 use PHPMQ\Server\Commands\ShowQueue;
 use PHPMQ\Server\Commands\StartMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
-use PHPMQ\Server\Events\Maintenance\ClientRequestedMonitor;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedOverviewMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesEventData;
@@ -130,12 +136,27 @@ final class MaintenanceServer extends AbstractServer
 
 			case Command::START_MONITOR:
 				/** @var StartMonitor $command */
-				return new ClientRequestedMonitor( $client, $command );
+				return new ClientRequestedOverviewMonitor( $client, $command );
 				break;
 
 			case Command::SHOW_QUEUE:
 				/** @var ShowQueue $command */
 				return new ClientRequestedQueueMonitor( $client, $command );
+				break;
+
+			case Command::FLUSH_QUEUE:
+				/** @var FlushQueue $command */
+				return new ClientRequestedFlushingQueue( $client, $command );
+				break;
+
+			case Command::FLUSH_ALL_QUEUES:
+				/** @var FlushAllQueues $command */
+				return new ClientRequestedFlushingAllQueues( $client, $command );
+				break;
+
+			case Command::QUIT_REFRESH:
+				/** @var QuitRefresh $command */
+				return new ClientRequestedQuittingRefresh( $client, $command );
 				break;
 
 			case Command::QUIT:
