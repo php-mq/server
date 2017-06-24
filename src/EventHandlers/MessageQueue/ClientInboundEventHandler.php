@@ -8,6 +8,7 @@ namespace PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
+use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
@@ -24,12 +25,16 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	/** @var StoresMessages */
 	private $storage;
 
-	public function __construct( StoresMessages $storage )
+	/** @var CollectsServerMonitoringInfo */
+	private $serverMonitoringInfo;
+
+	public function __construct( StoresMessages $storage, CollectsServerMonitoringInfo $serverMonitoringInfo )
 	{
-		$this->storage = $storage;
+		$this->storage              = $storage;
+		$this->serverMonitoringInfo = $serverMonitoringInfo;
 	}
 
-	protected function getAcceptedEvents(): array
+	protected function getAcceptedEvents() : array
 	{
 		return [
 			ClientSentMessageC2E::class,
@@ -38,15 +43,19 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		];
 	}
 
-	protected function whenClientSentMessageC2E( ClientSentMessageC2E $event ): void
+	protected function whenClientSentMessageC2E( ClientSentMessageC2E $event ) : void
 	{
 		$messageC2E   = $event->getMessageC2E();
 		$storeMessage = new Message( MessageId::generate(), $messageC2E->getContent() );
 
 		$this->storage->enqueue( $messageC2E->getQueueName(), $storeMessage );
+
+		$this->serverMonitoringInfo->addMessage( $messageC2E->getQueueName(), $storeMessage );
+
+		$this->logger->debug( sprintf( '<fg:green>√ Queued message with ID %s<:fg>', $storeMessage->getMessageId() ) );
 	}
 
-	protected function whenClientSentConsumeResquest( ClientSentConsumeResquest $event ): void
+	protected function whenClientSentConsumeResquest( ClientSentConsumeResquest $event ) : void
 	{
 		$client         = $event->getClient();
 		$consumeRequest = $event->getConsumeRequest();
@@ -65,7 +74,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		);
 	}
 
-	private function cleanUpClientConsumption( MessageQueueClient $client ): void
+	private function cleanUpClientConsumption( MessageQueueClient $client ) : void
 	{
 		$consumptionInfo = $client->getConsumptionInfo();
 		$queueName       = $consumptionInfo->getQueueName();
@@ -74,12 +83,13 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		foreach ( $messageIds as $messageId )
 		{
 			$this->storage->markAsUndispatched( $queueName, $messageId );
+			$this->serverMonitoringInfo->markMessageAsUndispatched( $queueName, $messageId );
 
 			$consumptionInfo->removeMessageId( $messageId );
 		}
 	}
 
-	protected function whenClientSentAcknowledgement( ClientSentAcknowledgement $event ): void
+	protected function whenClientSentAcknowledgement( ClientSentAcknowledgement $event ) : void
 	{
 		$client          = $event->getClient();
 		$acknowledgement = $event->getAcknowledgement();
@@ -93,6 +103,11 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		);
 
 		$this->storage->dequeue( $acknowledgement->getQueueName(), $acknowledgement->getMessageId() );
+
+		$this->serverMonitoringInfo->removeMessage(
+			$acknowledgement->getQueueName(),
+			$acknowledgement->getMessageId()
+		);
 
 		$this->logger->debug(
 			sprintf(
