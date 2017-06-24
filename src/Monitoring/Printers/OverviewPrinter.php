@@ -16,8 +16,6 @@ use PHPMQ\Server\Monitoring\Types\QueueInfo;
  */
 final class OverviewPrinter extends AbstractPrinter
 {
-	private const VISUAL_QUEUE_LIMIT = 500;
-
 	/** @var ByteFormatter */
 	private $byteFormatter;
 
