@@ -3,21 +3,21 @@
  * @author h.woltersdorf
  */
 
-namespace PHPMQ\Server\Tests\Unit\Types;
+namespace PHPMQ\Server\Tests\Unit\Monitoring\Types;
 
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
 use PHPUnit\Framework\TestCase;
 
 final class QueueInfoTest extends TestCase
 {
-	public function testCanGetQueueName(): void
+	public function testCanGetQueueName() : void
 	{
 		$queueInfo = new QueueInfo( 'Unit-Test-Queue', [] );
 
 		$this->assertSame( 'Unit-Test-Queue', $queueInfo->getQueueName() );
 	}
 
-	public function testCanGetQueueSize(): void
+	public function testCanGetQueueSize() : void
 	{
 		$messageInfos = [
 			[ 'size' => 100 ],
@@ -29,7 +29,7 @@ final class QueueInfoTest extends TestCase
 		$this->assertSame( 600, $queueInfo->getSize() );
 	}
 
-	public function testCanGetMessageCount(): void
+	public function testCanGetMessageCount() : void
 	{
 		$messageInfos = [
 			[ 'size' => 100 ],
@@ -41,7 +41,7 @@ final class QueueInfoTest extends TestCase
 		$this->assertSame( 3, $queueInfo->getMessageCount() );
 	}
 
-	public function testCanGetMessageInfos(): void
+	public function testCanGetMessageInfos() : void
 	{
 		$messageInfos = [
 			[ 'size' => 100 ],
