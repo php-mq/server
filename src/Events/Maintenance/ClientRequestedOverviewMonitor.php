@@ -10,10 +10,10 @@ use PHPMQ\Server\Commands\StartMonitor;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
- * Class ClientRequestedMonitor
+ * Class ClientRequestedOverviewMonitor
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedMonitor implements CarriesEventData
+final class ClientRequestedOverviewMonitor implements CarriesEventData
 {
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
