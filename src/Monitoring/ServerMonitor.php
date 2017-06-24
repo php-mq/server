@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\Monitoring;
 
-use PHPMQ\Server\Monitoring\Interfaces\PrintsMonitoringInfo;
-use PHPMQ\Server\Monitoring\Interfaces\ProvidesMonitoringInfo;
-use PHPMQ\Server\Monitoring\Printers\NullPrinter;
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Interfaces\PreparesOutputForCli;
+use PHPMQ\Server\Monitoring\Interfaces\CreatesMonitoringOutput;
+use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Printers\OverviewPrinter;
 use PHPMQ\Server\Monitoring\Printers\SingleQueuePrinter;
-use PHPMQ\Server\Monitoring\Types\ServerMonitoringConfig;
-use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 
 /**
  * Class ServerMonitor
@@ -21,48 +21,62 @@ final class ServerMonitor
 {
 	private const REFRESH_INTERVAL = 0.5;
 
-	/** @var ServerMonitoringConfig */
-	private $config;
-
-	/** @var ProvidesMonitoringInfo */
-	private $monitoringInfo;
-
-	/** @var PrintsMonitoringInfo */
-	private $printer;
+	/** @var ProvidesServerMonitoringInfo */
+	private $serverMonitoringInfo;
 
 	/** @var float */
 	private $lastRefresh = 0;
 
-	public function __construct( ServerMonitoringConfig $config, ProvidesMonitoringInfo $monitoringInfo )
+	/** @var PreparesOutputForCli */
+	private $cliWriter;
+
+	public function __construct( ProvidesServerMonitoringInfo $serverMonitoringInfo, PreparesOutputForCli $cliWriter )
 	{
-		$this->config         = $config;
-		$this->monitoringInfo = $monitoringInfo;
-		$this->printer        = $this->getPrinter();
+		$this->serverMonitoringInfo = $serverMonitoringInfo;
+		$this->cliWriter            = $cliWriter;
 	}
 
-	private function getPrinter(): PrintsMonitoringInfo
+	public function refresh() : void
 	{
-		if ( $this->config->isDisabled() )
+		if ( !$this->serverMonitoringInfo->hasMonitoringRequests() )
 		{
-			return new NullPrinter();
+			return;
 		}
 
-		if ( $this->config->getQueueName() !== '' )
-		{
-			return new SingleQueuePrinter( new QueueName( $this->config->getQueueName() ) );
-		}
-
-		return new OverviewPrinter();
-	}
-
-	public function refresh(): void
-	{
 		$microtime = microtime( true );
 
 		if ( $this->lastRefresh <= microtime( true ) - self::REFRESH_INTERVAL )
 		{
-			$this->printer->print( $this->monitoringInfo );
 			$this->lastRefresh = $microtime;
+
+			$this->processMonitoringRequests();
 		}
+	}
+
+	private function processMonitoringRequests() : void
+	{
+		foreach ( $this->serverMonitoringInfo->getMonitoringRequests() as $monitoringRequest )
+		{
+			$this->processMonitoringRequest( $monitoringRequest );
+		}
+	}
+
+	private function processMonitoringRequest( MonitoringRequest $monitoringRequest ) : void
+	{
+		$client    = $monitoringRequest->getMaintenanceClient();
+		$queueName = $monitoringRequest->getQueueName();
+		$printer   = $this->getPrinter( $queueName );
+
+		$client->write( $printer->getOutput( $this->serverMonitoringInfo ) );
+	}
+
+	private function getPrinter( IdentifiesQueue $queueName ) : CreatesMonitoringOutput
+	{
+		if ( $queueName->toString() !== '' )
+		{
+			return new SingleQueuePrinter( $this->cliWriter, $queueName );
+		}
+
+		return new OverviewPrinter( $this->cliWriter );
 	}
 }
