@@ -5,14 +5,14 @@
 
 namespace PHPMQ\Server\Types;
 
-use PHPMQ\Server\Interfaces\CarriesInformation;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 
 /**
  * Class Message
  * @package PHPMQ\Server\Types
  */
-final class Message implements CarriesInformation
+final class Message implements ProvidesMessageData
 {
 	/** @var IdentifiesMessage */
 	private $messageId;
