@@ -57,7 +57,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientSentConsumeResquest( ClientSentConsumeResquest $event ) : void
 	{
-		$client         = $event->getClient();
+		$client         = $event->getMessageQueueClient();
 		$consumeRequest = $event->getConsumeRequest();
 
 		$this->logger->debug( 'Consume request received from client ' . $client->getClientId() );
@@ -91,7 +91,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientSentAcknowledgement( ClientSentAcknowledgement $event ) : void
 	{
-		$client          = $event->getClient();
+		$client          = $event->getMessageQueueClient();
 		$acknowledgement = $event->getAcknowledgement();
 
 		$this->logger->debug(

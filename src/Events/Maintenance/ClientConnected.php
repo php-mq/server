@@ -6,13 +6,14 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
+use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientConnected
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientConnected implements CarriesEventData
+final class ClientConnected implements CarriesEventData, ProvidesMaintenanceClient
 {
 	/** @var MaintenanceClient */
 	private $maintenanceClient;

@@ -7,13 +7,14 @@ namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\QuitRefresh;
+use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedQuittingRefresh
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedQuittingRefresh implements CarriesEventData
+final class ClientRequestedQuittingRefresh implements CarriesEventData, ProvidesMaintenanceClient
 {
 	/** @var MaintenanceClient */
 	private $maintenanceClient;

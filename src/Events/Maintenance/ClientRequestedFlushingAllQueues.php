@@ -7,13 +7,14 @@ namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\FlushAllQueues;
+use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedFlushingAllQueues
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedFlushingAllQueues implements CarriesEventData
+final class ClientRequestedFlushingAllQueues implements CarriesEventData, ProvidesMaintenanceClient
 {
 	/** @var MaintenanceClient */
 	private $maintenanceClient;

@@ -6,6 +6,8 @@
 namespace PHPMQ\Server\Tests\Unit\Servers;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
+use PHPMQ\Server\Clients\MessageQueueClient;
+use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
 use PHPMQ\Server\Events\MessageQueue\ClientConnected;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Events\MessageQueue\ClientGotReadyForConsumingMessages;
@@ -40,14 +42,20 @@ final class MessageQueueServerTest extends TestCase
 		$remoteClient = $this->getRemoteClientSocket();
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ClientConnected $connectEvent */
+		$connectEvent = $events[0];
 
-		$this->assertInstanceOf( ClientConnected::class, $events[0] );
+		$this->assertInstanceOf( ClientConnected::class, $connectEvent );
+		$this->assertInstanceOf( MessageQueueClient::class, $connectEvent->getMessageQueueClient() );
 
 		fclose( $remoteClient );
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ClientDisconnected $disconnectEvent */
+		$disconnectEvent = $events[0];
 
-		$this->assertInstanceOf( ClientDisconnected::class, $events[0] );
+		$this->assertInstanceOf( ClientDisconnected::class, $disconnectEvent );
+		$this->assertInstanceOf( MessageQueueClient::class, $disconnectEvent->getMessageQueueClient() );
 
 		$server->stop();
 	}
@@ -69,8 +77,11 @@ final class MessageQueueServerTest extends TestCase
 		fwrite( $remoteClient, $message );
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ProvidesMessageQueueClient $event */
+		$event = $events[0];
 
-		$this->assertInstanceOf( $expectedEventClass, $events[0] );
+		$this->assertInstanceOf( $expectedEventClass, $event );
+		$this->assertInstanceOf( MessageQueueClient::class, $event->getMessageQueueClient() );
 
 		$events = iterator_to_array( $server->getEvents() );
 		$this->assertCount( 0, $events );
@@ -116,7 +127,7 @@ final class MessageQueueServerTest extends TestCase
 
 		$this->assertInstanceOf( ClientSentConsumeResquest::class, $event );
 
-		$client = $event->getClient();
+		$client = $event->getMessageQueueClient();
 		$client->updateConsumptionInfo( new ConsumptionInfo( $queueName, 1 ) );
 
 		$events = iterator_to_array( $server->getEvents() );

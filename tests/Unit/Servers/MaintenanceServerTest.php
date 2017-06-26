@@ -5,7 +5,9 @@
 
 namespace PHPMQ\Server\Tests\Unit\Servers;
 
+use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\Constants\Command;
+use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
@@ -38,14 +40,20 @@ final class MaintenanceServerTest extends TestCase
 		$remoteClient = $this->getRemoteClientSocket();
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ClientConnected $connectEvent */
+		$connectEvent = $events[0];
 
 		$this->assertInstanceOf( ClientConnected::class, $events[0] );
+		$this->assertInstanceOf( MaintenanceClient::class, $connectEvent->getMaintenanceClient() );
 
 		fclose( $remoteClient );
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ClientDisconnected $disconnectEvent */
+		$disconnectEvent = $events[0];
 
-		$this->assertInstanceOf( ClientDisconnected::class, $events[0] );
+		$this->assertInstanceOf( ClientDisconnected::class, $disconnectEvent );
+		$this->assertInstanceOf( MaintenanceClient::class, $disconnectEvent->getMaintenanceClient() );
 
 		$server->stop();
 	}
@@ -67,12 +75,15 @@ final class MaintenanceServerTest extends TestCase
 		fwrite( $remoteClient, $command );
 
 		$events = iterator_to_array( $server->getEvents() );
+		/** @var ProvidesMaintenanceClient $event */
+		$event = $events[0];
 
-		$this->assertInstanceOf( $expectedEventClass, $events[0] );
+		$this->assertInstanceOf( $expectedEventClass, $event );
+		$this->assertInstanceOf( MaintenanceClient::class, $event->getMaintenanceClient() );
 
 		$events = iterator_to_array( $server->getEvents() );
 		$this->assertCount( 0, $events );
-		
+
 		$server->stop();
 		fclose( $remoteClient );
 	}
