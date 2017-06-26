@@ -18,28 +18,20 @@ final class CliWriter implements PreparesOutputForCli
 	private $output = '';
 
 	/** @var int */
-	private $terminalWidth = 0;
+	private $terminalWidth = 80;
 
 	/** @var int */
-	private $terminalHeight = 0;
+	private $terminalHeight = 60;
 
 	public function clearScreen( string $title ) : PreparesOutputForCli
 	{
-		$this->updateTerminalWidthAndHeight();
-
-		$this->output = "\e[2J\e[0;0H\r\n";
+		$this->output = "\e[2J\e[0;0H\n";
 		$this->output .= "\e[30;42m PHP \e[37;41m MQ \e[30;42m";
 		$this->output .= '- ' . $title;
 		$this->output .= str_repeat( ' ', $this->terminalWidth - 11 - mb_strlen( $title ) );
-		$this->output .= "\e[0m\r\n\n";
+		$this->output .= "\e[0m\n\n";
 
 		return $this;
-	}
-
-	private function updateTerminalWidthAndHeight() : void
-	{
-		$this->terminalWidth  = (int)exec( 'tput cols' );
-		$this->terminalHeight = (int)exec( 'tput lines' );
 	}
 
 	public function write( string $content, string ...$args ) : PreparesOutputForCli
