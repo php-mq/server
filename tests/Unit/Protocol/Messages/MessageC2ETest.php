@@ -22,7 +22,7 @@ final class MessageC2ETest extends TestCase
 	 *
 	 * @dataProvider queueNameContentProvider
 	 */
-	public function testCanGetEncodedMessage( string $queueName, string $content, string $expectedMessage ) : void
+	public function testCanGetEncodedMessage( string $queueName, string $content, string $expectedMessage ): void
 	{
 		$messageC2E = new MessageC2E( new QueueName( $queueName ), $content );
 
@@ -32,7 +32,7 @@ final class MessageC2ETest extends TestCase
 		$this->assertSame( $expectedMessage, $messageC2E->toString() );
 	}
 
-	public function queueNameContentProvider() : array
+	public function queueNameContentProvider(): array
 	{
 		return [
 			[
@@ -43,6 +43,15 @@ final class MessageC2ETest extends TestCase
 				                     . 'Foo'
 				                     . 'P0200000000000000000000000000011'
 				                     . 'Hello World',
+			],
+			[
+				'queueName'       => 'Foo',
+				'content'         => file_get_contents( __DIR__ . '/../../Fixtures/test.jpg' ),
+				'expectedMessage' => 'H0100102'
+				                     . 'P0100000000000000000000000000003'
+				                     . 'Foo'
+				                     . 'P0200000000000000000000000220066'
+				                     . file_get_contents( __DIR__ . '/../../Fixtures/test.jpg' ),
 			],
 		];
 	}

@@ -16,13 +16,42 @@ use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+function fread_stream( $fp, $length )
+{
+	$buffer    = '';
+	$chunkSize = (int)min( $length, 1024 );
+
+	while ( $length > 0 )
+	{
+		$buffer    .= (string)fread( $fp, $chunkSize );
+		$length    -= 1024;
+		$chunkSize = (int)min( $length, 1024 );
+	}
+
+	return $buffer;
+}
+
+function fwrite_stream( $fp, $string )
+{
+	for ( $written = 0, $writtenMax = strlen( $string ); $written < $writtenMax; $written += $fwrite )
+	{
+		$fwrite = fwrite( $fp, substr( $string, $written ) );
+		if ( $fwrite === false )
+		{
+			return $written;
+		}
+	}
+
+	return $written;
+}
+
 $socket = stream_socket_client( 'tcp://127.0.0.1:9100' );
 stream_set_blocking( $socket, false );
 
 $socketName = stream_socket_get_name( $socket, true );
 echo 'Connected to server: ' . $socketName . "\n";
 
-$consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 2 );
+$consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 5 );
 
 fwrite( $socket, $consumeRequest->toString() );
 
@@ -45,7 +74,7 @@ while ( true )
 
 	do
 	{
-		$bytes = fread( $socket, PacketLength::MESSAGE_HEADER );
+		$bytes = fread_stream( $socket, PacketLength::MESSAGE_HEADER );
 
 		if ( empty( $bytes ) )
 		{
@@ -60,11 +89,11 @@ while ( true )
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$buffer = fread( $socket, PacketLength::PACKET_HEADER );
+			$buffer = fread_stream( $socket, PacketLength::PACKET_HEADER );
 
 			$packetHeader = PacketHeader::fromString( $buffer );
 
-			$buffer = fread( $socket, $packetHeader->getContentLength() );
+			$buffer = fread_stream( $socket, $packetHeader->getContentLength() );
 
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
@@ -79,13 +108,11 @@ while ( true )
 			$message->getQueueName()
 		);
 
-		echo "\n{$message->toString()}\n";
-
 		usleep( 300000 );
 
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 
-		fwrite( $socket, $acknowledgement->toString() );
+		fwrite_stream( $socket, $acknowledgement->toString() );
 
 		echo "\n√ Message acknowledged.\n--\n";
 
