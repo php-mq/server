@@ -24,7 +24,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $storageConfig = new class implements ConfiguresMessageQueueSQLite
 {
-	public function getMessageQueuePath(): string
+	public function getMessageQueuePath() : string
 	{
 //		return '/tmp/phpmq.sqlite';
 		return ':memory:';
@@ -58,7 +58,7 @@ $eventBus->addEventHandlers(
 	new MessageQueue\ClientInboundEventHandler( $storage, $serverMonitoringInfo ),
 	new MessageQueue\ClientOutboundEventHandler( $storage, $serverMonitoringInfo ),
 	new Maintenance\ClientConnectionEventHandler( $cliWriter ),
-	new Maintenance\ClientInboundEventHandler( $cliWriter, $serverMonitoringInfo )
+	new Maintenance\ClientInboundEventHandler( $storage, $cliWriter, $serverMonitoringInfo )
 );
 
 $messageQueueServerSocket = new ServerSocket( new NetworkSocket( '127.0.0.1', 9100 ) );

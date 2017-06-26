@@ -7,6 +7,8 @@ namespace PHPMQ\Server\EventHandlers\Maintenance;
 
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedOverviewMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
@@ -14,6 +16,7 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\QueueName;
 
 /**
@@ -22,14 +25,22 @@ use PHPMQ\Server\Types\QueueName;
  */
 final class ClientInboundEventHandler extends AbstractEventHandler
 {
+	/** @var StoresMessages */
+	private $storage;
+
 	/** @var PreparesOutputForCli */
 	private $cliWriter;
 
 	/** @var CollectsServerMonitoringInfo */
 	private $serverMonitoringInfo;
 
-	public function __construct( PreparesOutputForCli $cliWriter, CollectsServerMonitoringInfo $serverMonitoringInfo )
+	public function __construct(
+		StoresMessages $storage,
+		PreparesOutputForCli $cliWriter,
+		CollectsServerMonitoringInfo $serverMonitoringInfo
+	)
 	{
+		$this->storage              = $storage;
 		$this->cliWriter            = $cliWriter;
 		$this->serverMonitoringInfo = $serverMonitoringInfo;
 	}
@@ -42,6 +53,8 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			ClientRequestedQueueMonitor::class,
 			ClientSentUnknownCommand::class,
 			ClientRequestedQuittingRefresh::class,
+			ClientRequestedFlushingQueue::class,
+			ClientRequestedFlushingAllQueues::class,
 		];
 	}
 
@@ -121,5 +134,50 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		$this->serverMonitoringInfo->removeMonitoringRequest( $client->getClientId() );
 
 		$client->write( $this->cliWriter->clearScreen( 'Welcome!' )->getOutput() );
+	}
+
+	protected function whenClientRequestedFlushingQueue( ClientRequestedFlushingQueue $event ) : void
+	{
+		$client            = $event->getMaintenanceClient();
+		$flushQueueCommand = $event->getFlushQueueCommand();
+
+		$this->logger->debug(
+			sprintf(
+				'Maintenance client %s requested flushing queue "%s"',
+				$client->getClientId(),
+				$flushQueueCommand->getQueueName()
+			)
+		);
+
+		$this->storage->flushQueue( $flushQueueCommand->getQueueName() );
+		$this->serverMonitoringInfo->flushQueue( $flushQueueCommand->getQueueName() );
+
+		$this->logger->debug(
+			sprintf(
+				'<fg:green>√ Queue %s flushed.<:fg>',
+				$flushQueueCommand->getQueueName()
+			)
+		);
+
+		$client->write( $this->cliWriter->writeLn( 'OK' )->getOutput() );
+	}
+
+	protected function whenClientRequestedFlushingAllQueues( ClientRequestedFlushingAllQueues $event ) : void
+	{
+		$client = $event->getMaintenanceClient();
+
+		$this->logger->debug(
+			sprintf(
+				'Maintenance client %s requested flushing all queues.',
+				$client->getClientId()
+			)
+		);
+
+		$this->storage->flushAllQueues();
+		$this->serverMonitoringInfo->flushAllQueues();
+
+		$this->logger->debug( '<fg:green>√ All queues flushed.<:fg>' );
+
+		$client->write( $this->cliWriter->writeLn( 'OK' )->getOutput() );
 	}
 }
