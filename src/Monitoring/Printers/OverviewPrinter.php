@@ -25,11 +25,14 @@ final class OverviewPrinter extends AbstractPrinter
 		$this->byteFormatter = new ByteFormatter();
 	}
 
-	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ) : string
+	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ): string
 	{
-		$memoryUsage = memory_get_peak_usage( true );
 		$this->getCliWriter()->clearScreen(
-			'OVERVIEW-MONITOR | Memory usage: ' . $this->byteFormatter->format( $memoryUsage, 0 )
+			sprintf(
+				'OVERVIEW-MONITOR | Memory: %s (current) / %s (peak)',
+				$this->byteFormatter->format( memory_get_usage( true ), 0 ),
+				$this->byteFormatter->format( memory_get_peak_usage( true ), 0 )
+			)
 		);
 
 		$this->addHeader( $serverMonitoringInfo );
@@ -38,7 +41,7 @@ final class OverviewPrinter extends AbstractPrinter
 		return $this->getCliWriter()->getOutput();
 	}
 
-	private function addHeader( ProvidesServerMonitoringInfo $monitoringInfo ) : void
+	private function addHeader( ProvidesServerMonitoringInfo $monitoringInfo ): void
 	{
 		$this->getCliWriter()->writeLn( 'Type "q"+ENTER to quit the monitor.' );
 		$this->getCliWriter()->writeLn( '' );
@@ -51,7 +54,7 @@ final class OverviewPrinter extends AbstractPrinter
 		$this->getCliWriter()->writeLn( '<fg:yellow>%-20s %5s %10s  Workload<:fg>', 'Queue', 'Msgs', 'Size' );
 	}
 
-	private function addQueueInfos( ProvidesServerMonitoringInfo $monitoringInfo ) : void
+	private function addQueueInfos( ProvidesServerMonitoringInfo $monitoringInfo ): void
 	{
 		$index          = 0;
 		$alternate      = false;
@@ -80,7 +83,7 @@ final class OverviewPrinter extends AbstractPrinter
 		}
 	}
 
-	private function getQueueLine( QueueInfo $queueInfo, int $maxQueueSize ) : string
+	private function getQueueLine( QueueInfo $queueInfo, int $maxQueueSize ): string
 	{
 		$messageCount  = $queueInfo->getMessageCount();
 		$terminalWidth = $this->getCliWriter()->getTerminalWidth() - 39;
