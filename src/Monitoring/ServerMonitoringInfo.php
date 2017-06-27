@@ -13,6 +13,7 @@ use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
  * Class ServerMonitoringInfo
@@ -150,5 +151,22 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 		$qn = $queueName->toString();
 
 		return new QueueInfo( $qn, $this->queueInfos[ $qn ] ?? [] );
+	}
+
+	public static function fromStorage( StoresMessages $storage ) : self
+	{
+		$instance = new self();
+		$storage->resetAllDispatched();
+
+		foreach ( $storage->getAllUndispatchedGroupedByQueueName() as $queueName => $messages )
+		{
+			/** @var \Generator $messages */
+			foreach ( $messages as $message )
+			{
+				$instance->addMessage( $queueName, $message );
+			}
+		}
+
+		return $instance;
 	}
 }

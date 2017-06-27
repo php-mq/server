@@ -33,4 +33,11 @@ interface StoresMessages
 	public function flushQueue( IdentifiesQueue $queueName ) : void;
 
 	public function flushAllQueues() : void;
+
+	/**
+	 * @return \Generator|ProvidesMessageData[][]
+	 */
+	public function getAllUndispatchedGroupedByQueueName() : \Generator;
+
+	public function resetAllDispatched() : void;
 }

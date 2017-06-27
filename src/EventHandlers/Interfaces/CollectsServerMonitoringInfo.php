@@ -10,6 +10,7 @@ use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
+use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 
 /**
  * Interface CollectsServerMonitoringInfo
@@ -36,4 +37,6 @@ interface CollectsServerMonitoringInfo
 	public function flushQueue( IdentifiesQueue $queueName ) : void;
 
 	public function flushAllQueues() : void;
+
+	public static function fromStorage( StoresMessages $storage );
 }

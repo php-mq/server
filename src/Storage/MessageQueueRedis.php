@@ -13,6 +13,7 @@ use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class MessageQueueRedis
@@ -22,11 +23,13 @@ final class MessageQueueRedis implements StoresMessages
 {
 	private const PREFIX_DEFAULT         = 'PHPMQ:';
 
-	private const BGSAVE_DEFAULT         = 0;
+	public const  BGSAVE_DEFAULT         = 0;
 
-	private const BGSAVE_ALWAYS          = 1;
+	public const  BGSAVE_ALWAYS          = 1;
 
-	private const BGSAVE_ENQUEUE_DEQUEUE = 2;
+	public const  BGSAVE_ENQUEUE_DEQUEUE = 2;
+
+	private const KEY_QUEUE_SET          = 'queues';
 
 	/** @var ConfiguresMessageQueueRedis */
 	private $config;
@@ -43,6 +46,7 @@ final class MessageQueueRedis implements StoresMessages
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
+		     ->sAdd( self::KEY_QUEUE_SET, $queueName->toString() )
 		     ->rPush(
 			     $this->getUndispatchedQueueKey( $queueName ),
 			     $message->getMessageId()->toString()
@@ -70,7 +74,7 @@ final class MessageQueueRedis implements StoresMessages
 				break;
 
 			case self::BGSAVE_ENQUEUE_DEQUEUE:
-				if ( in_array( $methodName, [ 'enqueue', 'dequeue' ], true ) )
+				if ( in_array( $methodName, [ 'enqueue', 'dequeue', 'resetAllDispatched' ], true ) )
 				{
 					$this->getRedis()->bgsave();
 				}
@@ -145,6 +149,19 @@ final class MessageQueueRedis implements StoresMessages
 		     ->del( $this->getMessageKey( $queueName, $messageId ) )
 		     ->exec();
 
+		/** @noinspection PhpUndefinedMethodInspection */
+		$queueListLength = array_sum(
+			$this->getRedis()->multi()
+			     ->lLen( $this->getDispatchedQueueKey( $queueName ) )
+			     ->lLen( $this->getUndispatchedQueueKey( $queueName ) )
+			     ->exec()
+		);
+
+		if ( 0 === (int)$queueListLength )
+		{
+			$this->getRedis()->sRem( self::KEY_QUEUE_SET, $queueName->toString() );
+		}
+
 		$this->bgSave( 'dequeue' );
 	}
 
@@ -174,11 +191,22 @@ final class MessageQueueRedis implements StoresMessages
 	{
 		$messageIds = $this->getRedis()->lRange( $this->getUndispatchedQueueKey( $queueName ), 0, $countMessages - 1 );
 
-		if ( 0 === count( $messageIds ) )
+		if ( !is_array( $messageIds ) || 0 === count( $messageIds ) )
 		{
 			return;
 		}
 
+		yield from $this->createMessagesFromQueue( $queueName, $messageIds );
+	}
+
+	/**
+	 * @param IdentifiesQueue $queueName
+	 * @param array           $messageIds
+	 *
+	 * @return \Generator|ProvidesMessageData[]
+	 */
+	private function createMessagesFromQueue( IdentifiesQueue $queueName, array $messageIds ) : \Generator
+	{
 		$pipe = $this->getRedis()->multi();
 
 		foreach ( $messageIds as $msgId )
@@ -218,7 +246,10 @@ final class MessageQueueRedis implements StoresMessages
 			$messageIds
 		);
 
-		$this->getRedis()->del( $undispatchedQueueKey, $dispatchedQueueKey, ...$messageIds );
+		/** @noinspection PhpUndefinedMethodInspection */
+		$this->getRedis()->multi()
+		     ->sRem( self::KEY_QUEUE_SET, $queueName->toString() )
+		     ->del( $undispatchedQueueKey, $dispatchedQueueKey, ...$messageIds );
 
 		$this->bgSave( 'flushQueue' );
 	}
@@ -228,5 +259,65 @@ final class MessageQueueRedis implements StoresMessages
 		$this->getRedis()->flushDB();
 
 		$this->bgSave( 'flushAllQueues' );
+	}
+
+	private function getAllQueueNames() : array
+	{
+		return array_map(
+			function ( $queueName )
+			{
+				return new QueueName( $queueName );
+			},
+			$this->getRedis()->sMembers( self::KEY_QUEUE_SET )
+		);
+	}
+
+	public function resetAllDispatched() : void
+	{
+		foreach ( $this->getAllQueueNames() as $queueName )
+		{
+			$this->markMessagesInQueueAsUndispatched( $queueName );
+		}
+
+		$this->bgSave( 'resetAllDispatched' );
+	}
+
+	private function markMessagesInQueueAsUndispatched( IdentifiesQueue $queueName ) : void
+	{
+		$queueKey    = $this->getDispatchedQueueKey( $queueName );
+		$queueLength = (int)$this->getRedis()->lLen( $queueKey );
+
+		if ( 0 === $queueLength )
+		{
+			return;
+		}
+
+		$messageIds = $this->getRedis()->lRange( $queueKey, 0, $queueLength - 1 );
+
+		foreach ( $messageIds as $messageId )
+		{
+			$this->markAsUndispatched( $queueName, new MessageId( $messageId ) );
+		}
+	}
+
+	/**
+	 * @return \Generator|ProvidesMessageData[][]
+	 */
+	public function getAllUndispatchedGroupedByQueueName() : \Generator
+	{
+		$redis = $this->getRedis();
+
+		foreach ( $this->getAllQueueNames() as $queueName )
+		{
+			$queueKey    = $this->getUndispatchedQueueKey( $queueName );
+			$queueLength = (int)$redis->lLen( $queueKey );
+
+			if ( 0 === $queueLength )
+			{
+				continue;
+			}
+
+			yield $queueName => $this->getUndispatched( $queueName, $queueLength );
+		}
 	}
 }

@@ -184,4 +184,43 @@ final class MessageQueueSQLiteTest extends TestCase
 		$this->assertCount( 0, $messages1 );
 		$this->assertCount( 0, $messages2 );
 	}
+
+	public function testCanResetAllDispatched() : void
+	{
+		$queueName1 = new QueueName( 'TestQueue1' );
+		$queueName2 = new QueueName( 'TestQueue2' );
+		$message1   = $this->getMessage( 'unit-test' );
+		$message2   = $this->getMessage( 'test-unit' );
+		$message3   = $this->getMessage( 'last' );
+
+		$this->messageQueue->enqueue( $queueName1, $message1 );
+		$this->messageQueue->enqueue( $queueName1, $message2 );
+		$this->messageQueue->enqueue( $queueName1, $message3 );
+
+		$this->messageQueue->enqueue( $queueName2, $message1 );
+		$this->messageQueue->enqueue( $queueName2, $message2 );
+		$this->messageQueue->enqueue( $queueName2, $message3 );
+
+		$this->messageQueue->markAsDispached( $queueName1, $message1->getMessageId() );
+		$this->messageQueue->markAsDispached( $queueName1, $message2->getMessageId() );
+		$this->messageQueue->markAsDispached( $queueName1, $message3->getMessageId() );
+
+		$this->messageQueue->markAsDispached( $queueName2, $message1->getMessageId() );
+		$this->messageQueue->markAsDispached( $queueName2, $message2->getMessageId() );
+		$this->messageQueue->markAsDispached( $queueName2, $message3->getMessageId() );
+
+		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+
+		$this->assertCount( 0, $messages1 );
+		$this->assertCount( 0, $messages2 );
+
+		$this->messageQueue->resetAllDispatched();
+
+		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+
+		$this->assertCount( 3, $messages1 );
+		$this->assertCount( 3, $messages2 );
+	}
 }

@@ -13,6 +13,7 @@ use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Types\QueueName;
 
 /**
  * Class MessageQueueSQLite
@@ -40,7 +41,7 @@ final class MessageQueueSQLite implements StoresMessages
 			`createdAt` INTEGER,
 			`dispatched` INTEGER
 		 );
-		 CREATE UNIQUE INDEX messageIdQueueName ON `queue` (`messageId`, `queueName`);
+		 CREATE UNIQUE INDEX IF NOT EXISTS messageIdQueueName ON `queue` (`messageId`, `queueName`);
 		 COMMIT;';
 
 	/** @var ConfiguresMessageQueueSQLite */
@@ -300,4 +301,42 @@ final class MessageQueueSQLite implements StoresMessages
 			throw new RuntimeException( 'Could not flush all queues', self::ERROR_CODE_FLUSH_QUEUE, $e );
 		}
 	}
+
+	public function getAllUndispatchedGroupedByQueueName() : \Generator
+	{
+		$statement = $this->getPDO()->query(
+			'SELECT queueName, COUNT(1) AS countMessages 
+			 FROM `queue` WHERE 1 GROUP BY queueName'
+		);
+
+		while ( $row = $statement->fetchObject() )
+		{
+			$queueName = new QueueName( $row->queueName );
+
+			yield $queueName => $this->getUndispatched( $queueName, (int)$row->countMessages );
+		}
+	}
+
+	public function resetAllDispatched() : void
+	{
+		$this->getPDO()->beginTransaction();
+
+		try
+		{
+			$this->getPDO()->exec( 'UPDATE `queue` SET `dispatched` = 0 WHERE 1' );
+
+			$this->getPDO()->commit();
+		}
+		catch ( \PDOException $e )
+		{
+			$this->getPDO()->rollBack();
+
+			throw new RuntimeException(
+				'Could not reset dispatched messages as undispatched.',
+				self::ERROR_CODE_MARK_UNDISPATCHED,
+				$e
+			);
+		}
+	}
+
 }

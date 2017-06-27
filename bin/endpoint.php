@@ -22,7 +22,7 @@ use Psr\Log\AbstractLogger;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$storageConfig = new class implements ConfiguresMessageQueueSQLite
+$storageConfigSQLite = new class implements ConfiguresMessageQueueSQLite
 {
 	public function getMessageQueuePath() : string
 	{
@@ -47,11 +47,10 @@ $logger = new CompositeLogger();
 $logger->addLoggers( $outputLogger );
 
 $eventBus = new EventBus( $logger );
-$storage  = new MessageQueueSQLite( $storageConfig );
-$storage->flushAllQueues();
+$storage  = new MessageQueueSQLite( $storageConfigSQLite );
 
 $cliWriter            = new CliWriter();
-$serverMonitoringInfo = new ServerMonitoringInfo();
+$serverMonitoringInfo = ServerMonitoringInfo::fromStorage( $storage );
 
 $eventBus->addEventHandlers(
 	new MessageQueue\ClientConnectionEventHandler( $storage, $serverMonitoringInfo ),
