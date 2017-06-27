@@ -34,7 +34,11 @@ final class SingleQueuePrinter extends AbstractPrinter
 	{
 		$memoryUsage = memory_get_peak_usage( true );
 		$this->getCliWriter()->clearScreen(
-			'QUEUE-MONITOR | Memory usage: ' . $this->byteFormatter->format( $memoryUsage, 0 )
+			sprintf(
+				'QUEUE-MONITOR | Memory: %s (current) / %s (peak)',
+				$this->byteFormatter->format( memory_get_usage( true ), 0 ),
+				$this->byteFormatter->format( memory_get_peak_usage( true ), 0 )
+			)
 		);
 
 		$this->getCliWriter()->writeLn( 'Type "q"+ENTER to quit the monitor.' );
