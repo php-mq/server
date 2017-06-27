@@ -32,7 +32,6 @@ final class SingleQueuePrinter extends AbstractPrinter
 
 	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ) : string
 	{
-		$memoryUsage = memory_get_peak_usage( true );
 		$this->getCliWriter()->clearScreen(
 			sprintf(
 				'QUEUE-MONITOR | Memory: %s (current) / %s (peak)',
