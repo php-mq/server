@@ -2,4 +2,4 @@
 /.vagrant/
 /vendor/
 /build/logs/
-/build/storage/
+/build/storage/*.sqlite3
