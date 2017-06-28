@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PHPMQ>
+	<sockets>
+		<messagequeue>
+			<network>
+				<config name="host" value="127.0.0.1"/>
+				<config name="port" value="9100"/>
+			</network>
+			<!--<unix>-->
+			<!--<config name="path" value="/tmp/phpmq.sock"/>-->
+			<!--</unix>-->
+		</messagequeue>
+		<maintenance>
+			<network>
+				<config name="host" value="127.0.0.1"/>
+				<config name="port" value="9101"/>
+			</network>
+			<!--<unix>-->
+			<!--<config name="path" value="/tmp/phpmq.maintenance.sock"/>-->
+			<!--</unix>-->
+		</maintenance>
+	</sockets>
+	<storage>
+		<sqlite>
+			<config name="storagePath" value=":memory:"/>
+		</sqlite>
+		<!--<redis>-->
+		<!--<config name="host" value="127.0.0.1"/>-->
+		<!--<config name="port" value="6379"/>-->
+		<!--<config name="database" value="1"/>-->
+		<!--<config name="timeout" value="2.0"/>-->
+		<!--<config name="password" value=""/>-->
+		<!--<config name="prefix" value="PHPMQ:"/>-->
+		<!--<config name="backgroundSaveBehaviour" value="0"/>-->
+		<!--</redis>-->
+	</storage>
+	<logging>
+		<logfile>
+			<config name="logFilePath" value="../build/logs/phpmq.log" loglevel="debug"/>
+		</logfile>
+		<output/>
+	</logging>
+</PHPMQ>
