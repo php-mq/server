@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PHPMQ>
+	<servers>
+		<maintenance>
+			<unix>
+				<config name="path" value="/tmp/phpmq.maintenance.sock"/>
+			</unix>
+		</maintenance>
+	</servers>
+</PHPMQ>

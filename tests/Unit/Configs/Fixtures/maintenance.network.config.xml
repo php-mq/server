@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PHPMQ>
+	<servers>
+		<maintenance>
+			<network>
+				<config name="host" value="127.0.0.1"/>
+				<config name="port" value="9101"/>
+			</network>
+		</maintenance>
+	</servers>
+</PHPMQ>

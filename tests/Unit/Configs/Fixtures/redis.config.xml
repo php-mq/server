@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PHPMQ>
+	<storage>
+		<redis>
+			<config name="host" value="127.0.0.1"/>
+			<config name="port" value="6379"/>
+			<config name="database" value="1"/>
+			<config name="timeout" value="2.0"/>
+			<config name="password" value=""/>
+			<config name="prefix" value="PHPMQ:"/>
+			<config name="backgroundSaveBehaviour" value="0"/>
+		</redis>
+	</storage>
+</PHPMQ>
