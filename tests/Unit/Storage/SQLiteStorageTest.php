@@ -14,10 +14,10 @@ use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class MessageQueueSQLiteTest
+ * Class SQLiteStorageTest
  * @package PHPMQ\MessageQueueServer\Tests\Unit\Storage
  */
-final class MessageQueueSQLiteTest extends TestCase
+final class SQLiteStorageTest extends TestCase
 {
 	use StorageMockingSQLite;
 

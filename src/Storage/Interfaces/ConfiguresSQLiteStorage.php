@@ -6,10 +6,10 @@
 namespace PHPMQ\Server\Storage\Interfaces;
 
 /**
- * Interface ConfiguresMessageQueueSQLite
+ * Interface ConfiguresSQLiteStorage
  * @package PHPMQ\Server\Storage\Interfaces
  */
-interface ConfiguresMessageQueueSQLite
+interface ConfiguresSQLiteStorage
 {
-	public function getMessageQueuePath() : string;
+	public function getStoragePath() : string;
 }

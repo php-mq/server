@@ -5,10 +5,9 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueRedis;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresRedisStorage;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
-use PHPMQ\Server\Storage\MessageQueueRedis;
-use Psr\Log\NullLogger;
+use PHPMQ\Server\Storage\RedisStorage;
 
 /**
  * Trait StorageMockingRedis
@@ -21,7 +20,7 @@ trait StorageMockingRedis
 
 	public function setUpStorage() : void
 	{
-		$config = new class() implements ConfiguresMessageQueueRedis
+		$config = new class() implements ConfiguresRedisStorage
 		{
 			public function getHost() : string
 			{
@@ -59,7 +58,7 @@ trait StorageMockingRedis
 			}
 		};
 
-		$this->messageQueue = new MessageQueueRedis( $config );
+		$this->messageQueue = new RedisStorage( $config );
 		$this->messageQueue->flushAllQueues();
 	}
 

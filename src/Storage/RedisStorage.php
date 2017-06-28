@@ -8,7 +8,7 @@ namespace PHPMQ\Server\Storage;
 use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueRedis;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresRedisStorage;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
@@ -16,10 +16,10 @@ use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\QueueName;
 
 /**
- * Class MessageQueueRedis
+ * Class RedisStorage
  * @package PHPMQ\Server\Storage
  */
-final class MessageQueueRedis implements StoresMessages
+final class RedisStorage implements StoresMessages
 {
 	private const PREFIX_DEFAULT         = 'PHPMQ:';
 
@@ -31,13 +31,13 @@ final class MessageQueueRedis implements StoresMessages
 
 	private const KEY_QUEUE_SET          = 'queues';
 
-	/** @var ConfiguresMessageQueueRedis */
+	/** @var ConfiguresRedisStorage */
 	private $config;
 
 	/** @var \Redis */
 	private $redis;
 
-	public function __construct( ConfiguresMessageQueueRedis $config )
+	public function __construct( ConfiguresRedisStorage $config )
 	{
 		$this->config = $config;
 	}

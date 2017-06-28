@@ -5,9 +5,9 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
-use PHPMQ\Server\Storage\MessageQueueSQLite;
+use PHPMQ\Server\Storage\SQLiteStorage;
 
 /**
  * Trait StorageMockingSQLite
@@ -20,15 +20,15 @@ trait StorageMockingSQLite
 
 	public function setUpStorage() : void
 	{
-		$config = new class() implements ConfiguresMessageQueueSQLite
+		$config = new class() implements ConfiguresSQLiteStorage
 		{
-			public function getMessageQueuePath() : string
+			public function getStoragePath() : string
 			{
 				return dirname( __DIR__, 4 ) . '/build/storage/test.sqlite3';
 			}
 		};
 
-		$this->messageQueue = new MessageQueueSQLite( $config );
+		$this->messageQueue = new SQLiteStorage( $config );
 		$this->messageQueue->flushAllQueues();
 	}
 

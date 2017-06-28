@@ -8,7 +8,7 @@ namespace PHPMQ\Server\Storage;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Exceptions\StorageException;
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Types\Message;
@@ -16,10 +16,10 @@ use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\QueueName;
 
 /**
- * Class MessageQueueSQLite
+ * Class SQLiteStorage
  * @package PHPMQ\Server\Storage
  */
-final class MessageQueueSQLite implements StoresMessages
+final class SQLiteStorage implements StoresMessages
 {
 	private const CREATE_TABLE_QUERY = 'BEGIN;
 		 CREATE TABLE IF NOT EXISTS `queue` (
@@ -32,13 +32,13 @@ final class MessageQueueSQLite implements StoresMessages
 		 CREATE UNIQUE INDEX IF NOT EXISTS messageIdQueueName ON `queue` (`messageId`, `queueName`);
 		 COMMIT;';
 
-	/** @var ConfiguresMessageQueueSQLite */
+	/** @var ConfiguresSQLiteStorage */
 	private $config;
 
 	/** @var \PDO */
 	private $pdo;
 
-	public function __construct( ConfiguresMessageQueueSQLite $config )
+	public function __construct( ConfiguresSQLiteStorage $config )
 	{
 		$this->config = $config;
 	}
@@ -96,9 +96,9 @@ final class MessageQueueSQLite implements StoresMessages
 	{
 		if ( null === $this->pdo )
 		{
-			$this->config->getMessageQueuePath();
+			$this->config->getStoragePath();
 
-			$this->pdo = new \PDO( 'sqlite:' . $this->config->getMessageQueuePath() );
+			$this->pdo = new \PDO( 'sqlite:' . $this->config->getStoragePath() );
 			$this->pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 
 			$this->pdo->exec( self::CREATE_TABLE_QUERY );

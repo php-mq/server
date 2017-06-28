@@ -6,10 +6,10 @@
 namespace PHPMQ\Server\Storage\Interfaces;
 
 /**
- * Interface ConfiguresMessageQueueRedis
+ * Interface ConfiguresRedisStorage
  * @package PHPMQ\Server\Storage\Interfaces
  */
-interface ConfiguresMessageQueueRedis
+interface ConfiguresRedisStorage
 {
 	public function getHost() : string;
 
