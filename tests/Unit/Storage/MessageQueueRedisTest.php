@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Storage;
 
+use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingRedis;
 use PHPMQ\Server\Types\Message;
@@ -222,5 +223,45 @@ final class MessageQueueRedisTest extends TestCase
 
 		$this->assertCount( 3, $messages1 );
 		$this->assertCount( 3, $messages2 );
+	}
+
+	public function testCanGetAllUndispatchedGroupedByQueueName() : void
+	{
+		$queueName1 = new QueueName( 'TestQueue1' );
+		$queueName2 = new QueueName( 'TestQueue2' );
+		$message1   = $this->getMessage( 'unit-test' );
+		$message2   = $this->getMessage( 'test-unit' );
+		$message3   = $this->getMessage( 'last' );
+
+		$this->messageQueue->enqueue( $queueName1, $message1 );
+		$this->messageQueue->enqueue( $queueName1, $message2 );
+		$this->messageQueue->enqueue( $queueName1, $message3 );
+
+		$this->messageQueue->enqueue( $queueName2, $message1 );
+		$this->messageQueue->enqueue( $queueName2, $message2 );
+		$this->messageQueue->enqueue( $queueName2, $message3 );
+
+		$expectedArray = [
+			'TestQueue1' => [
+				$message1,
+				$message2,
+				$message3,
+			],
+			'TestQueue2' => [
+				$message1,
+				$message2,
+				$message3,
+			],
+		];
+
+		$actualArray = [];
+
+		foreach ( $this->messageQueue->getAllUndispatchedGroupedByQueueName() as $queueName => $messages )
+		{
+			$this->assertInstanceOf( IdentifiesQueue::class, $queueName );
+			$actualArray[ $queueName->toString() ] = iterator_to_array( $messages );
+		}
+
+		$this->assertEquals( $expectedArray, $actualArray );
 	}
 }
