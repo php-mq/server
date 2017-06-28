@@ -5,26 +5,29 @@
 
 namespace PHPMQ\Server;
 
+use PHPMQ\Server\Configs\LogFileLoggerConfig;
 use PHPMQ\Server\Constants\AnsiColors;
 use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
+use PHPMQ\Server\Loggers\Constants\LogLevel;
+use PHPMQ\Server\Loggers\LogFileLogger;
 use PHPMQ\Server\Monitoring\ServerMonitor;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Servers\MaintenanceServer;
 use PHPMQ\Server\Servers\MessageQueueServer;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
-use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
-use PHPMQ\Server\Storage\MessageQueueSQLite;
+use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
+use PHPMQ\Server\Storage\SQLiteStorage;
 use Psr\Log\AbstractLogger;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$storageConfigSQLite = new class implements ConfiguresMessageQueueSQLite
+$storageConfigSQLite = new class implements ConfiguresSQLiteStorage
 {
-	public function getMessageQueuePath() : string
+	public function getStoragePath() : string
 	{
 //		return '/tmp/phpmq.sqlite';
 		return ':memory:';
@@ -43,11 +46,18 @@ $outputLogger = new class extends AbstractLogger
 	}
 };
 
+$logFileLogger = new LogFileLogger(
+	new LogFileLoggerConfig(
+		dirname( __DIR__ ) . '/build/logs/phpmq.log',
+		LogLevel::LOG_LEVEL_DEBUG
+	)
+);
+
 $logger = new CompositeLogger();
-$logger->addLoggers( $outputLogger );
+$logger->addLoggers( $outputLogger, $logFileLogger );
 
 $eventBus = new EventBus( $logger );
-$storage  = new MessageQueueSQLite( $storageConfigSQLite );
+$storage  = new SQLiteStorage( $storageConfigSQLite );
 
 $cliWriter            = new CliWriter();
 $serverMonitoringInfo = ServerMonitoringInfo::fromStorage( $storage );
