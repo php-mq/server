@@ -5,9 +5,9 @@
 
 namespace PHPMQ\Server\Storage;
 
-use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Storage\Exceptions\StorageException;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresMessageQueueSQLite;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
@@ -21,19 +21,7 @@ use PHPMQ\Server\Types\QueueName;
  */
 final class MessageQueueSQLite implements StoresMessages
 {
-	private const ERROR_CODE_ENQUEUE           = 100;
-
-	private const ERROR_CODE_DEQUEUE           = 200;
-
-	private const ERROR_CODE_MARK_DISPATCHED   = 300;
-
-	private const ERROR_CODE_MARK_UNDISPATCHED = 310;
-
-	private const ERROR_CODE_GET_UNDISPATCHED  = 400;
-
-	private const ERROR_CODE_FLUSH_QUEUE       = 500;
-
-	private const CREATE_TABLE_QUERY           = 'BEGIN;
+	private const CREATE_TABLE_QUERY = 'BEGIN;
 		 CREATE TABLE IF NOT EXISTS `queue` (
 			`messageId` CHAR(32),
 			`queueName` VARCHAR(50),
@@ -63,25 +51,36 @@ final class MessageQueueSQLite implements StoresMessages
 	 */
 	public function enqueue( IdentifiesQueue $queueName, ProvidesMessageData $message ) : void
 	{
+		$this->execTransactional(
+			function () use ( $queueName, $message )
+			{
+				$statement = $this->getPDO()->prepare(
+					'INSERT INTO `queue` 
+					(`messageId`, `queueName`, `content`, `createdAt`, `dispatched`) 
+				 VALUES 
+				    (:messageId, :queueName, :content, :createdAt, 0)'
+				);
+
+				$statement->execute(
+					[
+						'messageId' => $message->getMessageId()->toString(),
+						'queueName' => $queueName->toString(),
+						'content'   => $message->getContent(),
+						'createdAt' => $message->createdAt(),
+					]
+				);
+			},
+			'enqueue'
+		);
+	}
+
+	private function execTransactional( \Closure $operation, string $method ) : void
+	{
 		$this->getPDO()->beginTransaction();
 
 		try
 		{
-			$statement = $this->getPDO()->prepare(
-				'INSERT INTO `queue` 
-					(`messageId`, `queueName`, `content`, `createdAt`, `dispatched`) 
-				 VALUES 
-				    (:messageId, :queueName, :content, :createdAt, 0)'
-			);
-
-			$statement->execute(
-				[
-					'messageId' => $message->getMessageId()->toString(),
-					'queueName' => $queueName->toString(),
-					'content'   => $message->getContent(),
-					'createdAt' => $message->createdAt(),
-				]
-			);
+			$operation->call( $this );
 
 			$this->getPDO()->commit();
 		}
@@ -89,11 +88,7 @@ final class MessageQueueSQLite implements StoresMessages
 		{
 			$this->getPDO()->rollBack();
 
-			throw new RuntimeException(
-				'Could not enqueue message with ID ' . $message->getMessageId(),
-				self::ERROR_CODE_ENQUEUE,
-				$e
-			);
+			throw StorageException::fromMethodFailure( $method, $e );
 		}
 	}
 
@@ -120,35 +115,24 @@ final class MessageQueueSQLite implements StoresMessages
 	 */
 	public function dequeue( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
-		$this->getPDO()->beginTransaction();
-
-		try
-		{
-			$statement = $this->getPDO()->prepare(
-				'DELETE FROM `queue` 
-                 WHERE `queueName` = :queueName
+		$this->execTransactional(
+			function () use ( $queueName, $messageId )
+			{
+				$statement = $this->getPDO()->prepare(
+					'DELETE FROM `queue` 
+                    WHERE `queueName` = :queueName
                     AND `messageId` = :messageId'
-			);
+				);
 
-			$statement->execute(
-				[
-					'queueName' => $queueName->toString(),
-					'messageId' => $messageId->toString(),
-				]
-			);
-
-			$this->getPDO()->commit();
-		}
-		catch ( \PDOException $e )
-		{
-			$this->getPDO()->rollBack();
-
-			throw new RuntimeException(
-				'Could not dequeue message with ID: ' . $messageId,
-				self::ERROR_CODE_DEQUEUE,
-				$e
-			);
-		}
+				$statement->execute(
+					[
+						'queueName' => $queueName->toString(),
+						'messageId' => $messageId->toString(),
+					]
+				);
+			},
+			'dequeue'
+		);
 	}
 
 	/**
@@ -159,35 +143,24 @@ final class MessageQueueSQLite implements StoresMessages
 	 */
 	public function markAsDispached( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
-		$this->getPDO()->beginTransaction();
-
-		try
-		{
-			$statement = $this->getPDO()->prepare(
-				'UPDATE `queue` SET `dispatched` = 1 
-				 WHERE `queueName` = :queueName 
+		$this->execTransactional(
+			function () use ( $queueName, $messageId )
+			{
+				$statement = $this->getPDO()->prepare(
+					'UPDATE `queue` SET `dispatched` = 1 
+				    WHERE `queueName` = :queueName 
 				    AND `messageId` = :messageId'
-			);
+				);
 
-			$statement->execute(
-				[
-					'queueName' => $queueName->toString(),
-					'messageId' => $messageId->toString(),
-				]
-			);
-
-			$this->getPDO()->commit();
-		}
-		catch ( \PDOException $e )
-		{
-			$this->getPDO()->rollBack();
-
-			throw new RuntimeException(
-				'Could not mark message as undispatched with ID: ' . $messageId,
-				self::ERROR_CODE_MARK_DISPATCHED,
-				$e
-			);
-		}
+				$statement->execute(
+					[
+						'queueName' => $queueName->toString(),
+						'messageId' => $messageId->toString(),
+					]
+				);
+			},
+			'markAsDispatched'
+		);
 	}
 
 	/**
@@ -198,35 +171,24 @@ final class MessageQueueSQLite implements StoresMessages
 	 */
 	public function markAsUndispatched( IdentifiesQueue $queueName, IdentifiesMessage $messageId ) : void
 	{
-		$this->getPDO()->beginTransaction();
-
-		try
-		{
-			$statement = $this->getPDO()->prepare(
-				'UPDATE `queue` SET `dispatched` = 0 
+		$this->execTransactional(
+			function () use ( $queueName, $messageId )
+			{
+				$statement = $this->getPDO()->prepare(
+					'UPDATE `queue` SET `dispatched` = 0 
 				 WHERE `queueName` = :queueName 
 				    AND `messageId` = :messageId'
-			);
+				);
 
-			$statement->execute(
-				[
-					'queueName' => $queueName->toString(),
-					'messageId' => $messageId->toString(),
-				]
-			);
-
-			$this->getPDO()->commit();
-		}
-		catch ( \PDOException $e )
-		{
-			$this->getPDO()->rollBack();
-
-			throw new RuntimeException(
-				'Could not mark message as dispatched with ID: ' . $messageId,
-				self::ERROR_CODE_MARK_UNDISPATCHED,
-				$e
-			);
-		}
+				$statement->execute(
+					[
+						'queueName' => $queueName->toString(),
+						'messageId' => $messageId->toString(),
+					]
+				);
+			},
+			'markAsUndispatched'
+		);
 	}
 
 	/**
@@ -258,7 +220,7 @@ final class MessageQueueSQLite implements StoresMessages
 		}
 		catch ( \PDOException $e )
 		{
-			throw new RuntimeException( 'Could not get undispatched messages', self::ERROR_CODE_GET_UNDISPATCHED, $e );
+			throw StorageException::fromMethodFailure( 'getUndispatched', $e );
 		}
 	}
 
@@ -269,21 +231,14 @@ final class MessageQueueSQLite implements StoresMessages
 	 */
 	public function flushQueue( IdentifiesQueue $queueName ) : void
 	{
-		$this->getPDO()->beginTransaction();
-
-		try
-		{
-			$statment = $this->getPDO()->prepare( 'DELETE FROM `queue` WHERE `queueName` = :queueName' );
-			$statment->execute( [ 'queueName' => $queueName->toString() ] );
-
-			$this->getPDO()->commit();
-		}
-		catch ( \PDOException $e )
-		{
-			$this->getPDO()->rollBack();
-
-			throw new RuntimeException( 'Could not flush queue', self::ERROR_CODE_FLUSH_QUEUE, $e );
-		}
+		$this->execTransactional(
+			function () use ( $queueName )
+			{
+				$statment = $this->getPDO()->prepare( 'DELETE FROM `queue` WHERE `queueName` = :queueName' );
+				$statment->execute( [ 'queueName' => $queueName->toString() ] );
+			},
+			'flushQueue'
+		);
 	}
 
 	/**
@@ -298,7 +253,7 @@ final class MessageQueueSQLite implements StoresMessages
 		}
 		catch ( \PDOException $e )
 		{
-			throw new RuntimeException( 'Could not flush all queues', self::ERROR_CODE_FLUSH_QUEUE, $e );
+			throw StorageException::fromMethodFailure( 'flushAllQueues', $e );
 		}
 	}
 
@@ -319,24 +274,12 @@ final class MessageQueueSQLite implements StoresMessages
 
 	public function resetAllDispatched() : void
 	{
-		$this->getPDO()->beginTransaction();
-
-		try
-		{
-			$this->getPDO()->exec( 'UPDATE `queue` SET `dispatched` = 0 WHERE 1' );
-
-			$this->getPDO()->commit();
-		}
-		catch ( \PDOException $e )
-		{
-			$this->getPDO()->rollBack();
-
-			throw new RuntimeException(
-				'Could not reset dispatched messages as undispatched.',
-				self::ERROR_CODE_MARK_UNDISPATCHED,
-				$e
-			);
-		}
+		$this->execTransactional(
+			function ()
+			{
+				$this->getPDO()->exec( 'UPDATE `queue` SET `dispatched` = 0 WHERE 1' );
+			},
+			'resetAllDispatched'
+		);
 	}
-
 }
