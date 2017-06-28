@@ -18,13 +18,13 @@ trait StorageMockingSQLite
 	/** @var StoresMessages */
 	private $messageQueue;
 
-	public function setUpStorage(): void
+	public function setUpStorage() : void
 	{
 		$config = new class() implements ConfiguresMessageQueueSQLite
 		{
-			public function getMessageQueuePath(): string
+			public function getMessageQueuePath() : string
 			{
-				return ':memory:';
+				return dirname( __DIR__, 4 ) . '/build/storage/test.sqlite3';
 			}
 		};
 
@@ -32,7 +32,7 @@ trait StorageMockingSQLite
 		$this->messageQueue->flushAllQueues();
 	}
 
-	public function tearDownStorage(): void
+	public function tearDownStorage() : void
 	{
 		$this->messageQueue->flushAllQueues();
 		$this->messageQueue = null;
