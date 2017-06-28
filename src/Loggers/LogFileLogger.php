@@ -1,0 +1,65 @@
+<?php declare(strict_types=1);
+/**
+ * @author h.woltersdorf
+ */
+
+namespace PHPMQ\Server\Loggers;
+
+use PHPMQ\Server\Constants\AnsiColors;
+use PHPMQ\Server\Loggers\Constants\LogLevel;
+use PHPMQ\Server\Loggers\Interfaces\ConfiguresLogFileLogger;
+use Psr\Log\AbstractLogger;
+
+/**
+ * Class LogFileLogger
+ * @package PHPMQ\Server\Loggers
+ */
+final class LogFileLogger extends AbstractLogger
+{
+	/** @var ConfiguresLogFileLogger */
+	private $config;
+
+	public function __construct( ConfiguresLogFileLogger $config )
+	{
+		$this->config = $config;
+	}
+
+	public function log( $level, $message, array $context = [] ) : void
+	{
+		if ( !in_array( $level, LogLevel::LOG_LEVEL_ASSOC[ $this->config->getLogLevel() ], true ) )
+		{
+			return;
+		}
+
+		$logMessage = $this->getLogMessage( $level, $message, $context );
+		$logMessage = str_replace( array_keys( AnsiColors::COLORS ), '', $logMessage );
+
+		error_log( $logMessage . "\n", 3, $this->config->getLogFilePath() );
+	}
+
+	private function getLogMessage( string $level, string $message, array $context ) : string
+	{
+		return sprintf(
+			'[%s] | %s | %s%s',
+			$level,
+			date( 'c' ),
+			$this->interpolateMessage( $message, $context ),
+			!empty( $context ) ? ('Context: ' . print_r( $context, 1 )) : ''
+		);
+	}
+
+	private function interpolateMessage( string $message, array $context ) : string
+	{
+		$replace = [];
+
+		foreach ( $context as $key => $value )
+		{
+			if ( !is_array( $value ) && (!is_object( $value ) || method_exists( $value, '__toString' )) )
+			{
+				$replace["{{$key}}"] = $value;
+			}
+		}
+
+		return strtr( $message, $replace );
+	}
+}
