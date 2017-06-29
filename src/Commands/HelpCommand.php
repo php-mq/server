@@ -9,17 +9,17 @@ use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
 use PHPMQ\Server\Commands\Constants\Command;
 
 /**
- * Class Help
+ * Class HelpCommand
  * @package PHPMQ\Server\Commands
  */
-final class Help implements TriggersExecution
+final class HelpCommand implements TriggersExecution
 {
 	/** @var string */
-	private $command;
+	private $commandName;
 
-	public function __construct( string $command )
+	public function __construct( string $commandName )
 	{
-		$this->command = $command;
+		$this->commandName = $commandName;
 	}
 
 	public function getName() : string
@@ -27,8 +27,8 @@ final class Help implements TriggersExecution
 		return Command::HELP;
 	}
 
-	public function getCommand() : string
+	public function getCommandName() : string
 	{
-		return $this->command;
+		return $this->commandName;
 	}
 }

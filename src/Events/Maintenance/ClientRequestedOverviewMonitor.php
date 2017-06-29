@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Commands\StartMonitor;
+use PHPMQ\Server\Commands\StartMonitorCommand;
 use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
@@ -19,10 +19,10 @@ final class ClientRequestedOverviewMonitor implements CarriesEventData, Provides
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
 
-	/** @var StartMonitor */
+	/** @var StartMonitorCommand */
 	private $startMonitorCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, StartMonitor $startMonitorCommand )
+	public function __construct( MaintenanceClient $maintenanceClient, StartMonitorCommand $startMonitorCommand )
 	{
 		$this->maintenanceClient   = $maintenanceClient;
 		$this->startMonitorCommand = $startMonitorCommand;
@@ -33,7 +33,7 @@ final class ClientRequestedOverviewMonitor implements CarriesEventData, Provides
 		return $this->maintenanceClient;
 	}
 
-	public function getStartMonitorCommand(): StartMonitor
+	public function getStartMonitorCommand(): StartMonitorCommand
 	{
 		return $this->startMonitorCommand;
 	}

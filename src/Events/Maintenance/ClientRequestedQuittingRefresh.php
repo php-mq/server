@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Commands\QuitRefresh;
+use PHPMQ\Server\Commands\QuitRefreshCommand;
 use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
@@ -19,10 +19,10 @@ final class ClientRequestedQuittingRefresh implements CarriesEventData, Provides
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
 
-	/** @var QuitRefresh */
+	/** @var QuitRefreshCommand */
 	private $quitRefreshCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, QuitRefresh $quitRefreshCommand )
+	public function __construct( MaintenanceClient $maintenanceClient, QuitRefreshCommand $quitRefreshCommand )
 	{
 		$this->maintenanceClient  = $maintenanceClient;
 		$this->quitRefreshCommand = $quitRefreshCommand;
@@ -33,7 +33,7 @@ final class ClientRequestedQuittingRefresh implements CarriesEventData, Provides
 		return $this->maintenanceClient;
 	}
 
-	public function getQuitRefreshCommand() : QuitRefresh
+	public function getQuitRefreshCommand() : QuitRefreshCommand
 	{
 		return $this->quitRefreshCommand;
 	}

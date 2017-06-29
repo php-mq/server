@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Commands\ShowQueue;
+use PHPMQ\Server\Commands\ShowQueueCommand;
 use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
@@ -19,10 +19,10 @@ final class ClientRequestedQueueMonitor implements CarriesEventData, ProvidesMai
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
 
-	/** @var ShowQueue */
+	/** @var ShowQueueCommand */
 	private $showQueueCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, ShowQueue $showQueueCommand )
+	public function __construct( MaintenanceClient $maintenanceClient, ShowQueueCommand $showQueueCommand )
 	{
 		$this->maintenanceClient = $maintenanceClient;
 		$this->showQueueCommand  = $showQueueCommand;
@@ -33,7 +33,7 @@ final class ClientRequestedQueueMonitor implements CarriesEventData, ProvidesMai
 		return $this->maintenanceClient;
 	}
 
-	public function getShowQueueCommand(): ShowQueue
+	public function getShowQueueCommand(): ShowQueueCommand
 	{
 		return $this->showQueueCommand;
 	}

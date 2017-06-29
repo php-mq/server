@@ -14,12 +14,12 @@ use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Commands\Constants\Command;
 use PHPMQ\Server\Commands\Exceptions\UnknownCommandException;
-use PHPMQ\Server\Commands\FlushAllQueues;
-use PHPMQ\Server\Commands\FlushQueue;
-use PHPMQ\Server\Commands\Help;
-use PHPMQ\Server\Commands\QuitRefresh;
-use PHPMQ\Server\Commands\ShowQueue;
-use PHPMQ\Server\Commands\StartMonitor;
+use PHPMQ\Server\Commands\FlushAllQueuesCommand;
+use PHPMQ\Server\Commands\FlushQueueCommand;
+use PHPMQ\Server\Commands\HelpCommand;
+use PHPMQ\Server\Commands\QuitRefreshCommand;
+use PHPMQ\Server\Commands\ShowQueueCommand;
+use PHPMQ\Server\Commands\StartMonitorCommand;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
@@ -131,32 +131,32 @@ final class MaintenanceServer extends AbstractServer
 		switch ( $command->getName() )
 		{
 			case Command::HELP:
-				/** @var Help $command */
+				/** @var HelpCommand $command */
 				return new ClientRequestedHelp( $client, $command );
 				break;
 
 			case Command::START_MONITOR:
-				/** @var StartMonitor $command */
+				/** @var StartMonitorCommand $command */
 				return new ClientRequestedOverviewMonitor( $client, $command );
 				break;
 
 			case Command::SHOW_QUEUE:
-				/** @var ShowQueue $command */
+				/** @var ShowQueueCommand $command */
 				return new ClientRequestedQueueMonitor( $client, $command );
 				break;
 
 			case Command::FLUSH_QUEUE:
-				/** @var FlushQueue $command */
+				/** @var FlushQueueCommand $command */
 				return new ClientRequestedFlushingQueue( $client, $command );
 				break;
 
 			case Command::FLUSH_ALL_QUEUES:
-				/** @var FlushAllQueues $command */
+				/** @var FlushAllQueuesCommand $command */
 				return new ClientRequestedFlushingAllQueues( $client, $command );
 				break;
 
 			case Command::QUIT_REFRESH:
-				/** @var QuitRefresh $command */
+				/** @var QuitRefreshCommand $command */
 				return new ClientRequestedQuittingRefresh( $client, $command );
 				break;
 

@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Commands\FlushQueue;
+use PHPMQ\Server\Commands\FlushQueueCommand;
 use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
@@ -19,10 +19,10 @@ final class ClientRequestedFlushingQueue implements CarriesEventData, ProvidesMa
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
 
-	/** @var FlushQueue */
+	/** @var FlushQueueCommand */
 	private $flushQueueCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, FlushQueue $flushQueueCommand )
+	public function __construct( MaintenanceClient $maintenanceClient, FlushQueueCommand $flushQueueCommand )
 	{
 		$this->maintenanceClient = $maintenanceClient;
 		$this->flushQueueCommand = $flushQueueCommand;
@@ -33,7 +33,7 @@ final class ClientRequestedFlushingQueue implements CarriesEventData, ProvidesMa
 		return $this->maintenanceClient;
 	}
 
-	public function getFlushQueueCommand() : FlushQueue
+	public function getFlushQueueCommand() : FlushQueueCommand
 	{
 		return $this->flushQueueCommand;
 	}

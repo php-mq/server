@@ -19,39 +19,39 @@ final class CommandBuilder implements BuildsCommands
 {
 	public function buildCommand( string $commandString ) : TriggersExecution
 	{
-		$parts     = array_filter( explode( ' ', trim( $commandString ) ) );
-		$command   = $parts[0];
-		$arguments = array_slice( $parts, 1 );
+		$parts    = array_filter( explode( ' ', trim( $commandString ), 2 ) );
+		$command  = $parts[0];
+		$argument = trim( (string)($parts[1] ?? ''), '\'"' );
 
 		switch ( $command )
 		{
 			case Command::HELP:
-				return new Help( (string)($arguments[0] ?? '') );
+				return new HelpCommand( $argument );
 				break;
 
 			case Command::START_MONITOR:
-				return new StartMonitor();
+				return new StartMonitorCommand();
 				break;
 
 			case Command::SHOW_QUEUE:
-				return new ShowQueue( new QueueName( (string)($arguments[0] ?? '') ) );
+				return new ShowQueueCommand( new QueueName( $argument ) );
 				break;
 
 			case Command::FLUSH_QUEUE:
-				return new FlushQueue( new QueueName( (string)($arguments[0] ?? '') ) );
+				return new FlushQueueCommand( new QueueName( $argument ) );
 				break;
 
 			case Command::FLUSH_ALL_QUEUES:
-				return new FlushAllQueues();
+				return new FlushAllQueuesCommand();
 				break;
 
 			case Command::QUIT_REFRESH:
-				return new QuitRefresh();
+				return new QuitRefreshCommand();
 				break;
 
 			case Command::QUIT:
 			case Command::EXIT:
-				return new Quit();
+				return new QuitCommand();
 				break;
 
 			default:

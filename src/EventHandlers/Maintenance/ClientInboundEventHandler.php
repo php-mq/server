@@ -67,11 +67,11 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			sprintf(
 				'Maintenance client %s requested help%s.',
 				$client->getClientId(),
-				$helpCommand->getCommand() ? ('for command "' . $helpCommand->getCommand() . '"') : ''
+				$helpCommand->getCommandName() ? ('for command "' . $helpCommand->getCommandName() . '"') : ''
 			)
 		);
 
-		$helpFile = $this->getHelpFile( $helpCommand->getCommand() );
+		$helpFile = $this->getHelpFile( $helpCommand->getCommandName() );
 
 		if ( !file_exists( $helpFile ) )
 		{
@@ -79,7 +79,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			                           ->writeLn( '' )
 			                           ->writeLn(
 				                           'Help for unknown command "%s" requested.',
-				                           $helpCommand->getCommand()
+				                           $helpCommand->getCommandName()
 			                           )
 			                           ->writeLn( '' )
 			                           ->writeFileContent( $this->getHelpFile( '' ) )

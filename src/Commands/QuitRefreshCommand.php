@@ -9,13 +9,13 @@ use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
 use PHPMQ\Server\Commands\Constants\Command;
 
 /**
- * Class Quit
+ * Class QuitRefreshCommand
  * @package PHPMQ\Server\Commands
  */
-final class Quit implements TriggersExecution
+final class QuitRefreshCommand implements TriggersExecution
 {
 	public function getName() : string
 	{
-		return Command::QUIT;
+		return Command::QUIT_REFRESH;
 	}
 }

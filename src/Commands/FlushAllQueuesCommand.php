@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @author h.woltersdorf
+ * @author hollodotme
  */
 
 namespace PHPMQ\Server\Commands;
@@ -9,13 +9,13 @@ use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
 use PHPMQ\Server\Commands\Constants\Command;
 
 /**
- * Class StartMonitor
+ * Class FlushAllQueuesCommand
  * @package PHPMQ\Server\Commands
  */
-final class StartMonitor implements TriggersExecution
+final class FlushAllQueuesCommand implements TriggersExecution
 {
-	public function getName(): string
+	public function getName() : string
 	{
-		return Command::START_MONITOR;
+		return Command::FLUSH_ALL_QUEUES;
 	}
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * @author h.woltersdorf
+ * @author hollodotme
  */
 
 namespace PHPMQ\Server\Commands;
@@ -10,10 +10,10 @@ use PHPMQ\Server\Commands\Constants\Command;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 
 /**
- * Class ShowQueue
+ * Class FlushQueueCommand
  * @package PHPMQ\Server\Commands
  */
-final class ShowQueue implements TriggersExecution
+final class FlushQueueCommand implements TriggersExecution
 {
 	/** @var IdentifiesQueue */
 	private $queueName;
@@ -25,7 +25,7 @@ final class ShowQueue implements TriggersExecution
 
 	public function getName() : string
 	{
-		return Command::SHOW_QUEUE;
+		return Command::FLUSH_QUEUE;
 	}
 
 	public function getQueueName() : IdentifiesQueue

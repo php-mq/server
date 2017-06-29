@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Commands\Help;
+use PHPMQ\Server\Commands\HelpCommand;
 use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
@@ -19,10 +19,10 @@ final class ClientRequestedHelp implements CarriesEventData, ProvidesMaintenance
 	/** @var MaintenanceClient */
 	private $maintenanceClient;
 
-	/** @var Help */
+	/** @var HelpCommand */
 	private $helpCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, Help $helpCommand )
+	public function __construct( MaintenanceClient $maintenanceClient, HelpCommand $helpCommand )
 	{
 		$this->maintenanceClient = $maintenanceClient;
 		$this->helpCommand       = $helpCommand;
@@ -33,7 +33,7 @@ final class ClientRequestedHelp implements CarriesEventData, ProvidesMaintenance
 		return $this->maintenanceClient;
 	}
 
-	public function getHelpCommand() : Help
+	public function getHelpCommand() : HelpCommand
 	{
 		return $this->helpCommand;
 	}
