@@ -1,0 +1,13 @@
+<fg:yellow>Flush all queues help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+flushall
+
+<fg:blue>Description:<:fg>
+
+The flushall queues command will remove all messages from all queues and thereby remove all the queues theirself.
+
+<bg:blue>Please note:<:bg>
+This does not affect consumers which may work on dispatched messages and will eventually acknowledge them.
+These acknowledgements will be received, but ignored.

@@ -1,0 +1,13 @@
+<fg:yellow>Quit help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+quit
+
+<fg:blue>Alias:<:fg>
+
+exit
+
+<fg:blue>Description:<:fg>
+
+The quit command will let the server disconnect your current maintenance session.

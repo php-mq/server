@@ -1,0 +1,22 @@
+<fg:yellow>Monitor help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+monitor
+
+<fg:blue>Description:<:fg>
+
+The monitor command will give you an overview of the current queue activitiy and server memory usage.
+
+The memory usage is displayed in the headline as current usage and peak usage in human readable bytes.
+
+The queue activity is shown as a list of all currently living message queues with:
+
+ * Queue name (<fg:yellow>Queue<:fg>)
+ * Message count in the queue (<fg:yellow>Msgs<:fg>)
+ * Total size in human readable bytes of all messages in the queue (<fg:yellow>Size<:fg>)
+ * The fullness of the queue, relative to the queue with most messages (<fg:yellow>Workload<:fg>)
+
+The monitor is refreshed every 0.5 seconds.
+
+You can quit the monitor by typing "q" and hitting <enter>

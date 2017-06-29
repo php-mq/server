@@ -1,0 +1,24 @@
+<fg:yellow>Show queue help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+show <QueueName>
+
+<fg:blue>Description:<:fg>
+
+The show queue command will show the current messages of the given queue name.
+
+<bg:blue>Please note:<:bg>
+Not existing queues are shown as empty lists,
+so that you can always watch for incoming messages creating this queue.
+
+The messages are shown as a list of all currently queued or dispatched messages with:
+
+ * The dispatch order of the message (<fg:yellow>Prio<:fg>)
+ * The message ID of the message (<fg:yellow>Msg-ID<:fg>)
+ * The size in human readable bytes of the message (<fg:yellow>Size<:fg>)
+ * The date the message was created (<fg:yellow>Created<:fg>)
+
+The message list is refreshed every 0.5 seconds.
+
+You can quit the list by typing "q" and hitting <enter>

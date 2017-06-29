@@ -1,0 +1,13 @@
+<fg:yellow>Flush queue help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+flush <QueueName>
+
+<fg:blue>Description:<:fg>
+
+The flush queue command will remove all messages from the given queue and thereby remove the queue itself.
+
+<bg:blue>Please note:<:bg>
+This does not affect consumers which may work on dispatched messages and will eventually acknowledge them.
+These acknowledgements will be received, but ignored.
