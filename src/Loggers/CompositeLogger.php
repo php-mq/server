@@ -5,6 +5,8 @@
 
 namespace PHPMQ\Server\Loggers;
 
+use PHPMQ\Server\Configs\ConfigBuilder;
+use PHPMQ\Server\Constants\LoggerType;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
@@ -31,5 +33,21 @@ final class CompositeLogger extends AbstractLogger
 		{
 			$logger->log( $level, $message, $context );
 		}
+	}
+
+	public static function fromConfigBuilder( ConfigBuilder $configBuilder ) : self
+	{
+		$logger = new self();
+		if ( in_array( LoggerType::LOG_FILE, $configBuilder->getActiveLoggers(), true ) )
+		{
+			$logger->addLoggers( new LogFileLogger( $configBuilder->getLogFileLoggerConfig() ) );
+		}
+
+		if ( in_array( LoggerType::OUTPUT, $configBuilder->getActiveLoggers(), true ) )
+		{
+			$logger->addLoggers( new OutputLogger() );
+		}
+
+		return $logger;
 	}
 }
