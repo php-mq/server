@@ -5,6 +5,9 @@
 
 namespace PHPMQ\Server\Configs;
 
+use PHPMQ\Server\Constants\LoggerType;
+use PHPMQ\Server\Constants\ServerType;
+use PHPMQ\Server\Constants\StorageType;
 use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\Loggers\Interfaces\ConfiguresLogFileLogger;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
@@ -37,7 +40,8 @@ final class ConfigBuilder
 
 	public function getSQLiteStorageConfig() : ConfiguresSQLiteStorage
 	{
-		$storagePath = $this->getConfigValue( $this->xml->xpath( '//storage/sqlite' )[0], 'storagePath' );
+		$parentNode  = $this->xml->xpath( '//storage/' . StorageType::SQLITE )[0];
+		$storagePath = $this->getConfigValue( $parentNode, 'storagePath' );
 
 		return new SQLiteStorageConfig( $storagePath );
 	}
@@ -55,7 +59,7 @@ final class ConfigBuilder
 
 	public function getRedisStorageConfig() : ConfiguresRedisStorage
 	{
-		$parentNode              = $this->xml->xpath( '//storage/redis' )[0];
+		$parentNode              = $this->xml->xpath( '//storage/' . StorageType::REDIS )[0];
 		$host                    = $storagePath = $this->getConfigValue( $parentNode, 'host' );
 		$port                    = $storagePath = $this->getConfigValue( $parentNode, 'port' );
 		$database                = $storagePath = $this->getConfigValue( $parentNode, 'database' );
@@ -89,7 +93,7 @@ final class ConfigBuilder
 
 	public function getLogFileLoggerConfig() : ConfiguresLogFileLogger
 	{
-		$parentNode  = $this->xml->xpath( '//logging/logfile' )[0];
+		$parentNode  = $this->xml->xpath( '//logging/' . LoggerType::LOG_FILE )[0];
 		$logFilePath = $this->getConfigValue( $parentNode, 'logFilePath' );
 		$logLevel    = $this->getConfigValue( $parentNode, 'logFilePath', 'loglevel' );
 
@@ -98,7 +102,7 @@ final class ConfigBuilder
 
 	public function getMessageQueueServerSocketAddress() : IdentifiesSocketAddress
 	{
-		$parentNode = $this->xml->xpath( '//servers/messagequeue' )[0];
+		$parentNode = $this->xml->xpath( '//servers/' . ServerType::MESSAGE_QUEUE )[0];
 
 		return $this->getServerSocketAddress( $parentNode );
 	}
@@ -122,7 +126,7 @@ final class ConfigBuilder
 
 	public function getMaintenanceServerSocketAddress() : IdentifiesSocketAddress
 	{
-		$parentNode = $this->xml->xpath( '//servers/maintenance' )[0];
+		$parentNode = $this->xml->xpath( '//servers/' . ServerType::MAINTENANCE )[0];
 
 		return $this->getServerSocketAddress( $parentNode );
 	}
