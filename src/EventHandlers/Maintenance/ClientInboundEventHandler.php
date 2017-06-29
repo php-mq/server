@@ -72,6 +72,24 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		);
 
 		$helpFile = $this->getHelpFile( $helpCommand->getCommand() );
+
+		if ( !file_exists( $helpFile ) )
+		{
+			$content = $this->cliWriter->clearScreen( 'HELP' )
+			                           ->writeLn( '' )
+			                           ->writeLn(
+				                           'Help for unknown command "%s" requested.',
+				                           $helpCommand->getCommand()
+			                           )
+			                           ->writeLn( '' )
+			                           ->writeFileContent( $this->getHelpFile( '' ) )
+			                           ->getInteractiveOutput();
+
+			$client->write( $content );
+
+			return;
+		}
+
 		$this->cliWriter->clearScreen( 'HELP' )->writeFileContent( $helpFile );
 
 		$client->write( $this->cliWriter->getInteractiveOutput() );
