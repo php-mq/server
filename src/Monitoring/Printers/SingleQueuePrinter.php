@@ -47,6 +47,11 @@ final class SingleQueuePrinter extends AbstractPrinter
 
 		$this->addQueueInfo( $queueInfo );
 		$this->addConnectedClients( $serverMonitoringInfo );
+		$this->getCliWriter()->writeLn( '' );
+
+		$this->getCliWriter()->writeLn( '<fg:yellow>%5s %33s %12s  Created<:fg>', 'Prio', 'Msg-ID', 'Size' );
+		$this->getCliWriter()->writeLn( '' );
+
 		$this->addMessages( $queueInfo );
 
 		return $this->getCliWriter()->getInteractiveOutput();
@@ -84,7 +89,7 @@ final class SingleQueuePrinter extends AbstractPrinter
 			$alternate ^= true;
 
 			$line = sprintf(
-				'%5d  %s  %s  %5s  %s',
+				'%5d  %s  %s  %8s  %s',
 				++$index,
 				(string)$messageInfo['messageId'],
 				(bool)$messageInfo['dispatched'] ? '→' : '•',
