@@ -49,7 +49,7 @@ final class SingleQueuePrinter extends AbstractPrinter
 		$this->addConnectedClients( $serverMonitoringInfo );
 		$this->addMessages( $queueInfo );
 
-		return $this->getCliWriter()->getOutput();
+		return $this->getCliWriter()->getInteractiveOutput();
 	}
 
 	private function addQueueInfo( QueueInfo $queueInfo ) : void

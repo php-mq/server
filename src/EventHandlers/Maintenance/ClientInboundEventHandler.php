@@ -74,7 +74,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		$helpFile = $this->getHelpFile( $helpCommand->getCommand() );
 		$this->cliWriter->clearScreen( 'HELP' )->writeFileContent( $helpFile );
 
-		$client->write( $this->cliWriter->getOutput() );
+		$client->write( $this->cliWriter->getInteractiveOutput() );
 	}
 
 	private function getHelpFile( string $forCommand ) : string
@@ -122,7 +122,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		                ->writeLn( '' )
 		                ->writeFileContent( $helpFile );
 
-		$client->write( $this->cliWriter->getOutput() );
+		$client->write( $this->cliWriter->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedQuittingRefresh( ClientRequestedQuittingRefresh $event ) : void
@@ -133,7 +133,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 		$this->serverMonitoringInfo->removeMonitoringRequest( $client->getClientId() );
 
-		$client->write( $this->cliWriter->clearScreen( 'Welcome!' )->getOutput() );
+		$client->write( $this->cliWriter->clearScreen( 'Welcome!' )->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedFlushingQueue( ClientRequestedFlushingQueue $event ) : void
@@ -159,7 +159,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			)
 		);
 
-		$client->write( $this->cliWriter->writeLn( 'OK' )->getOutput() );
+		$client->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedFlushingAllQueues( ClientRequestedFlushingAllQueues $event ) : void
@@ -178,6 +178,6 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 		$this->logger->debug( '<fg:green>√ All queues flushed.<:fg>' );
 
-		$client->write( $this->cliWriter->writeLn( 'OK' )->getOutput() );
+		$client->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
 	}
 }

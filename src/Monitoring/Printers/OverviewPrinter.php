@@ -38,7 +38,7 @@ final class OverviewPrinter extends AbstractPrinter
 		$this->addHeader( $serverMonitoringInfo );
 		$this->addQueueInfos( $serverMonitoringInfo );
 
-		return $this->getCliWriter()->getOutput();
+		return $this->getCliWriter()->getInteractiveOutput();
 	}
 
 	private function addHeader( ProvidesServerMonitoringInfo $monitoringInfo ): void

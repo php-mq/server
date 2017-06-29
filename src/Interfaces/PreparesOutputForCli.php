@@ -24,4 +24,6 @@ interface PreparesOutputForCli
 	public function getTerminalHeight() : int;
 
 	public function getOutput() : string;
+
+	public function getInteractiveOutput() : string;
 }

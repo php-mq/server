@@ -40,7 +40,7 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 
 		$this->cliWriter->clearScreen( 'Welcome!' )->writeLn( 'Type "help" to list available commands.' );
 
-		$client->write( $this->cliWriter->getOutput() );
+		$client->write( $this->cliWriter->getInteractiveOutput() );
 	}
 
 	protected function whenClientDisconnected( ClientDisconnected $event ) : void

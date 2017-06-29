@@ -65,12 +65,17 @@ final class CliWriter implements PreparesOutputForCli
 
 	public function getOutput() : string
 	{
-		$this->output .= "\n<fg:blue>phpmq<:fg> > ";
-
 		$cliOutput = str_replace( array_keys( AnsiColors::COLORS ), AnsiColors::COLORS, $this->output );
 
 		$this->output = '';
 
 		return $cliOutput;
+	}
+
+	public function getInteractiveOutput() : string
+	{
+		$this->output .= "\n<fg:blue>phpmq<:fg> > ";
+
+		return $this->getOutput();
 	}
 }

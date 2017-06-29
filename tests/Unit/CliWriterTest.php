@@ -17,7 +17,7 @@ final class CliWriterTest extends TestCase
 
 		$expectedOutputSubstr = preg_quote( "\e[34mphpmq\e[39m > ", '#' );
 
-		$this->assertRegExp( "#{$expectedOutputSubstr}$#", $cliWriter->getOutput() );
+		$this->assertRegExp( "#{$expectedOutputSubstr}$#", $cliWriter->getInteractiveOutput() );
 	}
 
 	public function testCanWriteContent() : void
