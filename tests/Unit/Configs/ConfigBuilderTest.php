@@ -59,7 +59,10 @@ final class ConfigBuilderTest extends TestCase
 
 		$this->assertEquals( $expectedActiveLoggers, $configBuilder->getActiveLoggers() );
 		$this->assertInstanceOf( ConfiguresLogFileLogger::class, $logFileLoggerConfig );
-		$this->assertSame( __DIR__ . '/Fixtures/../build/logs/phpmq.log', $logFileLoggerConfig->getLogFilePath() );
+		$this->assertSame(
+			'/vagrant/tests/Unit/Configs/Fixtures/../../../../build/logs/phpmq.log',
+			$logFileLoggerConfig->getLogFilePath()
+		);
 		$this->assertSame( 'debug', $logFileLoggerConfig->getLogLevel() );
 	}
 

@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Loggers;
 
+use PHPMQ\Server\Configs\ConfigBuilder;
 use PHPMQ\Server\Loggers\CompositeLogger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -38,5 +39,21 @@ final class CompositeLoggerTest extends TestCase
 		);
 
 		$logger->debug( 'This is a %s', [ 'Unit-Test' ] );
+	}
+
+	public function testCanBuildFromConfigBuilder() : void
+	{
+		$configBuilder = new ConfigBuilder( dirname( __DIR__ ) . '/Configs/Fixtures/loggers.config.xml' );
+		$logger        = CompositeLogger::fromConfigBuilder( $configBuilder );
+		$logFile       = dirname( __DIR__, 3 ) . '/build/logs/phpmq.log';
+		@unlink( $logFile );
+
+		$this->expectOutputRegex( '#^[debug] | .* | Unit-Test#' );
+
+		$logger->debug( 'Unit-Test' );
+
+		$content = file_get_contents( $logFile );
+
+		$this->assertRegExp( '#^[debug] | .* | Unit-Test#', $content );
 	}
 }
