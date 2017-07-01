@@ -136,10 +136,12 @@ final class ServerSocket implements EstablishesActivityListener
 			return false;
 		}
 
-		$reads  = [$this->socket];
+		$reads  = [ $this->socket ];
 		$writes = $excepts = null;
 
-		return (bool)stream_select( $reads, $writes, $excepts, 0 );
+		$active = @stream_select( $reads, $writes, $excepts, 0, 200000 );
+
+		return ($active > 0);
 	}
 
 	private function guardClientSocketAccepted( $clientSocket ) : void
