@@ -7,7 +7,6 @@ namespace PHPMQ\Server\Clients;
 
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException;
-use PHPMQ\Server\Clients\Exceptions\WriteFailedException;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
@@ -97,7 +96,7 @@ final class MessageQueueClient extends AbstractClient
 	/**
 	 * @param MessageE2C $message
 	 *
-	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
 	public function consumeMessage( MessageE2C $message ) : void
 	{
@@ -105,7 +104,9 @@ final class MessageQueueClient extends AbstractClient
 
 		if ( 0 === $bytes )
 		{
-			throw new WriteFailedException( 'Could not write message to client socket.' );
+			throw new ClientDisconnectedException(
+				sprintf( 'MessageQueueClient has disconnected. [MessageQueueClient ID: %s]', $this->getClientId() )
+			);
 		}
 
 		$this->consumptionInfo->addMessageId( $message->getMessageId() );
