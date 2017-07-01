@@ -28,17 +28,17 @@ final class MessageQueueClientTest extends TestCase
 {
 	use SocketMocking;
 
-	public function setUp(): void
+	public function setUp() : void
 	{
 		$this->setUpServerSocket();
 	}
 
-	public function tearDown(): void
+	public function tearDown() : void
 	{
 		$this->tearDownServerSocket();
 	}
 
-	public function testCanCollectSocket(): void
+	public function testCanCollectSocket() : void
 	{
 		$remoteClient    = $this->getRemoteClientSocket();
 		$clientId        = $this->getClientId();
@@ -57,12 +57,12 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	private function getClientId(): IdentifiesClient
+	private function getClientId() : IdentifiesClient
 	{
 		return new ClientId( bin2hex( random_bytes( 16 ) ) );
 	}
 
-	public function testCannotConsumeMessagesAfterConstruction(): void
+	public function testCannotConsumeMessagesAfterConstruction() : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();
@@ -78,7 +78,7 @@ final class MessageQueueClientTest extends TestCase
 	/**
 	 * @expectedException \PHPMQ\Server\Clients\Exceptions\ClientHasPendingMessagesException
 	 */
-	public function testWhenHavingPendingMessagesUpdateConsumptionThrowsException(): void
+	public function testWhenHavingPendingMessagesUpdateConsumptionThrowsException() : void
 	{
 		$queueName    = new QueueName( 'Test-Queue' );
 		$remoteClient = $this->getRemoteClientSocket();
@@ -100,7 +100,7 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	public function testCanConsumeMessages(): void
+	public function testCanConsumeMessages() : void
 	{
 		$queueName    = new QueueName( 'Test-Queue' );
 		$remoteClient = $this->getRemoteClientSocket();
@@ -123,9 +123,9 @@ final class MessageQueueClientTest extends TestCase
 	}
 
 	/**
-	 * @expectedException \PHPMQ\Server\Clients\Exceptions\WriteFailedException
+	 * @expectedException \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	public function testConsumingMessageThrowsExceptionWhenSocketIsClosed(): void
+	public function testConsumingMessageThrowsExceptionWhenSocketIsClosed() : void
 	{
 		$queueName    = new QueueName( 'Test-Queue' );
 		$remoteClient = $this->getRemoteClientSocket();
@@ -146,7 +146,7 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	public function testCanReadBytes(): void
+	public function testCanReadBytes() : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();
@@ -162,7 +162,7 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	public function testCanCheckForUnreadData(): void
+	public function testCanCheckForUnreadData() : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();
@@ -178,7 +178,7 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	public function testCanGetClientId(): void
+	public function testCanGetClientId() : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();
@@ -211,7 +211,7 @@ final class MessageQueueClientTest extends TestCase
 		fclose( $remoteClient );
 	}
 
-	public function messageProvider(): array
+	public function messageProvider() : array
 	{
 		return [
 			[
@@ -229,7 +229,7 @@ final class MessageQueueClientTest extends TestCase
 	/**
 	 * @expectedException \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	public function testClientThrowsExceptionWhenDisconnected(): void
+	public function testClientThrowsExceptionWhenDisconnected() : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();
