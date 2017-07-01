@@ -4,7 +4,9 @@ sudo apt-get update
 
 cd /vagrant
 
-echo -e "\e[0m--"
+mkdir build/logs
+chmod -R 0777 build/logs
+
 sudo composer self-update
 sudo chmod -R 0777 /home/vagrant/.composer
 sudo chmod -R 0777 /tmp

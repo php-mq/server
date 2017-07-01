@@ -19,8 +19,9 @@ before_script:
  - git reset --hard "$TRAVIS_COMMIT"
  - composer self-update
  - mkdir -p vendor/bin
+ - mkdir -p build/logs
+ - touch build/logs/phpmq.log
  - composer install -o --prefer-dist --no-interaction
- - mkdir build/logs
  - echo 'extension = "redis.so"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script:

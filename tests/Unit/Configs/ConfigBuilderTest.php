@@ -53,14 +53,14 @@ final class ConfigBuilderTest extends TestCase
 		$file          = __DIR__ . '/Fixtures/loggers.config.xml';
 		$configBuilder = new ConfigBuilder( $file );
 
-		$expectedActiveLoggers = [ 'logfile', 'output' ];
+		$expectedActiveLoggers = ['logfile', 'output'];
 
 		$logFileLoggerConfig = $configBuilder->getLogFileLoggerConfig();
 
 		$this->assertEquals( $expectedActiveLoggers, $configBuilder->getActiveLoggers() );
 		$this->assertInstanceOf( ConfiguresLogFileLogger::class, $logFileLoggerConfig );
 		$this->assertSame(
-			'/vagrant/tests/Unit/Configs/Fixtures/../../../../build/logs/phpmq.log',
+			dirname( __DIR__, 3 ) . '/build/logs/phpmq.log',
 			$logFileLoggerConfig->getLogFilePath()
 		);
 		$this->assertSame( 'debug', $logFileLoggerConfig->getLogLevel() );

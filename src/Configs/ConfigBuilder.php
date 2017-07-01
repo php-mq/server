@@ -73,8 +73,8 @@ final class ConfigBuilder
 			(int)$port,
 			(int)$database,
 			(float)$timeout,
-			$password ? : null,
-			$prefix ? : null,
+			$password ?: null,
+			$prefix ?: null,
 			(int)$backgroundSaveBehaviour
 		);
 	}
@@ -97,7 +97,9 @@ final class ConfigBuilder
 		$logFilePath = $this->getConfigValue( $parentNode, 'logFilePath' );
 		$logLevel    = $this->getConfigValue( $parentNode, 'logFilePath', 'loglevel' );
 
-		return new LogFileLoggerConfig( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath, $logLevel );
+		$logFile = (string)realpath( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath );
+
+		return new LogFileLoggerConfig( $logFile, $logLevel );
 	}
 
 	public function getMessageQueueServerSocketAddress() : IdentifiesSocketAddress
