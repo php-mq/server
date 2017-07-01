@@ -102,8 +102,6 @@ final class Endpoint
 
 		while ( $this->isRunning )
 		{
-			usleep( 20000 );
-
 			$this->handleServerEvents();
 
 			$this->serverMonitor->refresh();
