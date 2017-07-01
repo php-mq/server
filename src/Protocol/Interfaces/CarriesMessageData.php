@@ -8,10 +8,10 @@ namespace PHPMQ\Server\Protocol\Interfaces;
 use PHPMQ\Server\Interfaces\RepresentsString;
 
 /**
- * Interface CarriesInformation
+ * Interface CarriesMessageData
  * @package PHPMQ\Server\Protocol\Interfaces
  */
-interface CarriesInformation extends RepresentsString
+interface CarriesMessageData extends RepresentsString
 {
 	public function getMessageType() : IdentifiesMessageType;
 }

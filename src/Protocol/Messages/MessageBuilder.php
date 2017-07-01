@@ -5,12 +5,12 @@
 
 namespace PHPMQ\Server\Protocol\Messages;
 
-use PHPMQ\Server\Exceptions\LogicException;
-use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Protocol\Constants\PacketType;
+use PHPMQ\Server\Protocol\Exceptions\MessageTypeNotImplementedException;
+use PHPMQ\Server\Protocol\Exceptions\PacketCountMismatchException;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\Types\MessageId;
 use PHPMQ\Server\Types\QueueName;
@@ -21,7 +21,7 @@ use PHPMQ\Server\Types\QueueName;
  */
 final class MessageBuilder implements BuildsMessages
 {
-	public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesInformation
+	public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesMessageData
 	{
 		$this->guardPacketCountMatchesMessageType( $messageHeader, $packets );
 
@@ -66,7 +66,7 @@ final class MessageBuilder implements BuildsMessages
 
 			default:
 			{
-				throw new RuntimeException(
+				throw new MessageTypeNotImplementedException(
 					'Message type not implemented: '
 					. $messageHeader->getMessageType()->getType()
 				);
@@ -78,7 +78,9 @@ final class MessageBuilder implements BuildsMessages
 	{
 		if ( $messageHeader->getMessageType()->getPacketCount() !== count( $packets ) )
 		{
-			throw new LogicException( 'Packet count does not match expectation of message type.' );
+			throw new PacketCountMismatchException(
+				'Packet count does not match expectation of message type.'
+			);
 		}
 	}
 }

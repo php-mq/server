@@ -9,7 +9,7 @@ use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Clients\Types\ClientId;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -193,9 +193,9 @@ final class MessageQueueClientTest extends TestCase
 	/**
 	 * @dataProvider messageProvider
 	 *
-	 * @param CarriesInformation $message
+	 * @param CarriesMessageData $message
 	 */
-	public function testCanReadMessage( CarriesInformation $message ): void
+	public function testCanReadMessage( CarriesMessageData $message ) : void
 	{
 		$remoteClient = $this->getRemoteClientSocket();
 		$clientId     = $this->getClientId();

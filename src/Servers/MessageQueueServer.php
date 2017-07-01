@@ -17,7 +17,7 @@ use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -86,7 +86,7 @@ final class MessageQueueServer extends AbstractServer
 	 * @param MessageQueueClient $client
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 * @return \Generator|CarriesInformation[]
+	 * @return \Generator|CarriesMessageData[]
 	 */
 	private function readMessagesFromClient( MessageQueueClient $client ) : \Generator
 	{
@@ -112,14 +112,14 @@ final class MessageQueueServer extends AbstractServer
 	 */
 	private function createEventsForMessages( iterable $messages, MessageQueueClient $client ) : \Generator
 	{
-		/** @var CarriesInformation $message */
+		/** @var CarriesMessageData $message */
 		foreach ( $messages as $message )
 		{
 			yield $this->createMessageEvent( $message, $client );
 		}
 	}
 
-	private function createMessageEvent( CarriesInformation $message, MessageQueueClient $client ) : CarriesEventData
+	private function createMessageEvent( CarriesMessageData $message, MessageQueueClient $client ) : CarriesEventData
 	{
 		$messageType = $message->getMessageType()->getType();
 

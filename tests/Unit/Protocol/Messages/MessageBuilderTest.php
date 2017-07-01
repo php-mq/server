@@ -8,7 +8,7 @@ namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 use PHPMQ\Server\Protocol\Constants\PacketType;
 use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
@@ -41,7 +41,7 @@ final class MessageBuilderTest extends TestCase
 		/** @var MessageC2E $message */
 		$message = $builder->buildMessage( $messageHeader, $packets );
 
-		$this->assertInstanceOf( CarriesInformation::class, $message );
+		$this->assertInstanceOf( CarriesMessageData::class, $message );
 		$this->assertInstanceOf( MessageC2E::class, $message );
 
 		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
@@ -66,7 +66,7 @@ final class MessageBuilderTest extends TestCase
 		/** @var ConsumeRequest $message */
 		$message = $builder->buildMessage( $messageHeader, $packets );
 
-		$this->assertInstanceOf( CarriesInformation::class, $message );
+		$this->assertInstanceOf( CarriesMessageData::class, $message );
 		$this->assertInstanceOf( ConsumeRequest::class, $message );
 
 		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
@@ -94,7 +94,7 @@ final class MessageBuilderTest extends TestCase
 		/** @var MessageE2C $message */
 		$message = $builder->buildMessage( $messageHeader, $packets );
 
-		$this->assertInstanceOf( CarriesInformation::class, $message );
+		$this->assertInstanceOf( CarriesMessageData::class, $message );
 		$this->assertInstanceOf( MessageE2C::class, $message );
 
 		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
@@ -122,7 +122,7 @@ final class MessageBuilderTest extends TestCase
 		/** @var MessageE2C $message */
 		$message = $builder->buildMessage( $messageHeader, $packets );
 
-		$this->assertInstanceOf( CarriesInformation::class, $message );
+		$this->assertInstanceOf( CarriesMessageData::class, $message );
 		$this->assertInstanceOf( Acknowledgement::class, $message );
 
 		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
@@ -131,7 +131,7 @@ final class MessageBuilderTest extends TestCase
 	}
 
 	/**
-	 * @expectedException \PHPMQ\Server\Exceptions\RuntimeException
+	 * @expectedException \PHPMQ\Server\Protocol\Exceptions\MessageTypeNotImplementedException
 	 */
 	public function testUnknowMessageTypeThrowsException() : void
 	{

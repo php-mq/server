@@ -11,7 +11,7 @@ use PHPMQ\Server\Protocol\Constants\PacketType;
 use PHPMQ\Server\Protocol\Constants\ProtocolVersion;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Headers\PacketHeader;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\Traits\StringRepresenting;
@@ -20,7 +20,7 @@ use PHPMQ\Server\Traits\StringRepresenting;
  * Class Acknowledgement
  * @package PHPMQ\Server\Protocol\Messages
  */
-final class Acknowledgement implements CarriesInformation
+final class Acknowledgement implements CarriesMessageData
 {
 	use StringRepresenting;
 
@@ -62,9 +62,9 @@ final class Acknowledgement implements CarriesInformation
 		$messageIdPacketHeader = new PacketHeader( PacketType::MESSAGE_ID, strlen( (string)$this->messageId ) );
 
 		return $messageHeader
-		       . $queuePacketHeader
-		       . $this->queueName
-		       . $messageIdPacketHeader
-		       . $this->messageId;
+			. $queuePacketHeader
+			. $this->queueName
+			. $messageIdPacketHeader
+			. $this->messageId;
 	}
 }

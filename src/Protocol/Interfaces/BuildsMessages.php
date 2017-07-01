@@ -13,5 +13,5 @@ use PHPMQ\Server\Protocol\Headers\MessageHeader;
  */
 interface BuildsMessages
 {
-	public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesInformation;
+	public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesMessageData;
 }

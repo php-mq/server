@@ -13,7 +13,7 @@ use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Headers\PacketHeader;
-use PHPMQ\Server\Protocol\Interfaces\CarriesInformation;
+use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 
@@ -36,9 +36,9 @@ final class MessageQueueClient extends AbstractClient
 	 * @param MessageBuilder $messageBuilder
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 * @return CarriesInformation
+	 * @return CarriesMessageData
 	 */
-	public function readMessage( MessageBuilder $messageBuilder ): CarriesInformation
+	public function readMessage( MessageBuilder $messageBuilder ) : CarriesMessageData
 	{
 		$bytes = $this->read( PacketLength::MESSAGE_HEADER );
 		$this->guardReadBytes( $bytes );
@@ -69,7 +69,7 @@ final class MessageQueueClient extends AbstractClient
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function guardReadBytes( $bytes ): void
+	private function guardReadBytes( $bytes ) : void
 	{
 		if ( !$bytes )
 		{
@@ -79,7 +79,7 @@ final class MessageQueueClient extends AbstractClient
 		}
 	}
 
-	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ): void
+	public function updateConsumptionInfo( ProvidesConsumptionInfo $consumptionInfo ) : void
 	{
 		if ( count( $this->consumptionInfo->getMessageIds() ) > 0 )
 		{
@@ -89,7 +89,7 @@ final class MessageQueueClient extends AbstractClient
 		$this->consumptionInfo = $consumptionInfo;
 	}
 
-	public function getConsumptionInfo(): ProvidesConsumptionInfo
+	public function getConsumptionInfo() : ProvidesConsumptionInfo
 	{
 		return $this->consumptionInfo;
 	}
@@ -99,7 +99,7 @@ final class MessageQueueClient extends AbstractClient
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\WriteFailedException
 	 */
-	public function consumeMessage( MessageE2C $message ): void
+	public function consumeMessage( MessageE2C $message ) : void
 	{
 		$bytes = $this->write( $message->toString() );
 
