@@ -63,12 +63,12 @@ $messageBuilder = new MessageBuilder();
 
 while ( true )
 {
-	$reads  = [ $socket ];
+	$reads  = [$socket];
 	$writes = $excepts = null;
 
 	if ( !@stream_select( $reads, $writes, $excepts, 0 ) )
 	{
-		usleep( 2000 );
+		usleep( 20000 );
 		continue;
 	}
 
