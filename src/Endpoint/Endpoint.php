@@ -68,8 +68,8 @@ final class Endpoint
 	{
 		if ( function_exists( 'pcntl_signal' ) )
 		{
-			pcntl_signal( SIGTERM, [ $this, 'shutDownBySignal' ] );
-			pcntl_signal( SIGINT, [ $this, 'shutDownBySignal' ] );
+			pcntl_signal( SIGTERM, [$this, 'shutDownBySignal'] );
+			pcntl_signal( SIGINT, [$this, 'shutDownBySignal'] );
 
 			$this->logger->debug( 'Registered signal handler.' );
 		}
@@ -77,7 +77,7 @@ final class Endpoint
 
 	private function shutDownBySignal( int $signal ) : void
 	{
-		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
+		if ( in_array( $signal, [SIGINT, SIGTERM, SIGKILL], true ) )
 		{
 			$this->shutdown();
 			exit( 0 );
@@ -102,7 +102,7 @@ final class Endpoint
 
 		while ( $this->isRunning )
 		{
-			usleep( 2000 );
+			usleep( 20000 );
 
 			$this->handleServerEvents();
 
