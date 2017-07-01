@@ -154,7 +154,7 @@ final class MessageQueueServer extends AbstractServer
 
 			if ( $consumptionInfo->canConsume() )
 			{
-				yield new ClientGotReadyForConsumingMessages( $client );
+				yield new ClientGotReadyForConsumingMessages( $client, $this->getClients() );
 			}
 		}
 	}

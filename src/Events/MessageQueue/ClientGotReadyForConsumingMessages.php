@@ -8,6 +8,7 @@ namespace PHPMQ\Server\Events\MessageQueue;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
+use PHPMQ\Server\Servers\Interfaces\TracksClients;
 
 /**
  * Class ClientGotReadyForConsumingMessages
@@ -18,13 +19,22 @@ final class ClientGotReadyForConsumingMessages implements CarriesEventData, Prov
 	/** @var MessageQueueClient */
 	private $messageQueueClient;
 
-	public function __construct( MessageQueueClient $messageQueueClient )
+	/** @var TracksClients */
+	private $clientPool;
+
+	public function __construct( MessageQueueClient $messageQueueClient, TracksClients $clientPool )
 	{
 		$this->messageQueueClient = $messageQueueClient;
+		$this->clientPool         = $clientPool;
 	}
 
 	public function getMessageQueueClient() : MessageQueueClient
 	{
 		return $this->messageQueueClient;
+	}
+
+	public function getClientPool() : TracksClients
+	{
+		return $this->clientPool;
 	}
 }

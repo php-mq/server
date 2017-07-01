@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
+use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Clients\MessageQueueClient;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
@@ -50,7 +51,15 @@ final class ClientOutboundEventHandler extends AbstractEventHandler
 			return;
 		}
 
-		$this->dispatchMessages( $client, $consumptionInfo );
+		try
+		{
+			$this->dispatchMessages( $client, $consumptionInfo );
+		}
+		catch ( ClientDisconnectedException $e )
+		{
+			$clientPool = $event->getClientPool();
+			$clientPool->remove( $client );
+		}
 	}
 
 	private function dispatchMessages( MessageQueueClient $client, ProvidesConsumptionInfo $consumptionInfo ) : void
