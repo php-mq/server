@@ -24,7 +24,7 @@ function fwrite_stream( $fp, $string )
 	return $written;
 }
 
-$socket = stream_socket_client( 'tcp://127.0.0.1:9100', $errorNumber, $errorString, STREAM_CLIENT_CONNECT );
+$socket = @stream_socket_client( 'tcp://127.0.0.1:9100', $errorNumber, $errorString, STREAM_CLIENT_CONNECT );
 
 if ( false === $socket )
 {
