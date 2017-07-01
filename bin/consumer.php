@@ -18,14 +18,13 @@ require __DIR__ . '/../vendor/autoload.php';
 
 function fread_stream( $fp, $length )
 {
-	$buffer    = '';
-	$chunkSize = (int)min( $length, 1024 );
+	$buffer = '';
 
 	while ( $length > 0 )
 	{
-		$buffer    .= (string)fread( $fp, $chunkSize );
-		$length    -= 1024;
 		$chunkSize = (int)min( $length, 1024 );
+		$buffer    .= (string)fread( $fp, $chunkSize );
+		$length    -= $chunkSize;
 	}
 
 	return $buffer;
@@ -63,7 +62,7 @@ $messageBuilder = new MessageBuilder();
 
 while ( true )
 {
-	$reads  = [$socket];
+	$reads  = [ $socket ];
 	$writes = $excepts = null;
 
 	if ( !@stream_select( $reads, $writes, $excepts, 0 ) )
