@@ -23,7 +23,7 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
-use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
+use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 
 /**
  * Class MessageQueueServer
@@ -34,7 +34,7 @@ final class MessageQueueServer extends AbstractServer
 	/** @var MessageBuilder */
 	private $messageBuilder;
 
-	public function __construct( EstablishesActivityListener $socket )
+	public function __construct( EstablishesStream $socket )
 	{
 		parent::__construct( $socket, new ClientPool() );
 		$this->messageBuilder = new MessageBuilder();

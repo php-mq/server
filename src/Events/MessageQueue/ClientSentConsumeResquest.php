@@ -5,8 +5,7 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
-use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 
@@ -14,27 +13,39 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
  * Class ClientSentConsumeResquest
  * @package PHPMQ\Server\Events\MessageQueue
  */
-final class ClientSentConsumeResquest implements CarriesEventData, ProvidesMessageQueueClient
+final class ClientSentConsumeResquest implements CarriesEventData
 {
-	/** @var MessageQueueClient */
-	private $messageQueueClient;
-
 	/** @var ConsumeRequest */
 	private $consumeRequest;
 
-	public function __construct( MessageQueueClient $client, ConsumeRequest $consumeRequest )
-	{
-		$this->messageQueueClient = $client;
-		$this->consumeRequest     = $consumeRequest;
-	}
+	/** @var resource */
+	private $stream;
 
-	public function getMessageQueueClient() : MessageQueueClient
+	/** @var TracksStreams */
+	private $loop;
+
+	public function __construct( ConsumeRequest $consumeRequest, $stream, TracksStreams $loop )
 	{
-		return $this->messageQueueClient;
+		$this->consumeRequest = $consumeRequest;
+		$this->stream         = $stream;
+		$this->loop           = $loop;
 	}
 
 	public function getConsumeRequest() : ConsumeRequest
 	{
 		return $this->consumeRequest;
+	}
+
+	/**
+	 * @return resource
+	 */
+	public function getStream()
+	{
+		return $this->stream;
+	}
+
+	public function getLoop() : TracksStreams
+	{
+		return $this->loop;
 	}
 }

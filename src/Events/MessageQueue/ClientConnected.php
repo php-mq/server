@@ -5,26 +5,24 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
-use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientConnected
  * @package PHPMQ\Server\Events\MessageQueue
  */
-final class ClientConnected implements CarriesEventData, ProvidesMessageQueueClient
+final class ClientConnected implements CarriesEventData
 {
-	/** @var MessageQueueClient */
-	private $messageQueueClient;
+	/** @var resource */
+	private $stream;
 
-	public function __construct( MessageQueueClient $messageQueueClient )
+	public function __construct( $stream )
 	{
-		$this->messageQueueClient = $messageQueueClient;
+		$this->stream = $stream;
 	}
 
-	public function getMessageQueueClient() : MessageQueueClient
+	public function getStream()
 	{
-		return $this->messageQueueClient;
+		return $this->stream;
 	}
 }

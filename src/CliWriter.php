@@ -21,7 +21,7 @@ final class CliWriter implements PreparesOutputForCli
 	private $terminalWidth = 80;
 
 	/** @var int */
-	private $terminalHeight = 60;
+	private $terminalHeight = 24;
 
 	public function clearScreen( string $title ) : PreparesOutputForCli
 	{

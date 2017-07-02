@@ -8,15 +8,13 @@ namespace PHPMQ\Server;
 
 use PHPMQ\Server\Configs\ConfigBuilder;
 use PHPMQ\Server\Endpoint\Endpoint;
-use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
 use PHPMQ\Server\Monitoring\ServerMonitor;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
-use PHPMQ\Server\Servers\MaintenanceServer;
-use PHPMQ\Server\Servers\MessageQueueServer;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Storage\Storage;
+use PHPMQ\Server\StreamListeners\MessageQueueServerListener;
 use PHPMQ\Server\Validators\ArgumentValidator;
 use PHPMQ\Server\Validators\CompositeValidator;
 use PHPMQ\Server\Validators\PHPVersionValidator;
@@ -55,20 +53,14 @@ try
 	$maintenanceServerSocket  = new ServerSocket( $configBuilder->getMaintenanceServerSocketAddress() );
 	$eventBus                 = new EventBus( $logger );
 	$serverMonitor            = new ServerMonitor( $serverMonitoringInfo, $cliWriter );
-	$endoint                  = new Endpoint( $eventBus, $serverMonitor, $logger );
+	$endoint                  = new Endpoint( $logger );
 
 	$eventBus->addEventHandlers(
 		new MessageQueue\ClientConnectionEventHandler( $storage, $serverMonitoringInfo ),
-		new MessageQueue\ClientInboundEventHandler( $storage, $serverMonitoringInfo ),
-		new MessageQueue\ClientOutboundEventHandler( $storage, $serverMonitoringInfo ),
-		new Maintenance\ClientConnectionEventHandler( $cliWriter ),
-		new Maintenance\ClientInboundEventHandler( $storage, $cliWriter, $serverMonitoringInfo )
+		new MessageQueue\ClientInboundEventHandler( $storage, $serverMonitoringInfo )
 	);
 
-	$endoint->registerServers(
-		new MessageQueueServer( $messageQueueServerSocket ),
-		new MaintenanceServer( $maintenanceServerSocket )
-	);
+	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );
 
 	$endoint->run();
 

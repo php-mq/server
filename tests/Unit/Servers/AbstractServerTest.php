@@ -7,7 +7,7 @@ namespace PHPMQ\Server\Tests\Unit\Servers;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
 use PHPMQ\Server\Servers\AbstractServer;
-use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
+use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 use PHPMQ\Server\Servers\Interfaces\TracksClients;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -43,7 +43,7 @@ final class AbstractServerTest extends TestCase
 
 	private function getServerSocketMock() : \PHPUnit_Framework_MockObject_MockObject
 	{
-		$serverSocket = $this->getMockBuilder( EstablishesActivityListener::class )->getMockForAbstractClass();
+		$serverSocket = $this->getMockBuilder( EstablishesStream::class )->getMockForAbstractClass();
 
 		return $serverSocket;
 	}

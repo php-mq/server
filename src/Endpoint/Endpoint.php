@@ -5,9 +5,8 @@
 
 namespace PHPMQ\Server\Endpoint;
 
-use PHPMQ\Server\Endpoint\Interfaces\ListensForActivity;
-use PHPMQ\Server\Interfaces\PublishesEvents;
-use PHPMQ\Server\Monitoring\ServerMonitor;
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
+use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -16,122 +15,28 @@ use Psr\Log\LoggerInterface;
  */
 final class Endpoint
 {
-	/** @var array|ListensForActivity[] */
-	private $servers;
-
-	/** @var bool */
-	private $isRunning;
-
-	/** @var PublishesEvents */
-	private $eventBus;
-
 	/** @var LoggerInterface */
 	private $logger;
 
-	/** @var ServerMonitor */
-	private $serverMonitor;
+	/** @var Loop */
+	private $loop;
 
-	public function __construct( PublishesEvents $eventBus, ServerMonitor $serverMonitor, LoggerInterface $logger )
+	public function __construct( LoggerInterface $logger )
 	{
-		$this->servers       = [];
-		$this->isRunning     = false;
-		$this->eventBus      = $eventBus;
-		$this->serverMonitor = $serverMonitor;
-		$this->logger        = $logger;
+		$this->logger = $logger;
+		$this->loop   = new Loop();
 	}
 
-	public function registerServers( ListensForActivity ...$servers ) : void
+	public function addServer( EstablishesStream $server, ListensForStreamActivity $handler ) : void
 	{
-		foreach ( $servers as $server )
-		{
-			$server->setLogger( $this->logger );
+		$server->startListening();
+		$handler->setLogger( $this->logger );
 
-			$this->servers[] = $server;
-		}
+		$this->loop->addReadStream( $server->getStream(), $handler->getListener() );
 	}
 
 	public function run() : void
 	{
-		$this->registerSignalHandler();
-
-		foreach ( $this->servers as $server )
-		{
-			$server->start();
-		}
-
-		$this->isRunning = true;
-
-		$this->loop();
-	}
-
-	private function registerSignalHandler() : void
-	{
-		if ( function_exists( 'pcntl_signal' ) )
-		{
-			pcntl_signal( SIGTERM, [$this, 'shutDownBySignal'] );
-			pcntl_signal( SIGINT, [$this, 'shutDownBySignal'] );
-
-			$this->logger->debug( 'Registered signal handler.' );
-		}
-	}
-
-	private function shutDownBySignal( int $signal ) : void
-	{
-		if ( in_array( $signal, [SIGINT, SIGTERM, SIGKILL], true ) )
-		{
-			$this->shutdown();
-			exit( 0 );
-		}
-	}
-
-	public function shutdown() : void
-	{
-		$this->isRunning = false;
-
-		foreach ( $this->servers as $server )
-		{
-			$server->stop();
-		}
-
-		$this->servers = [];
-	}
-
-	private function loop() : void
-	{
-		declare(ticks=1);
-
-		while ( $this->isRunning )
-		{
-			$this->handleServerEvents();
-
-			$this->serverMonitor->refresh();
-		}
-	}
-
-	private function handleServerEvents() : void
-	{
-		foreach ( $this->servers as $server )
-		{
-			$this->emitServerEvents( $server );
-		}
-	}
-
-	private function emitServerEvents( ListensForActivity $server ) : void
-	{
-		foreach ( $server->getEvents() as $event )
-		{
-			if ( null !== $event )
-			{
-				$this->eventBus->publishEvent( $event );
-			}
-		}
-	}
-
-	public function __destruct()
-	{
-		if ( !empty( $this->servers ) )
-		{
-			$this->shutdown();
-		}
+		$this->loop->start();
 	}
 }

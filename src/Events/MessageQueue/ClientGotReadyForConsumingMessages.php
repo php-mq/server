@@ -28,7 +28,7 @@ final class ClientGotReadyForConsumingMessages implements CarriesEventData, Prov
 		$this->clientPool         = $clientPool;
 	}
 
-	public function getMessageQueueClient() : MessageQueueClient
+	public function getStream() : MessageQueueClient
 	{
 		return $this->messageQueueClient;
 	}

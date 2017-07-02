@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
+use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\MessageQueue\ClientConnected;
@@ -39,32 +40,21 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 
 	protected function whenClientConnected( ClientConnected $event ) : void
 	{
-		$client = $event->getMessageQueueClient();
+		$stream   = $event->getStream();
+		$clientId = new ClientId( (string)$stream );
 
-		$this->serverMonitoringInfo->addConnectedClient( $client->getClientId() );
+		$this->serverMonitoringInfo->addConnectedClient( $clientId );
 
-		$this->logger->debug( 'New message queue client connected: ' . $client->getClientId() );
+		$this->logger->debug( 'New message queue client connected: ' . $clientId );
 	}
 
 	protected function whenClientDisconnected( ClientDisconnected $event ) : void
 	{
-		$client = $event->getMessageQueueClient();
+		$stream   = $event->getStream();
+		$clientId = new ClientId( (string)$stream );
 
-		$consumptionInfo = $client->getConsumptionInfo();
-		$queueName       = $consumptionInfo->getQueueName();
-		$messageIds      = $consumptionInfo->getMessageIds();
+		$this->serverMonitoringInfo->removeConnectedClient( $clientId );
 
-		foreach ( $messageIds as $messageId )
-		{
-			$this->storage->markAsUndispatched( $queueName, $messageId );
-
-			$this->serverMonitoringInfo->markMessageAsUndispatched( $queueName, $messageId );
-
-			$consumptionInfo->removeMessageId( $messageId );
-		}
-
-		$this->serverMonitoringInfo->removeConnectedClient( $client->getClientId() );
-
-		$this->logger->debug( 'Message queue client disconnected: ' . $client->getClientId() );
+		$this->logger->debug( 'Message queue client disconnected: ' . $clientId );
 	}
 }

@@ -43,7 +43,7 @@ final class ClientOutboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientGotReadyForConsumingMessages( ClientGotReadyForConsumingMessages $event ) : void
 	{
-		$client          = $event->getMessageQueueClient();
+		$client          = $event->getStream();
 		$consumptionInfo = $client->getConsumptionInfo();
 
 		if ( !$consumptionInfo->canConsume() )

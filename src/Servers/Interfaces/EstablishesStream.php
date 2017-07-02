@@ -9,13 +9,9 @@ namespace PHPMQ\Server\Servers\Interfaces;
  * Class ServerSocket
  * @package PHPMQ\Server\Endpoint\Sockets
  */
-interface EstablishesActivityListener
+interface EstablishesStream
 {
-	public function getName() : string;
-
 	public function startListening() : void;
 
-	public function endListening() : void;
-
-	public function getNewClient() : ?ProvidesClientInfo;
+	public function getStream();
 }

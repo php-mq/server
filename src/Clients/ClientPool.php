@@ -55,7 +55,11 @@ final class ClientPool implements TracksClients
 			return [];
 		}
 
-		return array_intersect_key( $this->clients, $reads );
+		$activeClients = array_intersect_key( $this->clients, $reads );
+
+		print_r( $activeClients );
+
+		return $activeClients;
 	}
 
 	public function getShuffled() : iterable

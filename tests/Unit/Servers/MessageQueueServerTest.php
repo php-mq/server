@@ -46,7 +46,7 @@ final class MessageQueueServerTest extends TestCase
 		$connectEvent = $events[0];
 
 		$this->assertInstanceOf( ClientConnected::class, $connectEvent );
-		$this->assertInstanceOf( MessageQueueClient::class, $connectEvent->getMessageQueueClient() );
+		$this->assertInstanceOf( MessageQueueClient::class, $connectEvent->getStream() );
 
 		fclose( $remoteClient );
 
@@ -55,7 +55,7 @@ final class MessageQueueServerTest extends TestCase
 		$disconnectEvent = $events[0];
 
 		$this->assertInstanceOf( ClientDisconnected::class, $disconnectEvent );
-		$this->assertInstanceOf( MessageQueueClient::class, $disconnectEvent->getMessageQueueClient() );
+		$this->assertInstanceOf( MessageQueueClient::class, $disconnectEvent->getStream() );
 
 		$server->stop();
 	}
@@ -81,7 +81,7 @@ final class MessageQueueServerTest extends TestCase
 		$event = $events[0];
 
 		$this->assertInstanceOf( $expectedEventClass, $event );
-		$this->assertInstanceOf( MessageQueueClient::class, $event->getMessageQueueClient() );
+		$this->assertInstanceOf( MessageQueueClient::class, $event->getStream() );
 
 		$events = iterator_to_array( $server->getEvents() );
 		$this->assertCount( 0, $events );

@@ -107,7 +107,7 @@ while ( true )
 			$message->getQueueName()
 		);
 
-		usleep( 300000 );
+		usleep( 30000 );
 
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 

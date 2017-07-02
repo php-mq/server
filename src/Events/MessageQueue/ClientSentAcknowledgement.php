@@ -5,8 +5,7 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
-use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 
@@ -14,27 +13,36 @@ use PHPMQ\Server\Protocol\Messages\Acknowledgement;
  * Class ClientSentAcknowledgement
  * @package PHPMQ\Server\Events\MessageQueue
  */
-final class ClientSentAcknowledgement implements CarriesEventData, ProvidesMessageQueueClient
+final class ClientSentAcknowledgement implements CarriesEventData
 {
-	/** @var MessageQueueClient */
-	private $messageQueueClient;
-
 	/** @var Acknowledgement */
 	private $acknowledgement;
 
-	public function __construct( MessageQueueClient $client, Acknowledgement $acknowledgement )
-	{
-		$this->messageQueueClient = $client;
-		$this->acknowledgement    = $acknowledgement;
-	}
+	/** @var resource */
+	private $stream;
 
-	public function getMessageQueueClient() : MessageQueueClient
+	/** @var TracksStreams */
+	private $loop;
+
+	public function __construct( Acknowledgement $acknowledgement, $stream, TracksStreams $loop )
 	{
-		return $this->messageQueueClient;
+		$this->acknowledgement = $acknowledgement;
+		$this->stream          = $stream;
+		$this->loop            = $loop;
 	}
 
 	public function getAcknowledgement() : Acknowledgement
 	{
 		return $this->acknowledgement;
+	}
+
+	public function getStream()
+	{
+		return $this->stream;
+	}
+
+	public function getLoop() : TracksStreams
+	{
+		return $this->loop;
 	}
 }

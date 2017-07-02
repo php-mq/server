@@ -36,6 +36,8 @@ if ( !stream_set_blocking( $socket, false ) )
 	die( 'Failed to set socket non-blocking' );
 }
 
+echo 'Client ID: ' . stream_socket_get_name( $socket, false ) . "\n";
+
 $fileContent = file_get_contents( __DIR__ . '/../tests/Unit/Fixtures/test.jpg' );
 
 $message1 = new MessageC2E( new QueueName( $argv[1] ), $fileContent );

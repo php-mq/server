@@ -13,5 +13,5 @@ use PHPMQ\Server\Clients\MessageQueueClient;
  */
 interface ProvidesMessageQueueClient
 {
-	public function getMessageQueueClient() : MessageQueueClient;
+	public function getStream() : MessageQueueClient;
 }

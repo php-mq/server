@@ -31,7 +31,7 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Servers\Interfaces\EstablishesActivityListener;
+use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 
 /**
  * Class MaintenanceServer
@@ -42,7 +42,7 @@ final class MaintenanceServer extends AbstractServer
 	/** @var BuildsCommands */
 	private $commandBuilder;
 
-	public function __construct( EstablishesActivityListener $socket )
+	public function __construct( EstablishesStream $socket )
 	{
 		parent::__construct( $socket, new ClientPool() );
 		$this->commandBuilder = new CommandBuilder();
@@ -60,6 +60,8 @@ final class MaintenanceServer extends AbstractServer
 			$this->getClients()->add( $client );
 
 			yield new ClientConnected( $client );
+
+			return;
 		}
 
 		yield from $this->createInboundMessageEvents();

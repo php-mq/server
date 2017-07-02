@@ -5,8 +5,7 @@
 
 namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
-use PHPMQ\Server\Clients\ConsumptionInfo;
-use PHPMQ\Server\Clients\MessageQueueClient;
+use PHPMQ\Server\Clients\Types\ClientId;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
@@ -57,48 +56,26 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientSentConsumeResquest( ClientSentConsumeResquest $event ) : void
 	{
-		$client         = $event->getMessageQueueClient();
+		$stream         = $event->getStream();
+		$clientId       = new ClientId( (string)$stream );
 		$consumeRequest = $event->getConsumeRequest();
 
-		$this->logger->debug( 'Consume request received from client ' . $client->getClientId() );
+		$this->logger->debug( 'Consume request received from client ' . $clientId );
 		$this->logger->debug( '- For queue name: ' . $consumeRequest->getQueueName() );
 		$this->logger->debug( '- Message count: ' . $consumeRequest->getMessageCount() );
-
-		$this->cleanUpClientConsumption( $client );
-
-		$client->updateConsumptionInfo(
-			new ConsumptionInfo(
-				$consumeRequest->getQueueName(),
-				$consumeRequest->getMessageCount()
-			)
-		);
-	}
-
-	private function cleanUpClientConsumption( MessageQueueClient $client ) : void
-	{
-		$consumptionInfo = $client->getConsumptionInfo();
-		$queueName       = $consumptionInfo->getQueueName();
-		$messageIds      = $consumptionInfo->getMessageIds();
-
-		foreach ( $messageIds as $messageId )
-		{
-			$this->storage->markAsUndispatched( $queueName, $messageId );
-			$this->serverMonitoringInfo->markMessageAsUndispatched( $queueName, $messageId );
-
-			$consumptionInfo->removeMessageId( $messageId );
-		}
 	}
 
 	protected function whenClientSentAcknowledgement( ClientSentAcknowledgement $event ) : void
 	{
-		$client          = $event->getMessageQueueClient();
+		$stream          = $event->getStream();
+		$clientId        = new ClientId( (string)$stream );
 		$acknowledgement = $event->getAcknowledgement();
 
 		$this->logger->debug(
 			sprintf(
 				'<fg:blue>«« Received acknowledgement for message %s from client %s<:fg>',
 				$acknowledgement->getMessageId()->toString(),
-				$client->getClientId()->toString()
+				$clientId->toString()
 			)
 		);
 
@@ -116,12 +93,5 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 				$acknowledgement->getQueueName()
 			)
 		);
-
-		$consumptionInfo = $client->getConsumptionInfo();
-
-		if ( $consumptionInfo->getQueueName()->equals( $acknowledgement->getQueueName() ) )
-		{
-			$consumptionInfo->removeMessageId( $acknowledgement->getMessageId() );
-		}
 	}
 }
