@@ -5,15 +5,20 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MaintenanceClientListener
  * @package PHPMQ\Server\StreamListeners
  */
-final class MaintenanceClientListener extends AbstractStreamListener
+final class MaintenanceClientListener implements ListensForStreamActivity
 {
-	protected function handleStreamActivity( $stream, TracksStreams $loop ) : void
+	use LoggerAwareTrait;
+
+	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
 	{
 		// TODO: Implement handleStreamActivity() method.
 	}

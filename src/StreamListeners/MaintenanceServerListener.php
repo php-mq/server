@@ -5,14 +5,19 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MaintenanceServerListener
  * @package PHPMQ\Server\StreamListeners
  */
-final class MaintenanceServerListener extends AbstractStreamListener
+final class MaintenanceServerListener implements ListensForStreamActivity
 {
+	use LoggerAwareTrait;
+
 	/** @var MaintenanceClientListener */
 	private $maintenanceClientListener;
 
@@ -21,32 +26,22 @@ final class MaintenanceServerListener extends AbstractStreamListener
 		$this->maintenanceClientListener = new MaintenanceClientListener();
 	}
 
-	protected function handleStreamActivity( $stream, TracksStreams $loop ) : void
+	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
 	{
-		$this->handleNewClient( $stream, $loop );
-	}
+		$clientStream = $stream->acceptConnection();
 
-	private function handleNewClient( $stream, TracksStreams $loop ) : void
-	{
-		$clientStream = @stream_socket_accept( $stream );
-
-		if ( false === $clientStream )
-		{
-			return;
-		}
-
-		if ( !stream_set_blocking( $clientStream, false ) )
+		if ( null === $clientStream )
 		{
 			return;
 		}
 
 		$this->logger->debug(
-			'New maintenance client connected: {clientName}',
-			[ 'clientName' => stream_socket_get_name( $clientStream, true ) ]
+			'New maintenance client connected: {clientId}',
+			[ 'clientId' => $clientStream->getStreamId()->toString() ]
 		);
 
 		$this->maintenanceClientListener->setLogger( $this->logger );
 
-		$loop->addReadStream( $clientStream, $this->maintenanceClientListener->getListener() );
+		$loop->addStream( $clientStream, $this->maintenanceClientListener );
 	}
 }

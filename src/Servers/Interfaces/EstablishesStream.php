@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\Servers\Interfaces;
 
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+
 /**
  * Class ServerSocket
  * @package PHPMQ\Server\Endpoint\Sockets
  */
 interface EstablishesStream
 {
-	public function startListening() : void;
-
-	public function getStream();
+	public function getStream() : TransfersData;
 }

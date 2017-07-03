@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\Monitoring;
 
-use PHPMQ\Server\Clients\Interfaces\IdentifiesClient;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
@@ -37,9 +37,9 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 		$this->monitoringRequests[ $clientId->toString() ] = $monitoringRequest;
 	}
 
-	public function removeMonitoringRequest( IdentifiesClient $clientId ) : void
+	public function removeMonitoringRequest( IdentifiesStream $streamId ) : void
 	{
-		unset( $this->monitoringRequests[ $clientId->toString() ] );
+		unset( $this->monitoringRequests[ $streamId->toString() ] );
 	}
 
 	public function hasMonitoringRequests() : bool
@@ -52,14 +52,14 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 		return $this->monitoringRequests;
 	}
 
-	public function addConnectedClient( IdentifiesClient $clientId ) : void
+	public function addConnectedClient( IdentifiesStream $streamId ) : void
 	{
-		$this->connectedClients[ $clientId->toString() ] = true;
+		$this->connectedClients[ $streamId->toString() ] = true;
 	}
 
-	public function removeConnectedClient( IdentifiesClient $clientId ) : void
+	public function removeConnectedClient( IdentifiesStream $streamId ) : void
 	{
-		unset( $this->connectedClients[ $clientId->toString() ] );
+		unset( $this->connectedClients[ $streamId->toString() ] );
 	}
 
 	public function getConnectedClientsCount() : int

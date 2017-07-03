@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\Endpoint;
 
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Exceptions\RuntimeException;
-use PHPMQ\Server\Timers\PeriodicStreamTimer;
-use PHPMQ\Server\Timers\Timers;
 
 /**
  * Class Loop
@@ -16,101 +16,53 @@ use PHPMQ\Server\Timers\Timers;
  */
 final class Loop implements TracksStreams
 {
-	/** @var array */
-	private $readStreams = [];
+	private const STREAM_SELECT_TIMEOUT_USEC = 200000;
 
-	/** @var array */
-	private $readStreamListeners = [];
+	/** @var array|TransfersData[] */
+	private $streams = [];
 
-	/** @var array */
-	private $writeStreams = [];
-
-	/** @var array */
-	private $writeStreamListeners = [];
-
-	/** @var Timers */
-	private $timers;
+	/** @var array|ListensForStreamActivity[] */
+	private $streamListeners = [];
 
 	/** @var bool */
 	private $isRunning = false;
 
-	public function __construct()
+	public function addStream( TransfersData $stream, ListensForStreamActivity $listener ) : void
 	{
-		$this->timers = new Timers();
-	}
+		$streamId = $stream->getStreamId()->toString();
 
-	public function addReadStream( $stream, callable $listener ) : void
-	{
-		$streamId = (int)$stream;
-
-		$this->readStreams[ $streamId ]         = $stream;
-		$this->readStreamListeners[ $streamId ] = $listener;
-	}
-
-	public function addWriteStream( $stream, callable $listener ) : void
-	{
-		$streamId = (int)$stream;
-
-		$this->writeStreams[ $streamId ]         = $stream;
-		$this->writeStreamListeners[ $streamId ] = $listener;
+		$this->streams[ $streamId ]         = $stream;
+		$this->streamListeners[ $streamId ] = $listener;
 	}
 
 	public function removeAllStreams() : void
 	{
-		$this->readStreams          = [];
-		$this->readStreamListeners  = [];
-		$this->writeStreams         = [];
-		$this->writeStreamListeners = [];
+		foreach ( $this->streams as $stream )
+		{
+			$this->removeStream( $stream );
+		}
 	}
 
-	public function removeStream( $stream ) : void
+	public function removeStream( TransfersData $stream ) : void
 	{
-		$this->removePerodicStreamTimer( $stream );
-		$this->removeReadStream( $stream );
-		$this->removeWriteStream( $stream );
-	}
+		$streamId = $stream->getStreamId()->toString();
 
-	public function removeReadStream( $stream ) : void
-	{
-		$streamId = (int)$stream;
-		unset( $this->readStreams[ $streamId ], $this->readStreamListeners[ $streamId ] );
-	}
+		$this->streams[ $streamId ]->shutDown();
+		$this->streams[ $streamId ]->close();
 
-	public function removeWriteStream( $stream ) : void
-	{
-		$streamId = (int)$stream;
-		unset( $this->writeStreams[ $streamId ], $this->writeStreamListeners[ $streamId ] );
-	}
-
-	public function addPeriodicStreamTimer( $stream, float $interval, callable $listener ) : void
-	{
-		$timer = new PeriodicStreamTimer( $stream, $interval, $listener );
-
-		$this->timers->add( $timer );
-	}
-
-	public function removePerodicStreamTimer( $stream ) : void
-	{
-		$this->timers->removeByStream( $stream );
+		unset( $this->streams[ $streamId ], $this->streamListeners[ $streamId ] );
 	}
 
 	public function start() : void
 	{
 		$this->registerSignalHandler();
 
-		$this->isRunning = true;
+		$this->isRunning = (count( $this->streams ) > 0);
 
 		declare(ticks=1);
 
 		while ( $this->isRunning )
 		{
-			if ( empty( $this->readStreams ) && empty( $this->writeStreams ) )
-			{
-				break;
-			}
-
-			$this->timers->tick();
-
 			$this->waitForStreamActivity();
 		}
 	}
@@ -141,62 +93,71 @@ final class Loop implements TracksStreams
 
 	private function waitForStreamActivity() : void
 	{
-		$readStreams  = $this->readStreams;
-		$writeStreams = $this->writeStreams;
-
 		try
 		{
-			$active = $this->streamSelect( $readStreams, $writeStreams, 200000 );
+			$activeStreams = $this->getActiveStreams( self::STREAM_SELECT_TIMEOUT_USEC );
 		}
 		catch ( RuntimeException $e )
 		{
 			return;
 		}
 
-		if ( 0 === $active )
+		foreach ( $activeStreams as $stream )
 		{
-			return;
-		}
-
-		foreach ( $readStreams as $readStream )
-		{
-			$this->callStreamListener( $readStream, $this->readStreamListeners );
-		}
-
-		foreach ( $writeStreams as $writeStream )
-		{
-			$this->callStreamListener( $writeStream, $this->writeStreamListeners );
+			$this->callStreamListener( $stream );
 		}
 	}
 
-	private function streamSelect( array &$read, array &$write, ?int $timeout ) : int
+	/**
+	 * @param int|null $timeout
+	 *
+	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
+	 * @return array|TransfersData[]
+	 */
+	private function getActiveStreams( ?int $timeout ) : array
 	{
-		if ( empty( $read ) && empty( $write ) )
+		$rawStreams = $this->getRawStreams();
+
+		if ( 0 === count( $rawStreams ) )
 		{
 			$timeout && usleep( $timeout );
 
-			return 0;
+			return [];
 		}
 
-		$except = null;
-
-		$active = @stream_select( $read, $write, $except, $timeout === null ? null : 0, $timeout );
+		$write  = $except = null;
+		$active = @stream_select( $rawStreams, $write, $except, $timeout === null ? null : 0, $timeout );
 
 		if ( false === $active )
 		{
 			throw new RuntimeException( 'Systemcall interrupted.' );
 		}
 
-		return $active;
+		return array_intersect_key( $this->streams, $rawStreams );
 	}
 
-	private function callStreamListener( $stream, array $listeners ) : void
+	/**
+	 * @return array|resource[]
+	 */
+	private function getRawStreams() : array
 	{
-		$streamId = (int)$stream;
+		$streams = [];
 
-		if ( isset( $listeners[ $streamId ] ) )
+		foreach ( $this->streams as $stream )
 		{
-			call_user_func( $listeners[ $streamId ], $stream, $this );
+			$stream->collectRawStream( $streams );
+		}
+
+		return $streams;
+	}
+
+	private function callStreamListener( TransfersData $stream ) : void
+	{
+		$streamId = $stream->getStreamId()->toString();
+
+		if ( isset( $this->streamListeners[ $streamId ] ) )
+		{
+			$this->streamListeners[ $streamId ]->handleStreamActivity( $stream, $this );
 		}
 	}
 

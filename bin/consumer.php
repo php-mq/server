@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server;
 
+use PHPMQ\Server\Clients\ClientSocket;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Headers\PacketHeader;
@@ -12,47 +13,15 @@ use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-function fread_stream( $fp, $length )
-{
-	$buffer = '';
-
-	while ( $length > 0 )
-	{
-		$chunkSize = (int)min( $length, 1024 );
-		$buffer    .= (string)fread( $fp, $chunkSize );
-		$length    -= $chunkSize;
-	}
-
-	return $buffer;
-}
-
-function fwrite_stream( $fp, $string )
-{
-	for ( $written = 0, $writtenMax = strlen( $string ); $written < $writtenMax; $written += $fwrite )
-	{
-		$fwrite = fwrite( $fp, substr( $string, $written ) );
-		if ( $fwrite === false )
-		{
-			return $written;
-		}
-	}
-
-	return $written;
-}
-
-$socket = stream_socket_client( 'tcp://127.0.0.1:9100' );
-stream_set_blocking( $socket, false );
-
-$socketName = stream_socket_get_name( $socket, true );
-echo 'Connected to server: ' . $socketName . "\n";
-
+$consumer       = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
 $consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 5 );
 
-fwrite( $socket, $consumeRequest->toString() );
+$consumer->writeChunked( $consumeRequest->toString(), 1024 );
 
 echo "Sent consume request\n";
 
@@ -62,18 +31,19 @@ $messageBuilder = new MessageBuilder();
 
 while ( true )
 {
-	$reads  = [ $socket ];
+	$reads = [];
+	$consumer->collectRawStream( $reads );
 	$writes = $excepts = null;
 
-	if ( !@stream_select( $reads, $writes, $excepts, 0 ) )
+	if ( !@stream_select( $reads, $writes, $excepts, 0, 200000 ) )
 	{
-		usleep( 20000 );
+		usleep( 200000 );
 		continue;
 	}
 
 	do
 	{
-		$bytes = fread_stream( $socket, PacketLength::MESSAGE_HEADER );
+		$bytes = $consumer->read( PacketLength::MESSAGE_HEADER );
 
 		if ( empty( $bytes ) )
 		{
@@ -88,11 +58,10 @@ while ( true )
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$buffer = fread_stream( $socket, PacketLength::PACKET_HEADER );
-
+			$buffer       = $consumer->readChunked( PacketLength::PACKET_HEADER, 1024 );
 			$packetHeader = PacketHeader::fromString( $buffer );
 
-			$buffer = fread_stream( $socket, $packetHeader->getContentLength() );
+			$buffer = $consumer->readChunked( $packetHeader->getContentLength(), 1024 );
 
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
@@ -111,13 +80,12 @@ while ( true )
 
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 
-		fwrite_stream( $socket, $acknowledgement->toString() );
+		$consumer->writeChunked( $acknowledgement->toString(), 1024 );
 
 		echo "\n√ Message acknowledged.\n--\n";
-
-		$metaData = stream_get_meta_data( $socket );
 	}
-	while ( $metaData['unread_bytes'] > 0 );
+	while ( $consumer->hasUnreadBytes() );
 }
 
-fclose( $socket );
+$consumer->shutDown();
+$consumer->close();

@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
@@ -13,15 +14,15 @@ use PHPMQ\Server\Interfaces\CarriesEventData;
  */
 final class ClientDisconnected implements CarriesEventData
 {
-	/** @var resource */
+	/** @var TransfersData */
 	private $stream;
 
-	public function __construct( $stream )
+	public function __construct( TransfersData $stream )
 	{
 		$this->stream = $stream;
 	}
 
-	public function getStream()
+	public function getStream() : TransfersData
 	{
 		return $this->stream;
 	}

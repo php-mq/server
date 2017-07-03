@@ -3,13 +3,13 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Endpoint\Exceptions;
+namespace PHPMQ\Server\StreamListeners\Exceptions;
 
 use PHPMQ\Server\Exceptions\RuntimeException;
 
 /**
  * Class InvalidMessageTypeReceivedException
- * @package PHPMQ\Server\Endpoint\Exceptions
+ * @package PHPMQ\Server\StreamListeners\Exceptions
  */
 final class InvalidMessageTypeReceivedException extends RuntimeException
 {

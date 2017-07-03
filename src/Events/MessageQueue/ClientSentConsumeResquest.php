@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 
@@ -18,13 +19,13 @@ final class ClientSentConsumeResquest implements CarriesEventData
 	/** @var ConsumeRequest */
 	private $consumeRequest;
 
-	/** @var resource */
+	/** @var TransfersData */
 	private $stream;
 
 	/** @var TracksStreams */
 	private $loop;
 
-	public function __construct( ConsumeRequest $consumeRequest, $stream, TracksStreams $loop )
+	public function __construct( ConsumeRequest $consumeRequest, TransfersData $stream, TracksStreams $loop )
 	{
 		$this->consumeRequest = $consumeRequest;
 		$this->stream         = $stream;
@@ -36,10 +37,7 @@ final class ClientSentConsumeResquest implements CarriesEventData
 		return $this->consumeRequest;
 	}
 
-	/**
-	 * @return resource
-	 */
-	public function getStream()
+	public function getStream() : TransfersData
 	{
 		return $this->stream;
 	}

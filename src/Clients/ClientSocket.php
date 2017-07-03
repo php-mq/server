@@ -3,7 +3,7 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Servers;
+namespace PHPMQ\Server\Clients;
 
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Exceptions\RuntimeException;
@@ -13,9 +13,9 @@ use PHPMQ\Server\Streams\Stream;
 
 /**
  * Class ServerSocket
- * @package PHPMQ\Server\Servers
+ * @package PHPMQ\Server\Clients
  */
-final class ServerSocket implements EstablishesStream
+final class ClientSocket implements EstablishesStream
 {
 	/** @var resource */
 	private $stream;
@@ -35,7 +35,7 @@ final class ServerSocket implements EstablishesStream
 	{
 		$errorNumber = $errorString = null;
 
-		$socket = @stream_socket_server(
+		$socket = @stream_socket_client(
 			$this->socketAddress->getSocketAddress(),
 			$errorNumber,
 			$errorString

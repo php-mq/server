@@ -13,5 +13,5 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface ListensForStreamActivity extends LoggerAwareInterface
 {
-	public function getListener() : \Closure;
+	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void;
 }

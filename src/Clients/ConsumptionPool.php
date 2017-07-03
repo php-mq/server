@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Clients;
 
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
+use PHPMQ\Server\Interfaces\IdentifiesStream;
 
 /**
  * Class ConsumptionPool
@@ -16,22 +17,18 @@ final class ConsumptionPool
 	/** @var array|ProvidesConsumptionInfo[] */
 	private $consumptionInfos = [];
 
-	public function setConsumptionInfo( $stream, ProvidesConsumptionInfo $consumptionInfo ) : void
+	public function setConsumptionInfo( IdentifiesStream $streamId, ProvidesConsumptionInfo $consumptionInfo ) : void
 	{
-		$streamId                            = (int)$stream;
-		$this->consumptionInfos[ $streamId ] = $consumptionInfo;
+		$this->consumptionInfos[ $streamId->toString() ] = $consumptionInfo;
 	}
 
-	public function getConsumptionInfo( $stream ) : ProvidesConsumptionInfo
+	public function getConsumptionInfo( IdentifiesStream $streamId ) : ProvidesConsumptionInfo
 	{
-		$streamId = (int)$stream;
-
-		return $this->consumptionInfos[ $streamId ] ?? new NullConsumptionInfo();
+		return $this->consumptionInfos[ $streamId->toString() ] ?? new NullConsumptionInfo();
 	}
 
-	public function removeConsumptionInfo( $stream ) : void
+	public function removeConsumptionInfo( IdentifiesStream $streamId ) : void
 	{
-		$streamId = (int)$stream;
-		unset( $this->consumptionInfos[ $streamId ] );
+		unset( $this->consumptionInfos[ $streamId->toString() ] );
 	}
 }

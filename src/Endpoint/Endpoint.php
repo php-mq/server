@@ -29,10 +29,9 @@ final class Endpoint
 
 	public function addServer( EstablishesStream $server, ListensForStreamActivity $handler ) : void
 	{
-		$server->startListening();
 		$handler->setLogger( $this->logger );
 
-		$this->loop->addReadStream( $server->getStream(), $handler->getListener() );
+		$this->loop->addStream( $server->getStream(), $handler );
 	}
 
 	public function run() : void

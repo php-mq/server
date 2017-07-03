@@ -15,6 +15,7 @@ use PHPMQ\Server\Monitoring\ServerMonitor;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Storage\Storage;
+use PHPMQ\Server\StreamListeners\MaintenanceServerListener;
 use PHPMQ\Server\StreamListeners\MessageQueueServerListener;
 use PHPMQ\Server\Validators\ArgumentValidator;
 use PHPMQ\Server\Validators\CompositeValidator;
@@ -22,7 +23,7 @@ use PHPMQ\Server\Validators\PHPVersionValidator;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$minPhpVersion = '7.1.0';
+$minPhpVersion     = '7.1.0';
 $packageVersion    = 'v0.1.0-dev';
 $defaultConfigFile = dirname( __DIR__ ) . '/config/phpmq.default.xml';
 
@@ -64,6 +65,7 @@ try
 	);
 
 	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );
+	$endoint->addServer( $maintenanceServerSocket, new MaintenanceServerListener( $eventBus ) );
 
 	$endoint->run();
 

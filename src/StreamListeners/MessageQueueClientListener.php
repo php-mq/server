@@ -6,8 +6,9 @@
 namespace PHPMQ\Server\StreamListeners;
 
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
-use PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException;
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
@@ -24,17 +25,19 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
-use PHPMQ\Server\Timers\TimeoutTimer;
+use PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException;
+use PHPMQ\Server\Streams\Exceptions\ReadTimedOutException;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class MessageQueueClientListener
  * @package PHPMQ\Server\StreamListeners
  */
-final class MessageQueueClientListener extends AbstractStreamListener
+final class MessageQueueClientListener implements ListensForStreamActivity
 {
-	private const CHUNK_SIZE        = 1024;
+	use LoggerAwareTrait;
 
-	private const READ_TIMEOUT_USEC = 500000;
+	private const CHUNK_SIZE = 1024;
 
 	/** @var BuildsMessages */
 	private $messageBuilder;
@@ -42,30 +45,25 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	/** @var PublishesEvents */
 	private $eventBus;
 
-	/** @var TimeoutTimer */
-	private $timeoutTimer;
-
 	public function __construct( PublishesEvents $evenBus )
 	{
 		$this->eventBus       = $evenBus;
 		$this->messageBuilder = new MessageBuilder();
-		$this->timeoutTimer   = new TimeoutTimer( self::READ_TIMEOUT_USEC );
 	}
 
 	/**
-	 * @param resource      $stream
+	 * @param TransfersData $stream
 	 * @param TracksStreams $loop
 	 *
-	 * @throws \PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException
+	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
 	 */
-	protected function handleStreamActivity( $stream, TracksStreams $loop ) : void
+	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
 	{
 		try
 		{
-			$this->timeoutTimer->reset();
 			$this->readMessages( $stream, $loop );
 		}
-		catch ( ClientDisconnectedException $e )
+		catch ( ReadTimedOutException | ClientDisconnectedException $e )
 		{
 			$this->eventBus->publishEvent( new ClientDisconnected( $stream ) );
 
@@ -74,20 +72,18 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	}
 
 	/**
-	 * @param resource      $stream
+	 * @param TransfersData $stream
 	 * @param TracksStreams $loop
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 * @throws \PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException
+	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
 	 */
-	private function readMessages( $stream, TracksStreams $loop ) : void
+	private function readMessages( TransfersData $stream, TracksStreams $loop ) : void
 	{
 		do
 		{
-			$headerBytes = fread( $stream, PacketLength::MESSAGE_HEADER );
+			$headerBytes = $stream->read( PacketLength::MESSAGE_HEADER );
 			$this->guardReadBytes( $headerBytes );
-
-			$this->timeoutTimer->start();
 
 			$messageHeader = MessageHeader::fromString( $headerBytes );
 
@@ -95,12 +91,8 @@ final class MessageQueueClientListener extends AbstractStreamListener
 			$messageEvent = $this->createMessageEvent( $message, $stream, $loop );
 
 			$this->eventBus->publishEvent( $messageEvent );
-
-			$this->timeoutTimer->reset();
-
-			$metaData = stream_get_meta_data( $stream );
 		}
-		while ( (int)$metaData['unread_bytes'] > 0 );
+		while ( $stream->hasUnreadBytes() );
 	}
 
 	/**
@@ -118,12 +110,12 @@ final class MessageQueueClientListener extends AbstractStreamListener
 
 	/**
 	 * @param MessageHeader $messageHeader
-	 * @param resource      $stream
+	 * @param TransfersData $stream
 	 *
-	 * @return CarriesMessageData
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 * @return CarriesMessageData
 	 */
-	private function readMessage( MessageHeader $messageHeader, $stream ) : CarriesMessageData
+	private function readMessage( MessageHeader $messageHeader, TransfersData $stream ) : CarriesMessageData
 	{
 		$packetCount = $messageHeader->getMessageType()->getPacketCount();
 
@@ -131,11 +123,11 @@ final class MessageQueueClientListener extends AbstractStreamListener
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$bytes = $this->read( $stream, PacketLength::PACKET_HEADER );
+			$bytes = $stream->readChunked( PacketLength::PACKET_HEADER, self::CHUNK_SIZE );
 
 			$packetHeader = PacketHeader::fromString( $bytes );
 
-			$bytes = $this->read( $stream, $packetHeader->getContentLength() );
+			$bytes = $stream->readChunked( $packetHeader->getContentLength(), self::CHUNK_SIZE );
 
 			$packets[ $packetHeader->getPacketType() ] = $bytes;
 		}
@@ -144,43 +136,18 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	}
 
 	/**
-	 * @param resource $stream
-	 * @param int      $length
-	 *
-	 * @return string
-	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 */
-	private function read( $stream, int $length ) : string
-	{
-		$buffer      = '';
-		$bytesToRead = $length;
-
-		while ( $bytesToRead > 0 )
-		{
-			$chunkSize = (int)min( $bytesToRead, self::CHUNK_SIZE );
-			$bytes     = (string)fread( $stream, $chunkSize );
-
-			$buffer      .= $bytes;
-			$bytesToRead -= strlen( $bytes );
-
-			if ( $this->timeoutTimer->timedOut() )
-			{
-				throw new ClientDisconnectedException( 'Read timed out.' );
-			}
-		}
-
-		return $buffer;
-	}
-
-	/**
 	 * @param CarriesMessageData $message
-	 * @param resource           $stream
+	 * @param TransfersData      $stream
 	 * @param TracksStreams      $loop
 	 *
+	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
 	 * @return CarriesEventData
-	 * @throws \PHPMQ\Server\Endpoint\Exceptions\InvalidMessageTypeReceivedException
 	 */
-	private function createMessageEvent( CarriesMessageData $message, $stream, TracksStreams $loop ) : CarriesEventData
+	private function createMessageEvent(
+		CarriesMessageData $message,
+		TransfersData $stream,
+		TracksStreams $loop
+	) : CarriesEventData
 	{
 		$messageType = $message->getMessageType()->getType();
 

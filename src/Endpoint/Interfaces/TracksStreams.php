@@ -11,21 +11,11 @@ namespace PHPMQ\Server\Endpoint\Interfaces;
  */
 interface TracksStreams
 {
-	public function addReadStream( $stream, callable $listener ) : void;
-
-	public function addWriteStream( $stream, callable $listener ) : void;
+	public function addStream( TransfersData $stream, ListensForStreamActivity $listener ) : void;
 
 	public function removeAllStreams() : void;
 
-	public function removeStream( $stream ) : void;
-
-	public function removeReadStream( $stream ) : void;
-
-	public function removeWriteStream( $stream ) : void;
-
-	public function addPeriodicStreamTimer( $stream, float $interval, callable $listener ) : void;
-
-	public function removePerodicStreamTimer( $stream ) : void;
+	public function removeStream( TransfersData $stream ) : void;
 
 	public function start() : void;
 

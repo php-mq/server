@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 
@@ -18,13 +19,13 @@ final class ClientSentAcknowledgement implements CarriesEventData
 	/** @var Acknowledgement */
 	private $acknowledgement;
 
-	/** @var resource */
+	/** @var TransfersData */
 	private $stream;
 
 	/** @var TracksStreams */
 	private $loop;
 
-	public function __construct( Acknowledgement $acknowledgement, $stream, TracksStreams $loop )
+	public function __construct( Acknowledgement $acknowledgement, TransfersData $stream, TracksStreams $loop )
 	{
 		$this->acknowledgement = $acknowledgement;
 		$this->stream          = $stream;
@@ -36,7 +37,7 @@ final class ClientSentAcknowledgement implements CarriesEventData
 		return $this->acknowledgement;
 	}
 
-	public function getStream()
+	public function getStream() : TransfersData
 	{
 		return $this->stream;
 	}

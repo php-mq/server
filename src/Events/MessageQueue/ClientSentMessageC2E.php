@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Events\MessageQueue;
 
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 
@@ -18,13 +19,13 @@ final class ClientSentMessageC2E implements CarriesEventData
 	/** @var MessageC2E */
 	private $messageC2E;
 
-	/** @var resource */
+	/** @var TransfersData */
 	private $stream;
 
 	/** @var TracksStreams */
 	private $loop;
 
-	public function __construct( MessageC2E $messageC2E, $stream, TracksStreams $loop )
+	public function __construct( MessageC2E $messageC2E, TransfersData $stream, TracksStreams $loop )
 	{
 		$this->messageC2E = $messageC2E;
 		$this->stream     = $stream;
@@ -36,10 +37,7 @@ final class ClientSentMessageC2E implements CarriesEventData
 		return $this->messageC2E;
 	}
 
-	/**
-	 * @return resource
-	 */
-	public function getStream()
+	public function getStream() : TransfersData
 	{
 		return $this->stream;
 	}

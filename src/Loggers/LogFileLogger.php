@@ -33,6 +33,7 @@ final class LogFileLogger extends AbstractLogger
 		$logMessage = $this->getLogMessage( $level, $message, $context );
 		$logMessage = str_replace( array_keys( AnsiColors::COLORS ), '', $logMessage );
 
+		/** @noinspection ForgottenDebugOutputInspection */
 		error_log( $logMessage . "\n", 3, $this->config->getLogFilePath() );
 	}
 }
