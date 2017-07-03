@@ -75,6 +75,6 @@ final class CliWriterTest extends TestCase
 		$cliWriter = new CliWriter();
 
 		$this->assertSame( 80, $cliWriter->getTerminalWidth() );
-		$this->assertSame( 60, $cliWriter->getTerminalHeight() );
+		$this->assertSame( 24, $cliWriter->getTerminalHeight() );
 	}
 }
