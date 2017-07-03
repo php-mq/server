@@ -6,6 +6,7 @@
 
 namespace PHPMQ\Server;
 
+use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Configs\ConfigBuilder;
 use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\EventHandlers\MessageQueue;
@@ -21,7 +22,7 @@ use PHPMQ\Server\Validators\PHPVersionValidator;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$minPhpVersion     = '7.1.0';
+$minPhpVersion = '7.1.0';
 $packageVersion    = 'v0.1.0-dev';
 $defaultConfigFile = dirname( __DIR__ ) . '/config/phpmq.default.xml';
 
@@ -55,9 +56,11 @@ try
 	$serverMonitor            = new ServerMonitor( $serverMonitoringInfo, $cliWriter );
 	$endoint                  = new Endpoint( $logger );
 
+	$consumptionPool = new ConsumptionPool();
+
 	$eventBus->addEventHandlers(
-		new MessageQueue\ClientConnectionEventHandler( $storage, $serverMonitoringInfo ),
-		new MessageQueue\ClientInboundEventHandler( $storage, $serverMonitoringInfo )
+		new MessageQueue\ClientConnectionEventHandler( $storage, $consumptionPool, $serverMonitoringInfo ),
+		new MessageQueue\ClientInboundEventHandler( $storage, $consumptionPool, $serverMonitoringInfo )
 	);
 
 	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );

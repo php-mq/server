@@ -19,6 +19,14 @@ interface TracksStreams
 
 	public function removeStream( $stream ) : void;
 
+	public function removeReadStream( $stream ) : void;
+
+	public function removeWriteStream( $stream ) : void;
+
+	public function addPeriodicStreamTimer( $stream, float $interval, callable $listener ) : void;
+
+	public function removePerodicStreamTimer( $stream ) : void;
+
 	public function start() : void;
 
 	public function stop() : void;

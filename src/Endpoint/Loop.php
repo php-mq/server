@@ -7,6 +7,8 @@ namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Server\Timers\PeriodicStreamTimer;
+use PHPMQ\Server\Timers\Timers;
 
 /**
  * Class Loop
@@ -26,8 +28,16 @@ final class Loop implements TracksStreams
 	/** @var array */
 	private $writeStreamListeners = [];
 
+	/** @var Timers */
+	private $timers;
+
 	/** @var bool */
 	private $isRunning = false;
+
+	public function __construct()
+	{
+		$this->timers = new Timers();
+	}
 
 	public function addReadStream( $stream, callable $listener ) : void
 	{
@@ -55,20 +65,33 @@ final class Loop implements TracksStreams
 
 	public function removeStream( $stream ) : void
 	{
+		$this->removePerodicStreamTimer( $stream );
 		$this->removeReadStream( $stream );
 		$this->removeWriteStream( $stream );
 	}
 
-	private function removeReadStream( $stream ) : void
+	public function removeReadStream( $stream ) : void
 	{
 		$streamId = (int)$stream;
 		unset( $this->readStreams[ $streamId ], $this->readStreamListeners[ $streamId ] );
 	}
 
-	private function removeWriteStream( $stream ) : void
+	public function removeWriteStream( $stream ) : void
 	{
 		$streamId = (int)$stream;
 		unset( $this->writeStreams[ $streamId ], $this->writeStreamListeners[ $streamId ] );
+	}
+
+	public function addPeriodicStreamTimer( $stream, float $interval, callable $listener ) : void
+	{
+		$timer = new PeriodicStreamTimer( $stream, $interval, $listener );
+
+		$this->timers->add( $timer );
+	}
+
+	public function removePerodicStreamTimer( $stream ) : void
+	{
+		$this->timers->removeByStream( $stream );
 	}
 
 	public function start() : void
@@ -85,6 +108,8 @@ final class Loop implements TracksStreams
 			{
 				break;
 			}
+
+			$this->timers->tick();
 
 			$this->waitForStreamActivity();
 		}

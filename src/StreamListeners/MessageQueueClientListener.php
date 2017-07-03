@@ -24,6 +24,7 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Timers\TimeoutTimer;
 
 /**
  * Class MessageQueueClientListener
@@ -31,7 +32,9 @@ use PHPMQ\Server\Protocol\Types\MessageType;
  */
 final class MessageQueueClientListener extends AbstractStreamListener
 {
-	private const CHUNK_SIZE = 1024;
+	private const CHUNK_SIZE        = 1024;
+
+	private const READ_TIMEOUT_USEC = 500000;
 
 	/** @var BuildsMessages */
 	private $messageBuilder;
@@ -39,10 +42,14 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	/** @var PublishesEvents */
 	private $eventBus;
 
+	/** @var TimeoutTimer */
+	private $timeoutTimer;
+
 	public function __construct( PublishesEvents $evenBus )
 	{
 		$this->eventBus       = $evenBus;
 		$this->messageBuilder = new MessageBuilder();
+		$this->timeoutTimer   = new TimeoutTimer( self::READ_TIMEOUT_USEC );
 	}
 
 	/**
@@ -55,6 +62,7 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	{
 		try
 		{
+			$this->timeoutTimer->reset();
 			$this->readMessages( $stream, $loop );
 		}
 		catch ( ClientDisconnectedException $e )
@@ -74,46 +82,60 @@ final class MessageQueueClientListener extends AbstractStreamListener
 	 */
 	private function readMessages( $stream, TracksStreams $loop ) : void
 	{
+		do
+		{
+			$headerBytes = fread( $stream, PacketLength::MESSAGE_HEADER );
+			$this->guardReadBytes( $headerBytes );
 
-		// TODO: define lentgh of the whole message in message header!
+			$this->timeoutTimer->start();
 
-//		do
-//		{
-		$message      = $this->readMessage( $stream );
-		$messageEvent = $this->createMessageEvent( $message, $stream, $loop );
+			$messageHeader = MessageHeader::fromString( $headerBytes );
 
-		$this->eventBus->publishEvent( $messageEvent );
+			$message      = $this->readMessage( $messageHeader, $stream );
+			$messageEvent = $this->createMessageEvent( $message, $stream, $loop );
 
-//			$metaData = stream_get_meta_data( $stream );
-//		}
-//		while ( (int)$metaData['unread_bytes'] > 0 );
+			$this->eventBus->publishEvent( $messageEvent );
+
+			$this->timeoutTimer->reset();
+
+			$metaData = stream_get_meta_data( $stream );
+		}
+		while ( (int)$metaData['unread_bytes'] > 0 );
 	}
 
 	/**
-	 * @param resource $stream
+	 * @param bool|null|int $bytes
+	 *
+	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 */
+	private function guardReadBytes( $bytes ) : void
+	{
+		if ( !$bytes )
+		{
+			throw new ClientDisconnectedException( 'Message queue client disconnected.' );
+		}
+	}
+
+	/**
+	 * @param MessageHeader $messageHeader
+	 * @param resource      $stream
 	 *
 	 * @return CarriesMessageData
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 */
-	private function readMessage( $stream ) : CarriesMessageData
+	private function readMessage( MessageHeader $messageHeader, $stream ) : CarriesMessageData
 	{
-		$bytes = $this->read( $stream, PacketLength::MESSAGE_HEADER );
-		$this->guardReadBytes( $bytes );
-
-		$messageHeader = MessageHeader::fromString( $bytes );
-		$packetCount   = $messageHeader->getMessageType()->getPacketCount();
+		$packetCount = $messageHeader->getMessageType()->getPacketCount();
 
 		$packets = [];
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
 			$bytes = $this->read( $stream, PacketLength::PACKET_HEADER );
-			$this->guardReadBytes( $bytes );
 
 			$packetHeader = PacketHeader::fromString( $bytes );
 
 			$bytes = $this->read( $stream, $packetHeader->getContentLength() );
-			$this->guardReadBytes( $bytes );
 
 			$packets[ $packetHeader->getPacketType() ] = $bytes;
 		}
@@ -133,7 +155,7 @@ final class MessageQueueClientListener extends AbstractStreamListener
 		$buffer      = '';
 		$bytesToRead = $length;
 
-		do
+		while ( $bytesToRead > 0 )
 		{
 			$chunkSize = (int)min( $bytesToRead, self::CHUNK_SIZE );
 			$bytes     = (string)fread( $stream, $chunkSize );
@@ -141,27 +163,13 @@ final class MessageQueueClientListener extends AbstractStreamListener
 			$buffer      .= $bytes;
 			$bytesToRead -= strlen( $bytes );
 
-			if ( $bytesToRead === 0 )
+			if ( $this->timeoutTimer->timedOut() )
 			{
-				return $buffer;
+				throw new ClientDisconnectedException( 'Read timed out.' );
 			}
 		}
-		while ( $bytesToRead > 0 && stream_get_meta_data( $stream )['unread_bytes'] > 0 );
 
 		return $buffer;
-	}
-
-	/**
-	 * @param bool|null|int $bytes
-	 *
-	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 */
-	private function guardReadBytes( $bytes ) : void
-	{
-		if ( !$bytes )
-		{
-			throw new ClientDisconnectedException( 'MessageQueueClient has disconnected.' );
-		}
 	}
 
 	/**

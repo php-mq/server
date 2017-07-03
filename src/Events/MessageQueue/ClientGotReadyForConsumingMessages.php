@@ -5,36 +5,34 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
-use PHPMQ\Server\Clients\MessageQueueClient;
-use PHPMQ\Server\Events\Interfaces\ProvidesMessageQueueClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Servers\Interfaces\TracksClients;
 
 /**
  * Class ClientGotReadyForConsumingMessages
  * @package PHPMQ\Server\Events\MessageQueue
  */
-final class ClientGotReadyForConsumingMessages implements CarriesEventData, ProvidesMessageQueueClient
+final class ClientGotReadyForConsumingMessages implements CarriesEventData
 {
-	/** @var MessageQueueClient */
-	private $messageQueueClient;
+	/** @var resource */
+	private $stream;
 
-	/** @var TracksClients */
-	private $clientPool;
+	/** @var TracksStreams */
+	private $loop;
 
-	public function __construct( MessageQueueClient $messageQueueClient, TracksClients $clientPool )
+	public function __construct( $stream, TracksStreams $loop )
 	{
-		$this->messageQueueClient = $messageQueueClient;
-		$this->clientPool         = $clientPool;
+		$this->stream = $stream;
+		$this->loop   = $loop;
 	}
 
-	public function getStream() : MessageQueueClient
+	public function getStream()
 	{
-		return $this->messageQueueClient;
+		return $this->stream;
 	}
 
-	public function getClientPool() : TracksClients
+	public function getLoop() : TracksStreams
 	{
-		return $this->clientPool;
+		return $this->loop;
 	}
 }
