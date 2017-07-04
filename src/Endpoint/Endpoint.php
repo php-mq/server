@@ -31,7 +31,7 @@ final class Endpoint
 	{
 		$handler->setLogger( $this->logger );
 
-		$this->loop->addStream( $server->getStream(), $handler );
+		$this->loop->addReadStream( $server->getStream(), $handler );
 	}
 
 	public function run() : void

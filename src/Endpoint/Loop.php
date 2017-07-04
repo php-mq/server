@@ -19,45 +19,86 @@ final class Loop implements TracksStreams
 	private const STREAM_SELECT_TIMEOUT_USEC = 200000;
 
 	/** @var array|TransfersData[] */
-	private $streams = [];
+	private $readStreams = [];
 
 	/** @var array|ListensForStreamActivity[] */
-	private $streamListeners = [];
+	private $readStreamListeners = [];
+
+	/** @var array|TransfersData[] */
+	private $writeStreams = [];
+
+	/** @var array|ListensForStreamActivity[] */
+	private $writeStreamListeners = [];
 
 	/** @var bool */
 	private $isRunning = false;
 
-	public function addStream( TransfersData $stream, ListensForStreamActivity $listener ) : void
+	public function addReadStream( TransfersData $stream, ListensForStreamActivity $listener ) : void
 	{
 		$streamId = $stream->getStreamId()->toString();
 
-		$this->streams[ $streamId ]         = $stream;
-		$this->streamListeners[ $streamId ] = $listener;
+		$this->readStreams[ $streamId ]         = $stream;
+		$this->readStreamListeners[ $streamId ] = $listener;
+	}
+
+	public function addWriteStream( TransfersData $stream, ListensForStreamActivity $listener ) : void
+	{
+		$streamId = $stream->getStreamId()->toString();
+
+		$this->writeStreams[ $streamId ]         = $stream;
+		$this->writeStreamListeners[ $streamId ] = $listener;
 	}
 
 	public function removeAllStreams() : void
 	{
-		foreach ( $this->streams as $stream )
+		foreach ( $this->readStreams as $stream )
 		{
-			$this->removeStream( $stream );
+			$this->removeReadStream( $stream );
+		}
+
+		foreach ( $this->writeStreams as $stream )
+		{
+			$this->removeWriteStream( $stream );
 		}
 	}
 
 	public function removeStream( TransfersData $stream ) : void
 	{
+		$this->removeReadStream( $stream );
+		$this->removeWriteStream( $stream );
+	}
+
+	public function removeReadStream( TransfersData $stream ) : void
+	{
 		$streamId = $stream->getStreamId()->toString();
 
-		$this->streams[ $streamId ]->shutDown();
-		$this->streams[ $streamId ]->close();
+		if ( isset( $this->readStreams[ $streamId ] ) )
+		{
+			$this->readStreams[ $streamId ]->shutDown();
+			$this->readStreams[ $streamId ]->close();
+		}
 
-		unset( $this->streams[ $streamId ], $this->streamListeners[ $streamId ] );
+		unset( $this->readStreams[ $streamId ], $this->readStreamListeners[ $streamId ] );
+	}
+
+	public function removeWriteStream( TransfersData $stream ) : void
+	{
+		$streamId = $stream->getStreamId()->toString();
+
+		if ( isset( $this->writeStreams[ $streamId ] ) )
+		{
+			$this->writeStreams[ $streamId ]->shutDown();
+			$this->writeStreams[ $streamId ]->close();
+		}
+
+		unset( $this->writeStreams[ $streamId ], $this->writeStreamListeners[ $streamId ] );
 	}
 
 	public function start() : void
 	{
 		$this->registerSignalHandler();
 
-		$this->isRunning = (count( $this->streams ) > 0);
+		$this->isRunning = (count( $this->readStreams ) > 0);
 
 		declare(ticks=1);
 
@@ -93,71 +134,114 @@ final class Loop implements TracksStreams
 
 	private function waitForStreamActivity() : void
 	{
+		$activeReadStreams = $activeWriteStreams = [];
+
 		try
 		{
-			$activeStreams = $this->getActiveStreams( self::STREAM_SELECT_TIMEOUT_USEC );
+			$active = $this->streamSelect(
+				$activeReadStreams,
+				$activeWriteStreams,
+				self::STREAM_SELECT_TIMEOUT_USEC
+			);
 		}
 		catch ( RuntimeException $e )
 		{
 			return;
 		}
 
-		foreach ( $activeStreams as $stream )
+		if ( $active === 0 )
 		{
-			$this->callStreamListener( $stream );
+			return;
+		}
+
+		foreach ( $activeReadStreams as $stream )
+		{
+			$this->callStreamListener( $stream, $this->readStreamListeners );
+		}
+
+		foreach ( $activeWriteStreams as $stream )
+		{
+			$this->callStreamListener( $stream, $this->writeStreamListeners );
 		}
 	}
 
 	/**
-	 * @param int|null $timeout
+	 * @param array|resource[] $activeReadStreams
+	 * @param array|resource[] $activeWriteStreams
+	 * @param int|null         $timeout
 	 *
 	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
-	 * @return array|TransfersData[]
+	 * @return int
 	 */
-	private function getActiveStreams( ?int $timeout ) : array
+	private function streamSelect( array &$activeReadStreams, array &$activeWriteStreams, ?int $timeout ) : int
 	{
-		$rawStreams = $this->getRawStreams();
+		$readStreams  = $this->getRawStreams( $this->readStreams );
+		$writeStreams = $this->getRawStreams( $this->writeStreams );
 
-		if ( 0 === count( $rawStreams ) )
+		if ( count( $readStreams ) + count( $writeStreams ) === 0 )
 		{
 			$timeout && usleep( $timeout );
 
-			return [];
+			return 0;
 		}
 
-		$write  = $except = null;
-		$active = @stream_select( $rawStreams, $write, $except, $timeout === null ? null : 0, $timeout );
+		$except = null;
+		$active = @stream_select( $readStreams, $writeStreams, $except, $timeout === null ? null : 0, $timeout );
 
 		if ( false === $active )
 		{
 			throw new RuntimeException( 'Systemcall interrupted.' );
 		}
 
-		return array_intersect_key( $this->streams, $rawStreams );
+		$activeReadStreams  = $this->shuffleStreams( array_intersect_key( $this->readStreams, $readStreams ) );
+		$activeWriteStreams = $this->shuffleStreams( array_intersect_key( $this->writeStreams, $writeStreams ) );
+
+		return $active;
 	}
 
 	/**
-	 * @return array|resource[]
+	 * @param array|TransfersData[] $streams
+	 *
+	 * @return array|\resource[]
 	 */
-	private function getRawStreams() : array
+	private function getRawStreams( array $streams ) : array
 	{
-		$streams = [];
+		$rawStreams = [];
 
-		foreach ( $this->streams as $stream )
+		foreach ( $streams as $stream )
 		{
-			$stream->collectRawStream( $streams );
+			$stream->collectRawStream( $rawStreams );
 		}
 
-		return $streams;
+		return $rawStreams;
 	}
 
-	private function callStreamListener( TransfersData $stream ) : void
+	private function shuffleStreams( array $activeStreams ) : array
+	{
+		$shuffledStreams = [];
+		$keys            = array_keys( $activeStreams );
+
+		shuffle( $keys );
+
+		foreach ( $keys as $key )
+		{
+			$shuffledStreams[ $key ] = $activeStreams[ $key ];
+		}
+
+		return $shuffledStreams;
+	}
+
+	/**
+	 * @param TransfersData                    $stream
+	 * @param array|ListensForStreamActivity[] $listeners
+	 */
+	private function callStreamListener( TransfersData $stream, array $listeners ) : void
 	{
 		$streamId = $stream->getStreamId()->toString();
 
-		if ( isset( $this->streamListeners[ $streamId ] ) )
+		if ( isset( $listeners[ $streamId ] ) )
 		{
-			$this->streamListeners[ $streamId ]->handleStreamActivity( $stream, $this );
+			$listeners[ $streamId ]->handleStreamActivity( $stream, $this );
 		}
 	}
 
