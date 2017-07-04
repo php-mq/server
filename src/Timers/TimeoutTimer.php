@@ -21,7 +21,7 @@ final class TimeoutTimer
 
 	public function __construct( int $microSeconds )
 	{
-		$this->timeout = round( $microSeconds / self::MICROSECOND_FACTOR );
+		$this->timeout = round( $microSeconds / self::MICROSECOND_FACTOR, 6 );
 	}
 
 	public function start() : void
