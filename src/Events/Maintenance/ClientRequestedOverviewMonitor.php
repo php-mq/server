@@ -5,35 +5,44 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\StartMonitorCommand;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedOverviewMonitor
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedOverviewMonitor implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientRequestedOverviewMonitor implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
+
+	/** @var TracksStreams */
+	private $loop;
 
 	/** @var StartMonitorCommand */
 	private $startMonitorCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, StartMonitorCommand $startMonitorCommand )
+	public function __construct( TransfersData $stream, TracksStreams $loop, StartMonitorCommand $startMonitorCommand )
 	{
-		$this->maintenanceClient   = $maintenanceClient;
+		$this->stream              = $stream;
+		$this->loop                = $loop;
 		$this->startMonitorCommand = $startMonitorCommand;
 	}
 
-	public function getMaintenanceClient(): MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
 	}
 
-	public function getStartMonitorCommand(): StartMonitorCommand
+	public function getLoop() : TracksStreams
+	{
+		return $this->loop;
+	}
+
+	public function getStartMonitorCommand() : StartMonitorCommand
 	{
 		return $this->startMonitorCommand;
 	}

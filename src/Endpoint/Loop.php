@@ -72,24 +72,12 @@ final class Loop implements TracksStreams
 	{
 		$streamId = $stream->getStreamId()->toString();
 
-		if ( isset( $this->readStreams[ $streamId ] ) )
-		{
-			$this->readStreams[ $streamId ]->shutDown();
-			$this->readStreams[ $streamId ]->close();
-		}
-
 		unset( $this->readStreams[ $streamId ], $this->readStreamListeners[ $streamId ] );
 	}
 
 	public function removeWriteStream( TransfersData $stream ) : void
 	{
 		$streamId = $stream->getStreamId()->toString();
-
-		if ( isset( $this->writeStreams[ $streamId ] ) )
-		{
-			$this->writeStreams[ $streamId ]->shutDown();
-			$this->writeStreams[ $streamId ]->close();
-		}
 
 		unset( $this->writeStreams[ $streamId ], $this->writeStreamListeners[ $streamId ] );
 	}

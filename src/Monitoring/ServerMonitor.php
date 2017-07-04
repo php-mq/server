@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\Monitoring;
 
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 use PHPMQ\Server\Monitoring\Interfaces\CreatesMonitoringOutput;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Printers\OverviewPrinter;
 use PHPMQ\Server\Monitoring\Printers\SingleQueuePrinter;
-use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 
 /**
  * Class ServerMonitor
@@ -36,38 +36,23 @@ final class ServerMonitor
 		$this->cliWriter            = $cliWriter;
 	}
 
-	public function refresh() : void
+	public function refresh( IdentifiesQueue $queueName, TransfersData $stream ) : void
 	{
-		if ( !$this->serverMonitoringInfo->hasMonitoringRequests() )
-		{
-			return;
-		}
-
 		$microtime = microtime( true );
 
 		if ( $this->lastRefresh <= microtime( true ) - self::REFRESH_INTERVAL )
 		{
 			$this->lastRefresh = $microtime;
 
-			$this->processMonitoringRequests();
+			$this->processMonitoringRequest( $queueName, $stream );
 		}
 	}
 
-	private function processMonitoringRequests() : void
+	private function processMonitoringRequest( IdentifiesQueue $queueName, TransfersData $stream ) : void
 	{
-		foreach ( $this->serverMonitoringInfo->getMonitoringRequests() as $monitoringRequest )
-		{
-			$this->processMonitoringRequest( $monitoringRequest );
-		}
-	}
+		$printer = $this->getPrinter( $queueName );
 
-	private function processMonitoringRequest( MonitoringRequest $monitoringRequest ) : void
-	{
-		$client    = $monitoringRequest->getMaintenanceClient();
-		$queueName = $monitoringRequest->getQueueName();
-		$printer   = $this->getPrinter( $queueName );
-
-		$client->write( $printer->getOutput( $this->serverMonitoringInfo ) );
+		$stream->write( $printer->getOutput( $this->serverMonitoringInfo ) );
 	}
 
 	private function getPrinter( IdentifiesQueue $queueName ) : CreatesMonitoringOutput

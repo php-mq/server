@@ -5,32 +5,31 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\FlushQueueCommand;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedFlushingQueue
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedFlushingQueue implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientRequestedFlushingQueue implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
 
 	/** @var FlushQueueCommand */
 	private $flushQueueCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, FlushQueueCommand $flushQueueCommand )
+	public function __construct( TransfersData $stream, FlushQueueCommand $flushQueueCommand )
 	{
-		$this->maintenanceClient = $maintenanceClient;
+		$this->stream            = $stream;
 		$this->flushQueueCommand = $flushQueueCommand;
 	}
 
-	public function getMaintenanceClient() : MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
 	}
 
 	public function getFlushQueueCommand() : FlushQueueCommand

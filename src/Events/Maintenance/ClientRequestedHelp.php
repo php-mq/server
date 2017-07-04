@@ -5,32 +5,31 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\HelpCommand;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedHelp
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedHelp implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientRequestedHelp implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
 
 	/** @var HelpCommand */
 	private $helpCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, HelpCommand $helpCommand )
+	public function __construct( TransfersData $stream, HelpCommand $helpCommand )
 	{
-		$this->maintenanceClient = $maintenanceClient;
-		$this->helpCommand       = $helpCommand;
+		$this->stream      = $stream;
+		$this->helpCommand = $helpCommand;
 	}
 
-	public function getMaintenanceClient() : MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
 	}
 
 	public function getHelpCommand() : HelpCommand

@@ -5,9 +5,12 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+use PHPMQ\Server\Events\Maintenance\ClientConnected;
+use PHPMQ\Server\Interfaces\PublishesEvents;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -18,12 +21,16 @@ final class MaintenanceServerListener implements ListensForStreamActivity
 {
 	use LoggerAwareTrait;
 
+	/** @var PublishesEvents */
+	private $eventBus;
+
 	/** @var MaintenanceClientListener */
 	private $maintenanceClientListener;
 
-	public function __construct()
+	public function __construct( PublishesEvents $eventBus )
 	{
-		$this->maintenanceClientListener = new MaintenanceClientListener();
+		$this->eventBus                  = $eventBus;
+		$this->maintenanceClientListener = new MaintenanceClientListener( $this->eventBus, new CommandBuilder() );
 	}
 
 	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
@@ -43,5 +50,7 @@ final class MaintenanceServerListener implements ListensForStreamActivity
 		$this->maintenanceClientListener->setLogger( $this->logger );
 
 		$loop->addReadStream( $clientStream, $this->maintenanceClientListener );
+
+		$this->eventBus->publishEvent( new ClientConnected( $clientStream ) );
 	}
 }

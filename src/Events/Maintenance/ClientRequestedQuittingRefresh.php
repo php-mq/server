@@ -5,32 +5,41 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\QuitRefreshCommand;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedQuittingRefresh
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedQuittingRefresh implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientRequestedQuittingRefresh implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
+
+	/** @var TracksStreams */
+	private $loop;
 
 	/** @var QuitRefreshCommand */
 	private $quitRefreshCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, QuitRefreshCommand $quitRefreshCommand )
+	public function __construct( TransfersData $stream, TracksStreams $loop, QuitRefreshCommand $quitRefreshCommand )
 	{
-		$this->maintenanceClient  = $maintenanceClient;
+		$this->stream             = $stream;
+		$this->loop               = $loop;
 		$this->quitRefreshCommand = $quitRefreshCommand;
 	}
 
-	public function getMaintenanceClient() : MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
+	}
+
+	public function getLoop() : TracksStreams
+	{
+		return $this->loop;
 	}
 
 	public function getQuitRefreshCommand() : QuitRefreshCommand

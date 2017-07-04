@@ -5,31 +5,30 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientSentUnknownCommand
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientSentUnknownCommand implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientSentUnknownCommand implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
 
 	/** @var string */
 	private $unknownCommandString;
 
-	public function __construct( MaintenanceClient $maintenanceClient, string $unknownCommandString )
+	public function __construct( TransfersData $stream, string $unknownCommandString )
 	{
-		$this->maintenanceClient    = $maintenanceClient;
+		$this->stream               = $stream;
 		$this->unknownCommandString = $unknownCommandString;
 	}
 
-	public function getMaintenanceClient() : MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
 	}
 
 	public function getUnknownCommandString() : string

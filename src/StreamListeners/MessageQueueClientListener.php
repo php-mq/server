@@ -66,6 +66,8 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 		{
 			$this->eventBus->publishEvent( new ClientDisconnected( $stream ) );
 
+			$stream->shutDown();
+			$stream->close();
 			$loop->removeStream( $stream );
 		}
 	}

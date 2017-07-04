@@ -9,9 +9,9 @@ namespace PHPMQ\Server;
 use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Configs\ConfigBuilder;
 use PHPMQ\Server\Endpoint\Endpoint;
+use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
-use PHPMQ\Server\Monitoring\ServerMonitor;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Storage\Storage;
@@ -55,12 +55,11 @@ try
 	$messageQueueServerSocket = new ServerSocket( $configBuilder->getMessageQueueServerSocketAddress() );
 	$maintenanceServerSocket  = new ServerSocket( $configBuilder->getMaintenanceServerSocketAddress() );
 	$eventBus                 = new EventBus( $logger );
-	$serverMonitor            = new ServerMonitor( $serverMonitoringInfo, $cliWriter );
 	$endoint                  = new Endpoint( $logger );
 
 	$consumptionPool = new ConsumptionPool();
 
-	$messageQueueConsumeListener = new MessageQueueConsumeListener( $storage, $consumptionPool );
+	$messageQueueConsumeListener = new MessageQueueConsumeListener( $storage, $consumptionPool, $serverMonitoringInfo );
 
 	$eventBus->addEventHandlers(
 		new MessageQueue\ClientConnectionEventHandler( $storage, $consumptionPool, $serverMonitoringInfo ),
@@ -69,7 +68,9 @@ try
 			$consumptionPool,
 			$serverMonitoringInfo,
 			$messageQueueConsumeListener
-		)
+		),
+		new Maintenance\ClientConnectionEventHandler( $cliWriter ),
+		new Maintenance\ClientInboundEventHandler( $storage, $cliWriter, $serverMonitoringInfo )
 	);
 
 	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );

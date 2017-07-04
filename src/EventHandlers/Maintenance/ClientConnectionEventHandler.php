@@ -34,19 +34,19 @@ final class ClientConnectionEventHandler extends AbstractEventHandler
 
 	protected function whenClientConnected( ClientConnected $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
 
-		$this->logger->debug( 'New maintenance client connected: ' . $client->getClientId() );
+		$this->logger->debug( 'New maintenance client connected: ' . $stream->getStreamId() );
 
 		$this->cliWriter->clearScreen( 'Welcome!' )->writeLn( 'Type "help" to list available commands.' );
 
-		$client->write( $this->cliWriter->getInteractiveOutput() );
+		$stream->write( $this->cliWriter->getInteractiveOutput() );
 	}
 
 	protected function whenClientDisconnected( ClientDisconnected $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
 
-		$this->logger->debug( 'Maintenance client disconnected: ' . $client->getClientId() );
+		$this->logger->debug( 'Maintenance client disconnected: ' . $stream->getStreamId() );
 	}
 }

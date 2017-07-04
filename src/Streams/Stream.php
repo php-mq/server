@@ -95,6 +95,8 @@ final class Stream implements TransfersData
 				$this->timeoutTimer->reset();
 			}
 
+			// TODO: Why does this timer not time out?
+
 			$bytesToWrite -= $written;
 			$bytesWritten += $written;
 

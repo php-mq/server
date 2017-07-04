@@ -5,35 +5,44 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Clients\MaintenanceClient;
 use PHPMQ\Server\Commands\ShowQueueCommand;
-use PHPMQ\Server\Events\Interfaces\ProvidesMaintenanceClient;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
+use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 
 /**
  * Class ClientRequestedQueueMonitor
  * @package PHPMQ\Server\Events\Maintenance
  */
-final class ClientRequestedQueueMonitor implements CarriesEventData, ProvidesMaintenanceClient
+final class ClientRequestedQueueMonitor implements CarriesEventData
 {
-	/** @var MaintenanceClient */
-	private $maintenanceClient;
+	/** @var TransfersData */
+	private $stream;
+
+	/** @var TracksStreams */
+	private $loop;
 
 	/** @var ShowQueueCommand */
 	private $showQueueCommand;
 
-	public function __construct( MaintenanceClient $maintenanceClient, ShowQueueCommand $showQueueCommand )
+	public function __construct( TransfersData $stream, TracksStreams $loop, ShowQueueCommand $showQueueCommand )
 	{
-		$this->maintenanceClient = $maintenanceClient;
-		$this->showQueueCommand  = $showQueueCommand;
+		$this->stream           = $stream;
+		$this->loop             = $loop;
+		$this->showQueueCommand = $showQueueCommand;
 	}
 
-	public function getMaintenanceClient(): MaintenanceClient
+	public function getStream() : TransfersData
 	{
-		return $this->maintenanceClient;
+		return $this->stream;
 	}
 
-	public function getShowQueueCommand(): ShowQueueCommand
+	public function getLoop() : TracksStreams
+	{
+		return $this->loop;
+	}
+
+	public function getShowQueueCommand() : ShowQueueCommand
 	{
 		return $this->showQueueCommand;
 	}

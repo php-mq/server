@@ -10,7 +10,6 @@ use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
-use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
@@ -21,36 +20,11 @@ use PHPMQ\Server\Storage\Interfaces\StoresMessages;
  */
 final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, CollectsServerMonitoringInfo
 {
-	/** @var array|MonitoringRequest[] */
-	private $monitoringRequests = [];
-
 	/** @var array */
 	private $connectedClients = [];
 
 	/** @var array */
 	private $queueInfos = [];
-
-	public function addMonitoringRequest( MonitoringRequest $monitoringRequest ) : void
-	{
-		$clientId = $monitoringRequest->getMaintenanceClient()->getClientId();
-
-		$this->monitoringRequests[ $clientId->toString() ] = $monitoringRequest;
-	}
-
-	public function removeMonitoringRequest( IdentifiesStream $streamId ) : void
-	{
-		unset( $this->monitoringRequests[ $streamId->toString() ] );
-	}
-
-	public function hasMonitoringRequests() : bool
-	{
-		return (count( $this->monitoringRequests ) > 0);
-	}
-
-	public function getMonitoringRequests() : array
-	{
-		return $this->monitoringRequests;
-	}
 
 	public function addConnectedClient( IdentifiesStream $streamId ) : void
 	{

@@ -6,12 +6,15 @@
 namespace PHPMQ\Server\StreamListeners;
 
 use PHPMQ\Server\Clients\ConsumptionPool;
+use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
+use PHPMQ\Server\Streams\Exceptions\WriteTimedOutException;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -28,10 +31,18 @@ final class MessageQueueConsumeListener implements ListensForStreamActivity
 	/** @var ConsumptionPool */
 	private $consumptionPool;
 
-	public function __construct( StoresMessages $storage, ConsumptionPool $consumptionPool )
+	/** @var CollectsServerMonitoringInfo */
+	private $serverMonitoringInfo;
+
+	public function __construct(
+		StoresMessages $storage,
+		ConsumptionPool $consumptionPool,
+		CollectsServerMonitoringInfo $serverMonitoringInfo
+	)
 	{
-		$this->storage         = $storage;
-		$this->consumptionPool = $consumptionPool;
+		$this->storage              = $storage;
+		$this->consumptionPool      = $consumptionPool;
+		$this->serverMonitoringInfo = $serverMonitoringInfo;
 	}
 
 	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
@@ -42,6 +53,18 @@ final class MessageQueueConsumeListener implements ListensForStreamActivity
 			return;
 		}
 
+		try
+		{
+			$this->sendMessagesToConsumer( $stream, $consumptionInfo );
+		}
+		catch ( WriteTimedOutException $e )
+		{
+			$loop->removeWriteStream( $stream );
+		}
+	}
+
+	private function sendMessagesToConsumer( TransfersData $stream, ProvidesConsumptionInfo $consumptionInfo ) : void
+	{
 		$messages = $this->storage->getUndispatched(
 			$consumptionInfo->getQueueName(),
 			$consumptionInfo->getMessageCount()
@@ -55,11 +78,24 @@ final class MessageQueueConsumeListener implements ListensForStreamActivity
 				$message->getContent()
 			);
 
-			$stream->writeChunked( $messageE2C->toString(), ChunkSize::WRITE );
-
-			$this->storage->markAsDispached( $messageE2C->getQueueName(), $messageE2C->getMessageId() );
+			$this->sendMessageToConsumer( $messageE2C, $stream );
 
 			$consumptionInfo->addMessageId( $messageE2C->getMessageId() );
 		}
+	}
+
+	private function sendMessageToConsumer( MessageE2C $message, TransfersData $stream ) : void
+	{
+		$stream->writeChunked( $message->toString(), ChunkSize::WRITE );
+
+		$this->storage->markAsDispached(
+			$message->getQueueName(),
+			$message->getMessageId()
+		);
+
+		$this->serverMonitoringInfo->markMessageAsDispatched(
+			$message->getQueueName(),
+			$message->getMessageId()
+		);
 	}
 }

@@ -6,7 +6,6 @@
 namespace PHPMQ\Server\EventHandlers\Maintenance;
 
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
-use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
@@ -15,8 +14,10 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
-use PHPMQ\Server\Monitoring\Types\MonitoringRequest;
+use PHPMQ\Server\Monitoring\ServerMonitor;
+use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\StreamListeners\MaintenanceMonitoringListener;
 use PHPMQ\Server\Types\QueueName;
 
 /**
@@ -31,13 +32,13 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	/** @var PreparesOutputForCli */
 	private $cliWriter;
 
-	/** @var CollectsServerMonitoringInfo */
+	/** @var ServerMonitoringInfo */
 	private $serverMonitoringInfo;
 
 	public function __construct(
 		StoresMessages $storage,
 		PreparesOutputForCli $cliWriter,
-		CollectsServerMonitoringInfo $serverMonitoringInfo
+		ServerMonitoringInfo $serverMonitoringInfo
 	)
 	{
 		$this->storage              = $storage;
@@ -60,13 +61,13 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientRequestedHelp( ClientRequestedHelp $event ) : void
 	{
-		$client      = $event->getMaintenanceClient();
+		$client      = $event->getStream();
 		$helpCommand = $event->getHelpCommand();
 
 		$this->logger->debug(
 			sprintf(
 				'Maintenance client %s requested help%s.',
-				$client->getClientId(),
+				$client->getStreamId(),
 				$helpCommand->getCommandName() ? ('for command "' . $helpCommand->getCommandName() . '"') : ''
 			)
 		);
@@ -106,33 +107,45 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 	protected function whenClientRequestedOverviewMonitor( ClientRequestedOverviewMonitor $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
+		$loop   = $event->getLoop();
 
-		$this->logger->debug( sprintf( 'Maintenance client %s requested monitor.', $client->getClientId() ) );
+		$this->logger->debug( sprintf( 'Maintenance client %s requested monitor.', $stream->getStreamId() ) );
 
-		$monitoringRequest = new MonitoringRequest( $client, new QueueName( '' ) );
-		$this->serverMonitoringInfo->addMonitoringRequest( $monitoringRequest );
+		$listener = new MaintenanceMonitoringListener(
+			new QueueName( '' ),
+			new ServerMonitor( $this->serverMonitoringInfo, $this->cliWriter )
+		);
+		$listener->setLogger( $this->logger );
+
+		$loop->addWriteStream( $stream, $listener );
 	}
 
 	protected function whenClientRequestedQueueMonitor( ClientRequestedQueueMonitor $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
+		$loop   = $event->getLoop();
 
 		$this->logger->debug(
 			sprintf(
 				'Maintenance client %s requested monitor for queue: %s',
-				$client->getClientId(),
+				$stream->getStreamId(),
 				$event->getShowQueueCommand()->getQueueName()
 			)
 		);
 
-		$monitoringRequest = new MonitoringRequest( $client, $event->getShowQueueCommand()->getQueueName() );
-		$this->serverMonitoringInfo->addMonitoringRequest( $monitoringRequest );
+		$listener = new MaintenanceMonitoringListener(
+			$event->getShowQueueCommand()->getQueueName(),
+			new ServerMonitor( $this->serverMonitoringInfo, $this->cliWriter )
+		);
+		$listener->setLogger( $this->logger );
+
+		$loop->addWriteStream( $stream, $listener );
 	}
 
 	protected function whenClientSentUnknownCommand( ClientSentUnknownCommand $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
 
 		$helpFile = $this->getHelpFile( '' );
 		$this->cliWriter->clearScreen( 'HELP' )
@@ -140,29 +153,30 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		                ->writeLn( '' )
 		                ->writeFileContent( $helpFile );
 
-		$client->write( $this->cliWriter->getInteractiveOutput() );
+		$stream->write( $this->cliWriter->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedQuittingRefresh( ClientRequestedQuittingRefresh $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
+		$loop   = $event->getLoop();
 
-		$this->logger->debug( sprintf( 'Maintenance client %s requested quitting refresh', $client->getClientId() ) );
+		$this->logger->debug( sprintf( 'Maintenance client %s requested quitting refresh', $stream->getStreamId() ) );
 
-		$this->serverMonitoringInfo->removeMonitoringRequest( $client->getClientId() );
+		$loop->removeWriteStream( $stream );
 
-		$client->write( $this->cliWriter->clearScreen( 'Welcome!' )->getInteractiveOutput() );
+		$stream->write( $this->cliWriter->clearScreen( 'Welcome!' )->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedFlushingQueue( ClientRequestedFlushingQueue $event ) : void
 	{
-		$client            = $event->getMaintenanceClient();
+		$stream            = $event->getStream();
 		$flushQueueCommand = $event->getFlushQueueCommand();
 
 		$this->logger->debug(
 			sprintf(
 				'Maintenance client %s requested flushing queue "%s"',
-				$client->getClientId(),
+				$stream->getStreamId(),
 				$flushQueueCommand->getQueueName()
 			)
 		);
@@ -177,17 +191,17 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			)
 		);
 
-		$client->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
+		$stream->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
 	}
 
 	protected function whenClientRequestedFlushingAllQueues( ClientRequestedFlushingAllQueues $event ) : void
 	{
-		$client = $event->getMaintenanceClient();
+		$stream = $event->getStream();
 
 		$this->logger->debug(
 			sprintf(
 				'Maintenance client %s requested flushing all queues.',
-				$client->getClientId()
+				$stream->getStreamId()
 			)
 		);
 
@@ -196,6 +210,6 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 		$this->logger->debug( '<fg:green>√ All queues flushed.<:fg>' );
 
-		$client->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
+		$stream->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
 	}
 }
