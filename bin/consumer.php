@@ -14,6 +14,7 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
+use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Types\QueueName;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -21,7 +22,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $consumer       = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
 $consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 5 );
 
-$consumer->writeChunked( $consumeRequest->toString(), 1024 );
+$consumer->writeChunked( $consumeRequest->toString(), ChunkSize::WRITE );
 
 echo "Sent consume request\n";
 
@@ -58,10 +59,10 @@ while ( true )
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$buffer       = $consumer->readChunked( PacketLength::PACKET_HEADER, 1024 );
+			$buffer       = $consumer->readChunked( PacketLength::PACKET_HEADER, ChunkSize::READ );
 			$packetHeader = PacketHeader::fromString( $buffer );
 
-			$buffer = $consumer->readChunked( $packetHeader->getContentLength(), 1024 );
+			$buffer = $consumer->readChunked( $packetHeader->getContentLength(), ChunkSize::READ );
 
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
@@ -80,7 +81,7 @@ while ( true )
 
 		$acknowledgement = new Acknowledgement( $message->getQueueName(), $message->getMessageId() );
 
-		$consumer->writeChunked( $acknowledgement->toString(), 1024 );
+		$consumer->writeChunked( $acknowledgement->toString(), ChunkSize::WRITE );
 
 		echo "\n√ Message acknowledged.\n--\n";
 	}
