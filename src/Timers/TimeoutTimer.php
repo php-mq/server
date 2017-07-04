@@ -19,9 +19,14 @@ final class TimeoutTimer
 	/** @var float */
 	private $timeout;
 
-	public function __construct( int $microseconds )
+	public function __construct( int $microSeconds )
 	{
-		$this->timeout = round( $microseconds / self::MICROSECOND_FACTOR );
+		$this->timeout = round( $microSeconds / self::MICROSECOND_FACTOR );
+	}
+
+	public function restart() : void
+	{
+		$this->startTime = microtime( true );
 	}
 
 	public function start() : void
@@ -30,11 +35,6 @@ final class TimeoutTimer
 		{
 			$this->startTime = microtime( true );
 		}
-	}
-
-	public function reset() : void
-	{
-		$this->startTime = null;
 	}
 
 	public function timedOut() : bool

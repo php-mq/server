@@ -54,11 +54,15 @@ final class Loop implements TracksStreams
 		foreach ( $this->readStreams as $stream )
 		{
 			$this->removeReadStream( $stream );
+			$stream->shutDown();
+			$stream->close();
 		}
 
 		foreach ( $this->writeStreams as $stream )
 		{
 			$this->removeWriteStream( $stream );
+			$stream->shutDown();
+			$stream->close();
 		}
 	}
 

@@ -25,14 +25,14 @@ final class Stream implements TransfersData
 	/** @var IdentifiesStream */
 	private $streamId;
 
-	/** @var TimeoutTimer */
-	private $timeoutTimer;
+	/** @var int */
+	private $readWriteTimeout;
 
 	public function __construct( $stream, int $readWriteTimeout = self::READ_WRITE_TIMEOUT_DEFAULT )
 	{
-		$this->stream       = $stream;
-		$this->streamId     = new StreamId( (string)$stream );
-		$this->timeoutTimer = new TimeoutTimer( $readWriteTimeout );
+		$this->stream           = $stream;
+		$this->streamId         = new StreamId( (string)$stream );
+		$this->readWriteTimeout = $readWriteTimeout;
 	}
 
 	public function getStreamId() : IdentifiesStream
@@ -49,22 +49,19 @@ final class Stream implements TransfersData
 	public function readChunked( int $length, int $chunkSize ) : string
 	{
 		$buffer = '';
-
-		$this->timeoutTimer->reset();
+		$timer  = new TimeoutTimer( $this->readWriteTimeout );
+		$timer->start();
 
 		while ( $length > 0 )
 		{
 			$bytes = $this->read( (int)min( $length, $chunkSize ) );
 
-			if ( $bytes )
-			{
-				$this->timeoutTimer->reset();
-			}
+			$bytes && $timer->restart();
 
 			$length -= strlen( $bytes );
 			$buffer .= $bytes;
 
-			if ( $this->timeoutTimer->timedOut() )
+			if ( $timer->timedOut() )
 			{
 				throw new ReadTimedOutException( 'Reading from stream in chunks timed out.' );
 			}
@@ -84,23 +81,19 @@ final class Stream implements TransfersData
 		$bytesWritten = 0;
 		$bytesToWrite = strlen( $content );
 
-		$this->timeoutTimer->reset();
+		$timer = new TimeoutTimer( $this->readWriteTimeout );
+		$timer->start();
 
 		while ( $bytesToWrite > 0 )
 		{
 			$written = $this->write( substr( $content, $bytesWritten, (int)min( $bytesToWrite, $chunkSize ) ) );
 
-			if ( $written > 0 )
-			{
-				$this->timeoutTimer->reset();
-			}
-
-			// TODO: Why does this timer not time out?
+			$written && $timer->restart();
 
 			$bytesToWrite -= $written;
 			$bytesWritten += $written;
 
-			if ( $this->timeoutTimer->timedOut() )
+			if ( $timer->timedOut() )
 			{
 				throw new WriteTimedOutException( 'Writing to stream in chunks timed out.' );
 			}
