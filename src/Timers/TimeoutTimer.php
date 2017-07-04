@@ -24,17 +24,23 @@ final class TimeoutTimer
 		$this->timeout = round( $microSeconds / self::MICROSECOND_FACTOR );
 	}
 
-	public function restart() : void
-	{
-		$this->startTime = microtime( true );
-	}
-
 	public function start() : void
 	{
 		if ( null === $this->startTime )
 		{
 			$this->startTime = microtime( true );
 		}
+	}
+
+	public function reset() : void
+	{
+		$this->startTime = null;
+	}
+
+	public function restart() : void
+	{
+		$this->reset();
+		$this->start();
 	}
 
 	public function timedOut() : bool

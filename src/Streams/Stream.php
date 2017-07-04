@@ -25,14 +25,14 @@ final class Stream implements TransfersData
 	/** @var IdentifiesStream */
 	private $streamId;
 
-	/** @var int */
-	private $readWriteTimeout;
+	/** @var TimeoutTimer */
+	private $timeoutTimer;
 
 	public function __construct( $stream, int $readWriteTimeout = self::READ_WRITE_TIMEOUT_DEFAULT )
 	{
-		$this->stream           = $stream;
-		$this->streamId         = new StreamId( (string)$stream );
-		$this->readWriteTimeout = $readWriteTimeout;
+		$this->stream       = $stream;
+		$this->streamId     = new StreamId( (string)$stream );
+		$this->timeoutTimer = new TimeoutTimer( $readWriteTimeout );
 	}
 
 	public function getStreamId() : IdentifiesStream
@@ -49,23 +49,24 @@ final class Stream implements TransfersData
 	public function readChunked( int $length, int $chunkSize ) : string
 	{
 		$buffer = '';
-		$timer  = new TimeoutTimer( $this->readWriteTimeout );
-		$timer->start();
+		$this->timeoutTimer->start();
 
 		while ( $length > 0 )
 		{
 			$bytes = $this->read( (int)min( $length, $chunkSize ) );
 
-			$bytes && $timer->restart();
+			$bytes && $this->timeoutTimer->restart();
 
 			$length -= strlen( $bytes );
 			$buffer .= $bytes;
 
-			if ( $timer->timedOut() )
+			if ( $this->timeoutTimer->timedOut() )
 			{
 				throw new ReadTimedOutException( 'Reading from stream in chunks timed out.' );
 			}
 		}
+
+		$this->timeoutTimer->reset();
 
 		return $buffer;
 	}
@@ -81,23 +82,24 @@ final class Stream implements TransfersData
 		$bytesWritten = 0;
 		$bytesToWrite = strlen( $content );
 
-		$timer = new TimeoutTimer( $this->readWriteTimeout );
-		$timer->start();
+		$this->timeoutTimer->start();
 
 		while ( $bytesToWrite > 0 )
 		{
 			$written = $this->write( substr( $content, $bytesWritten, (int)min( $bytesToWrite, $chunkSize ) ) );
 
-			$written && $timer->restart();
+			$written && $this->timeoutTimer->restart();
 
 			$bytesToWrite -= $written;
 			$bytesWritten += $written;
 
-			if ( $timer->timedOut() )
+			if ( $this->timeoutTimer->timedOut() )
 			{
 				throw new WriteTimedOutException( 'Writing to stream in chunks timed out.' );
 			}
 		}
+
+		$this->timeoutTimer->reset();
 
 		return $bytesWritten;
 	}
