@@ -26,6 +26,7 @@ use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException;
+use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Streams\Exceptions\ReadTimedOutException;
 use Psr\Log\LoggerAwareTrait;
 
@@ -36,8 +37,6 @@ use Psr\Log\LoggerAwareTrait;
 final class MessageQueueClientListener implements ListensForStreamActivity
 {
 	use LoggerAwareTrait;
-
-	private const CHUNK_SIZE = 1024;
 
 	/** @var BuildsMessages */
 	private $messageBuilder;
@@ -123,11 +122,11 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 
 		for ( $i = 0; $i < $packetCount; $i++ )
 		{
-			$bytes = $stream->readChunked( PacketLength::PACKET_HEADER, self::CHUNK_SIZE );
+			$bytes = $stream->readChunked( PacketLength::PACKET_HEADER, ChunkSize::READ );
 
 			$packetHeader = PacketHeader::fromString( $bytes );
 
-			$bytes = $stream->readChunked( $packetHeader->getContentLength(), self::CHUNK_SIZE );
+			$bytes = $stream->readChunked( $packetHeader->getContentLength(), ChunkSize::READ );
 
 			$packets[ $packetHeader->getPacketType() ] = $bytes;
 		}

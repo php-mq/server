@@ -7,6 +7,7 @@ namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\ConsumptionPool;
+use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
@@ -14,6 +15,7 @@ use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
 
@@ -32,15 +34,20 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	/** @var CollectsServerMonitoringInfo */
 	private $serverMonitoringInfo;
 
+	/** @var MessageQueueConsumeListener */
+	private $messageQueueConsumeListener;
+
 	public function __construct(
 		StoresMessages $storage,
 		ConsumptionPool $consumptionPool,
-		CollectsServerMonitoringInfo $serverMonitoringInfo
+		CollectsServerMonitoringInfo $serverMonitoringInfo,
+		ListensForStreamActivity $messageQueueConsumeListener
 	)
 	{
-		$this->storage              = $storage;
-		$this->consumptionPool      = $consumptionPool;
-		$this->serverMonitoringInfo = $serverMonitoringInfo;
+		$this->storage                     = $storage;
+		$this->consumptionPool             = $consumptionPool;
+		$this->serverMonitoringInfo        = $serverMonitoringInfo;
+		$this->messageQueueConsumeListener = $messageQueueConsumeListener;
 	}
 
 	protected function getAcceptedEvents() : array
@@ -77,6 +84,9 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 		$consumptionInfo = new ConsumptionInfo( $consumeRequest->getQueueName(), $consumeRequest->getMessageCount() );
 		$this->consumptionPool->setConsumptionInfo( $stream->getStreamId(), $consumptionInfo );
+
+		$loop = $event->getLoop();
+		$loop->addWriteStream( $stream, $this->messageQueueConsumeListener );
 	}
 
 	private function cleanUpConsumptionInfo( TransfersData $stream ) : void

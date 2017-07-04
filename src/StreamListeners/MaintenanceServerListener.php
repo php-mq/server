@@ -42,6 +42,6 @@ final class MaintenanceServerListener implements ListensForStreamActivity
 
 		$this->maintenanceClientListener->setLogger( $this->logger );
 
-		$loop->addStream( $clientStream, $this->maintenanceClientListener );
+		$loop->addReadStream( $clientStream, $this->maintenanceClientListener );
 	}
 }

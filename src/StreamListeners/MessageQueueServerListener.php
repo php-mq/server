@@ -43,7 +43,7 @@ final class MessageQueueServerListener implements ListensForStreamActivity
 
 		$this->messageQueueClientListener->setLogger( $this->logger );
 
-		$loop->addStream( $clientStream, $this->messageQueueClientListener );
+		$loop->addReadStream( $clientStream, $this->messageQueueClientListener );
 
 		$this->eventBus->publishEvent( new ClientConnected( $clientStream ) );
 	}

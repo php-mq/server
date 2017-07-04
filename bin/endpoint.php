@@ -16,6 +16,7 @@ use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Servers\ServerSocket;
 use PHPMQ\Server\Storage\Storage;
 use PHPMQ\Server\StreamListeners\MaintenanceServerListener;
+use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
 use PHPMQ\Server\StreamListeners\MessageQueueServerListener;
 use PHPMQ\Server\Validators\ArgumentValidator;
 use PHPMQ\Server\Validators\CompositeValidator;
@@ -59,9 +60,16 @@ try
 
 	$consumptionPool = new ConsumptionPool();
 
+	$messageQueueConsumeListener = new MessageQueueConsumeListener( $storage, $consumptionPool );
+
 	$eventBus->addEventHandlers(
 		new MessageQueue\ClientConnectionEventHandler( $storage, $consumptionPool, $serverMonitoringInfo ),
-		new MessageQueue\ClientInboundEventHandler( $storage, $consumptionPool, $serverMonitoringInfo )
+		new MessageQueue\ClientInboundEventHandler(
+			$storage,
+			$consumptionPool,
+			$serverMonitoringInfo,
+			$messageQueueConsumeListener
+		)
 	);
 
 	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );
