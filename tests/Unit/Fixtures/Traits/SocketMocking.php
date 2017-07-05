@@ -5,9 +5,6 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
-use PHPMQ\Server\Servers\Types\NetworkSocket;
-
 /**
  * Trait SocketMocking
  * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
@@ -21,7 +18,7 @@ trait SocketMocking
 	/** @var resource */
 	private $serverSocket;
 
-	public function setUpServerSocket(): void
+	public function setUpServerSocket() : void
 	{
 		$socketAddress = $this->getSocketAddressString();
 
@@ -29,12 +26,7 @@ trait SocketMocking
 		stream_set_blocking( $this->serverSocket, false );
 	}
 
-	private function getSocketAddress(): IdentifiesSocketAddress
-	{
-		return new NetworkSocket( self::$SERVER_HOST, self::$SERVER_PORT );
-	}
-
-	private function getSocketAddressString(): string
+	private function getSocketAddressString() : string
 	{
 		return sprintf( 'tcp://%s:%d', self::$SERVER_HOST, self::$SERVER_PORT );
 	}
@@ -55,9 +47,10 @@ trait SocketMocking
 		return $socket;
 	}
 
-	public function tearDownServerSocket(): void
+	public function tearDownServerSocket() : void
 	{
-		stream_socket_shutdown( $this->serverSocket, STREAM_SHUT_RDWR );
-		fclose( $this->serverSocket );
+		/** @noinspection UsageOfSilenceOperatorInspection */
+		@stream_socket_shutdown( $this->serverSocket, STREAM_SHUT_RDWR );
+		@fclose( $this->serverSocket );
 	}
 }

@@ -19,6 +19,8 @@ final class Stream implements TransfersData
 {
 	private const READ_WRITE_TIMEOUT_DEFAULT = 500000;
 
+	private const CONNECT_TIMEOUT_DEFAULT    = 2;
+
 	/** @var resource */
 	private $stream;
 
@@ -28,7 +30,11 @@ final class Stream implements TransfersData
 	/** @var TimeoutTimer */
 	private $timeoutTimer;
 
-	public function __construct( $stream, int $readWriteTimeout = self::READ_WRITE_TIMEOUT_DEFAULT )
+	public function __construct(
+		$stream,
+		int $connectTimeout = self::CONNECT_TIMEOUT_DEFAULT,
+		int $readWriteTimeout = self::READ_WRITE_TIMEOUT_DEFAULT
+	)
 	{
 		$this->stream       = $stream;
 		$this->streamId     = new StreamId( (string)$stream );
@@ -111,7 +117,7 @@ final class Stream implements TransfersData
 
 	public function acceptConnection() : ?TransfersData
 	{
-		$connection = @stream_socket_accept( $this->stream );
+		$connection = @stream_socket_accept( $this->stream, self::CONNECT_TIMEOUT_DEFAULT );
 
 		if ( false === $connection )
 		{
@@ -128,7 +134,8 @@ final class Stream implements TransfersData
 
 	public function hasUnreadBytes() : bool
 	{
-		$metaData = stream_get_meta_data( $this->stream );
+		/** @noinspection UsageOfSilenceOperatorInspection */
+		$metaData = (array)@stream_get_meta_data( $this->stream );
 
 		return ((int)($metaData['unread_bytes'] ?? 0) > 0);
 	}
