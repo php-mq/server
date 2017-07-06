@@ -7,10 +7,10 @@ namespace PHPMQ\Server\Tests\Unit\Storage;
 
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 final class SQLiteStorageTest extends TestCase
 {
 	use StorageMockingSQLite;
+	use QueueIdentifierMocking;
 
 	public function setUp() : void
 	{
@@ -33,7 +34,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanEnqueueMessages() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
 		$this->messageQueue->enqueue( $queueName, $message );
 
@@ -50,7 +51,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanMarkMessagesAsDispatched() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
 
 		$this->messageQueue->enqueue( $queueName, $message );
@@ -64,7 +65,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanMarkMessagesAsUndispatched() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
 
 		$this->messageQueue->enqueue( $queueName, $message );
@@ -81,7 +82,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanDequeueMessages() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message1  = $this->getMessage( 'unit-test' );
 		$message2  = $this->getMessage( 'test-unit' );
 
@@ -107,7 +108,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanGetUndispatchedMessages() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message1  = $this->getMessage( 'unit-test' );
 		$message2  = $this->getMessage( 'test-unit' );
 		$message3  = $this->getMessage( 'last' );
@@ -135,7 +136,7 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanFlushAQueue() : void
 	{
-		$queueName = new QueueName( 'TestQueue' );
+		$queueName = $this->getQueueName( 'TestQueue' );
 		$message1  = $this->getMessage( 'unit-test' );
 		$message2  = $this->getMessage( 'test-unit' );
 		$message3  = $this->getMessage( 'last' );
@@ -157,8 +158,8 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanFlushAllQueues() : void
 	{
-		$queueName1 = new QueueName( 'TestQueue1' );
-		$queueName2 = new QueueName( 'TestQueue2' );
+		$queueName1 = $this->getQueueName( 'TestQueue1' );
+		$queueName2 = $this->getQueueName( 'TestQueue2' );
 		$message1   = $this->getMessage( 'unit-test' );
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
@@ -188,8 +189,8 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanResetAllDispatched() : void
 	{
-		$queueName1 = new QueueName( 'TestQueue1' );
-		$queueName2 = new QueueName( 'TestQueue2' );
+		$queueName1 = $this->getQueueName( 'TestQueue1' );
+		$queueName2 = $this->getQueueName( 'TestQueue2' );
 		$message1   = $this->getMessage( 'unit-test' );
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
@@ -211,7 +212,7 @@ final class SQLiteStorageTest extends TestCase
 		$this->messageQueue->markAsDispached( $queueName2, $message3->getMessageId() );
 
 		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
-		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+		$messages2  = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
 
 		$this->assertCount( 0, $messages1 );
 		$this->assertCount( 0, $messages2 );
@@ -227,8 +228,8 @@ final class SQLiteStorageTest extends TestCase
 
 	public function testCanGetAllUndispatchedGroupedByQueueName() : void
 	{
-		$queueName1 = new QueueName( 'TestQueue1' );
-		$queueName2 = new QueueName( 'TestQueue2' );
+		$queueName1 = $this->getQueueName( 'TestQueue1' );
+		$queueName2 = $this->getQueueName( 'TestQueue2' );
 		$message1   = $this->getMessage( 'unit-test' );
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );

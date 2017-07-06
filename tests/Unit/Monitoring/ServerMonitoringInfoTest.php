@@ -7,11 +7,11 @@ namespace PHPMQ\Server\Tests\Unit\Monitoring;
 
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
-use PHPMQ\Server\Streams\StreamId;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StreamIdentifierMocking;
 use PHPMQ\Server\Types\Message;
-use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,6 +21,9 @@ use PHPUnit\Framework\TestCase;
 final class ServerMonitoringInfoTest extends TestCase
 {
 	use StorageMockingSQLite;
+	use QueueIdentifierMocking;
+	use StreamIdentifierMocking;
+	use MessageIdentifierMocking;
 
 	public function testCanGetStartTime() : void
 	{
@@ -33,14 +36,14 @@ final class ServerMonitoringInfoTest extends TestCase
 	public function testCanGetCountOfConnectedClients() : void
 	{
 		$info = new ServerMonitoringInfo();
-		$info->addConnectedClient( new StreamId( 'Unit-Test-1' ) );
-		$info->addConnectedClient( new StreamId( 'Unit-Test-2' ) );
-		$info->addConnectedClient( new StreamId( 'Unit-Test-2' ) );
-		$info->addConnectedClient( new StreamId( 'Unit-Test-3' ) );
+		$info->addConnectedClient( $this->getStreamId( 'Unit-Test-1' ) );
+		$info->addConnectedClient( $this->getStreamId( 'Unit-Test-2' ) );
+		$info->addConnectedClient( $this->getStreamId( 'Unit-Test-2' ) );
+		$info->addConnectedClient( $this->getStreamId( 'Unit-Test-3' ) );
 
 		$this->assertSame( 3, $info->getConnectedClientsCount() );
 
-		$info->removeConnectedClient( new StreamId( 'Unit-Test-2' ) );
+		$info->removeConnectedClient( $this->getStreamId( 'Unit-Test-2' ) );
 
 		$this->assertSame( 2, $info->getConnectedClientsCount() );
 	}
@@ -52,15 +55,15 @@ final class ServerMonitoringInfoTest extends TestCase
 		$this->assertSame( 0, $info->getQueueCount() );
 
 		$info->addMessage(
-			new QueueName( 'Test-Queue' ),
-			new Message( new MessageId( 'Test-ID' ), 'Unit-Test' )
+			$this->getQueueName( 'Test-Queue' ),
+			new Message( $this->getMessageId( 'Test-ID' ), 'Unit-Test' )
 		);
 
 		$this->assertSame( 1, $info->getQueueCount() );
 
 		$info->addMessage(
-			new QueueName( 'Example-Queue' ),
-			new Message( new MessageId( 'Test-ID' ), 'Unit-Test' )
+			$this->getQueueName( 'Example-Queue' ),
+			new Message( $this->getMessageId( 'Test-ID' ), 'Unit-Test' )
 		);
 
 		$this->assertSame( 2, $info->getQueueCount() );
@@ -69,9 +72,9 @@ final class ServerMonitoringInfoTest extends TestCase
 	public function testCanGetQueueInfos() : void
 	{
 		$info         = new ServerMonitoringInfo();
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId    = new MessageId( 'Test-ID' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId    = $this->getMessageId( 'Test-ID' );
 
 		$testMessage    = new Message( $messageId, 'Unit-Test' );
 		$exampleMessage = new Message( $messageId, 'Unit-Example' );
@@ -117,10 +120,10 @@ final class ServerMonitoringInfoTest extends TestCase
 
 		$this->assertSame( 0, $info->getMaxQueueSize() );
 
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId1   = new MessageId( 'Test-ID-1' );
-		$messageId2   = new MessageId( 'Test-ID-2' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId1   = $this->getMessageId( 'Test-ID-1' );
+		$messageId2   = $this->getMessageId( 'Test-ID-2' );
 
 		$testMessage     = new Message( $messageId1, 'Unit-Test' );
 		$exampleMessage1 = new Message( $messageId1, 'Unit-Example-1' );
@@ -140,9 +143,9 @@ final class ServerMonitoringInfoTest extends TestCase
 	{
 		$info = new ServerMonitoringInfo();
 
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId1   = new MessageId( 'Test-ID-1' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId1   = $this->getMessageId( 'Test-ID-1' );
 
 		$testMessage    = new Message( $messageId1, 'Unit-Test' );
 		$exampleMessage = new Message( $messageId1, 'Unit-Example-1' );
@@ -165,9 +168,9 @@ final class ServerMonitoringInfoTest extends TestCase
 	{
 		$info = new ServerMonitoringInfo();
 
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId1   = new MessageId( 'Test-ID-1' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId1   = $this->getMessageId( 'Test-ID-1' );
 
 		$testMessage    = new Message( $messageId1, 'Unit-Test' );
 		$exampleMessage = new Message( $messageId1, 'Unit-Example-1' );
@@ -186,10 +189,10 @@ final class ServerMonitoringInfoTest extends TestCase
 	{
 		$info = new ServerMonitoringInfo();
 
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId1   = new MessageId( 'Test-ID-1' );
-		$messageId2   = new MessageId( 'Test-ID-2' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId1   = $this->getMessageId( 'Test-ID-1' );
+		$messageId2   = $this->getMessageId( 'Test-ID-2' );
 
 		$testMessage     = new Message( $messageId1, 'Unit-Test' );
 		$exampleMessage1 = new Message( $messageId1, 'Unit-Example-1' );
@@ -213,8 +216,8 @@ final class ServerMonitoringInfoTest extends TestCase
 	public function testCanMarkMessageAsUndispatched() : void
 	{
 		$info      = new ServerMonitoringInfo();
-		$testQueue = new QueueName( 'Test-Queue' );
-		$messageId = new MessageId( 'Test-ID' );
+		$testQueue = $this->getQueueName( 'Test-Queue' );
+		$messageId = $this->getMessageId( 'Test-ID' );
 
 		$testMessage = new Message( $messageId, 'Unit-Test' );
 
@@ -257,10 +260,10 @@ final class ServerMonitoringInfoTest extends TestCase
 	{
 		$this->setUpStorage();
 
-		$testQueue    = new QueueName( 'Test-Queue' );
-		$exampleQueue = new QueueName( 'Example-Queue' );
-		$messageId1   = new MessageId( 'Test-ID-1' );
-		$messageId2   = new MessageId( 'Test-ID-2' );
+		$testQueue    = $this->getQueueName( 'Test-Queue' );
+		$exampleQueue = $this->getQueueName( 'Example-Queue' );
+		$messageId1   = $this->getMessageId( 'Test-ID-1' );
+		$messageId2   = $this->getMessageId( 'Test-ID-2' );
 
 		$testMessage     = new Message( $messageId1, 'Unit-Test' );
 		$exampleMessage1 = new Message( $messageId1, 'Unit-Example-1' );

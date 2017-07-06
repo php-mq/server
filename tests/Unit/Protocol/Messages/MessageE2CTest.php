@@ -6,8 +6,8 @@
 namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
-use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +16,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class MessageE2CTest extends TestCase
 {
+	use QueueIdentifierMocking;
+	use MessageIdentifierMocking;
+
 	/**
 	 * @param string $messageId
 	 * @param string $queueName
@@ -31,7 +34,7 @@ final class MessageE2CTest extends TestCase
 		string $expectedMessage
 	) : void
 	{
-		$messageE2C = new MessageE2C( new MessageId( $messageId ), new QueueName( $queueName ), $content );
+		$messageE2C = new MessageE2C( $this->getMessageId( $messageId ), $this->getQueueName( $queueName ), $content );
 
 		$this->assertSame( $messageId, (string)$messageE2C->getMessageId() );
 		$this->assertSame( $queueName, (string)$messageE2C->getQueueName() );
@@ -48,12 +51,12 @@ final class MessageE2CTest extends TestCase
 				'queueName'       => 'Foo',
 				'content'         => 'Hello World',
 				'expectedMessage' => 'H0100303'
-				                     . 'P0100000000000000000000000000003'
-				                     . 'Foo'
-				                     . 'P0200000000000000000000000000011'
-				                     . 'Hello World'
-				                     . 'P0300000000000000000000000000032'
-				                     . 'd7e7f68761d34838494b233148b5486c',
+					. 'P0100000000000000000000000000003'
+					. 'Foo'
+					. 'P0200000000000000000000000000011'
+					. 'Hello World'
+					. 'P0300000000000000000000000000032'
+					. 'd7e7f68761d34838494b233148b5486c',
 			],
 		];
 	}

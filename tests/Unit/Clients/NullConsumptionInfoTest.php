@@ -6,8 +6,8 @@
 namespace PHPMQ\Server\Tests\Unit\Clients;
 
 use PHPMQ\Server\Clients\NullConsumptionInfo;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\QueueName;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +16,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class NullConsumptionInfoTest extends TestCase
 {
+	use QueueIdentifierMocking;
+
 	public function testCannotConsumeMessages() : void
 	{
 		$info = new NullConsumptionInfo();
@@ -66,6 +68,6 @@ final class NullConsumptionInfoTest extends TestCase
 
 	public function testQueueNameDoesNotEqualOthers() : void
 	{
-		$this->assertFalse( (new NullConsumptionInfo())->getQueueName()->equals( new QueueName( '' ) ) );
+		$this->assertFalse( (new NullConsumptionInfo())->getQueueName()->equals( $this->getQueueName( '' ) ) );
 	}
 }

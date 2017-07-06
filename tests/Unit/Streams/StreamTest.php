@@ -6,13 +6,14 @@
 namespace PHPMQ\Server\Tests\Unit\Streams;
 
 use PHPMQ\Server\Streams\Stream;
-use PHPMQ\Server\Streams\StreamId;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StreamIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 final class StreamTest extends TestCase
 {
 	use SocketMocking;
+	use StreamIdentifierMocking;
 
 	public function setUp() : void
 	{
@@ -27,9 +28,9 @@ final class StreamTest extends TestCase
 	public function testCanGetStreamId() : void
 	{
 		$stream           = new Stream( $this->serverSocket );
-		$expectedStreamId = new StreamId( (string)$this->serverSocket );
+		$expectedStreamId = $this->getStreamId( (string)$this->serverSocket );
 
-		$this->assertEquals( $expectedStreamId, $stream->getStreamId() );
+		$this->assertTrue( $expectedStreamId->equals( $stream->getStreamId() ) );
 	}
 
 	public function testCanAcceptClientStream() : void
@@ -69,7 +70,7 @@ final class StreamTest extends TestCase
 	public function testCanCollectRawStream() : void
 	{
 		$stream             = new Stream( $this->serverSocket );
-		$expectedRawStreams = [ (string)$this->serverSocket => $this->serverSocket ];
+		$expectedRawStreams = [(string)$this->serverSocket => $this->serverSocket];
 
 		$rawStreams = [];
 		$stream->collectRawStream( $rawStreams );

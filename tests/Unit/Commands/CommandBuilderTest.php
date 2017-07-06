@@ -14,7 +14,7 @@ use PHPMQ\Server\Commands\QuitCommand;
 use PHPMQ\Server\Commands\QuitRefreshCommand;
 use PHPMQ\Server\Commands\ShowQueueCommand;
 use PHPMQ\Server\Commands\StartMonitorCommand;
-use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,6 +23,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class CommandBuilderTest extends TestCase
 {
+	use QueueIdentifierMocking;
+
 	/**
 	 * @param string $cmd
 	 * @param string $expectedCommandName
@@ -91,11 +93,11 @@ final class CommandBuilderTest extends TestCase
 		/** @var ShowQueueCommand $command */
 		$command = $builder->buildCommand( $cmd );
 
-		$expectedQueue = new QueueName( $expectedQueueName );
+		$expectedQueue = $this->getQueueName( $expectedQueueName );
 
 		$this->assertInstanceOf( ShowQueueCommand::class, $command );
 		$this->assertSame( Command::SHOW_QUEUE, $command->getName() );
-		$this->assertEquals( $expectedQueue, $command->getQueueName() );
+		$this->assertTrue( $expectedQueue->equals( $command->getQueueName() ) );
 	}
 
 	public function showQueueCommandProvider() : array
@@ -133,11 +135,11 @@ final class CommandBuilderTest extends TestCase
 		/** @var FlushQueueCommand $command */
 		$command = $builder->buildCommand( $cmd );
 
-		$expectedQueue = new QueueName( $expectedQueueName );
+		$expectedQueue = $this->getQueueName( $expectedQueueName );
 
 		$this->assertInstanceOf( FlushQueueCommand::class, $command );
 		$this->assertSame( Command::FLUSH_QUEUE, $command->getName() );
-		$this->assertEquals( $expectedQueue, $command->getQueueName() );
+		$this->assertTrue( $expectedQueue->equals( $command->getQueueName() ) );
 	}
 
 	public function flushQueueCommandProvider() : array

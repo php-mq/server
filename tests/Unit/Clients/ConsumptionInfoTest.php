@@ -6,8 +6,8 @@
 namespace PHPMQ\Server\Tests\Unit\Clients;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
-use PHPMQ\Server\Types\MessageId;
-use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,10 +16,13 @@ use PHPUnit\Framework\TestCase;
  */
 final class ConsumptionInfoTest extends TestCase
 {
-	public function testCanGetConsumableMessageCount(): void
+	use QueueIdentifierMocking;
+	use MessageIdentifierMocking;
+
+	public function testCanGetConsumableMessageCount() : void
 	{
-		$messageId = MessageId::generate();
-		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 5 );
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
+		$info      = new ConsumptionInfo( $this->getQueueName( 'Test-Queue' ), 5 );
 
 		$this->assertSame( 5, $info->getMessageCount() );
 
@@ -32,10 +35,10 @@ final class ConsumptionInfoTest extends TestCase
 		$this->assertSame( 5, $info->getMessageCount() );
 	}
 
-	public function testCanCheckForConsumption(): void
+	public function testCanCheckForConsumption() : void
 	{
-		$messageId = MessageId::generate();
-		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 1 );
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
+		$info      = new ConsumptionInfo( $this->getQueueName( 'Test-Queue' ), 1 );
 
 		$this->assertTrue( $info->canConsume() );
 
@@ -48,24 +51,24 @@ final class ConsumptionInfoTest extends TestCase
 		$this->assertTrue( $info->canConsume() );
 	}
 
-	public function testCanGetConsumedMessageIds(): void
+	public function testCanGetConsumedMessageIds() : void
 	{
-		$messageId = MessageId::generate();
-		$info      = new ConsumptionInfo( new QueueName( 'Test-Queue' ), 1 );
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
+		$info      = new ConsumptionInfo( $this->getQueueName( 'Test-Queue' ), 1 );
 
 		$this->assertCount( 0, $info->getMessageIds() );
 
 		$info->addMessageId( $messageId );
 
 		$this->assertCount( 1, $info->getMessageIds() );
-		$this->assertEquals( [ $messageId ], $info->getMessageIds() );
+		$this->assertEquals( [$messageId], $info->getMessageIds() );
 	}
 
-	public function testCanGetConsumptionInfoAsString(): void
+	public function testCanGetConsumptionInfoAsString() : void
 	{
 		$expectedString = 'Queue name: "Test-Queue", Message count: 4, Currently consumed: 1';
-		$messageId      = MessageId::generate();
-		$queueName      = new QueueName( 'Test-Queue' );
+		$messageId      = $this->getMessageId( 'Unit-Test-ID' );
+		$queueName      = $this->getQueueName( 'Test-Queue' );
 		$info           = new ConsumptionInfo( $queueName, 4 );
 
 		$info->addMessageId( $messageId );

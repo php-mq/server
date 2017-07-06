@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Tests\Unit\Protocol\Messages;
 
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class ConsumeRequestTest extends TestCase
 {
+	use QueueIdentifierMocking;
+
 	/**
 	 * @param string $queueName
 	 * @param int    $messageCount
@@ -24,7 +26,7 @@ final class ConsumeRequestTest extends TestCase
 	 */
 	public function testCanGetEncodedMessage( string $queueName, int $messageCount, string $expectedMessage ) : void
 	{
-		$consumeRequest = new ConsumeRequest( new QueueName( $queueName ), $messageCount );
+		$consumeRequest = new ConsumeRequest( $this->getQueueName( $queueName ), $messageCount );
 
 		$this->assertSame( $queueName, (string)$consumeRequest->getQueueName() );
 		$this->assertSame( $messageCount, $consumeRequest->getMessageCount() );
@@ -39,10 +41,10 @@ final class ConsumeRequestTest extends TestCase
 				'queueName'       => 'Foo',
 				'messageCount'    => 5,
 				'expectedMessage' => 'H0100202'
-				                     . 'P0100000000000000000000000000003'
-				                     . 'Foo'
-				                     . 'P0400000000000000000000000000001'
-				                     . '5',
+					. 'P0100000000000000000000000000003'
+					. 'Foo'
+					. 'P0400000000000000000000000000001'
+					. '5',
 			],
 		];
 	}
