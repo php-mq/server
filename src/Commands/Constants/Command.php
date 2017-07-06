@@ -13,6 +13,8 @@ abstract class Command
 {
 	public const START_MONITOR    = 'monitor';
 
+	public const SEARCH_QUEUE     = 'search';
+
 	public const SHOW_QUEUE       = 'show';
 
 	public const FLUSH_QUEUE      = 'flush';

@@ -33,6 +33,10 @@ final class CommandBuilder implements BuildsCommands
 				return new StartMonitorCommand();
 				break;
 
+			case Command::SEARCH_QUEUE:
+				return new SearchQueueCommand( $argument );
+				break;
+
 			case Command::SHOW_QUEUE:
 				return new ShowQueueCommand( new QueueName( $argument ) );
 				break;

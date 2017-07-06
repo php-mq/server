@@ -12,6 +12,7 @@ use PHPMQ\Server\Commands\FlushQueueCommand;
 use PHPMQ\Server\Commands\HelpCommand;
 use PHPMQ\Server\Commands\QuitCommand;
 use PHPMQ\Server\Commands\QuitRefreshCommand;
+use PHPMQ\Server\Commands\SearchQueueCommand;
 use PHPMQ\Server\Commands\ShowQueueCommand;
 use PHPMQ\Server\Commands\StartMonitorCommand;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
@@ -201,6 +202,18 @@ final class CommandBuilderTest extends TestCase
 
 		$this->assertInstanceOf( QuitRefreshCommand::class, $command );
 		$this->assertSame( Command::QUIT_REFRESH, $command->getName() );
+	}
+
+	public function testCanGetSearchQueueCommand() : void
+	{
+		$builder = new CommandBuilder();
+
+		/** @var SearchQueueCommand $command */
+		$command = $builder->buildCommand( 'search "*test*"' );
+
+		$this->assertInstanceOf( SearchQueueCommand::class, $command );
+		$this->assertSame( Command::SEARCH_QUEUE, $command->getName() );
+		$this->assertSame( '*test*', $command->getSearchTerm() );
 	}
 
 	/**

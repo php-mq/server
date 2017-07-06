@@ -1,0 +1,12 @@
+<fg:yellow>Search queue help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+search <QueueName>
+
+<fg:blue>Description:<:fg>
+
+The search queue command will search the current existing queues against the provided pattern.
+You can use "*" as a placeholder to search for a part of a queue name.
+
+The search is case-insensitive.

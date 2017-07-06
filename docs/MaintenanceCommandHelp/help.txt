@@ -2,6 +2,7 @@
 
  * help [command]        - shows this help or help for the specified command
  * monitor               - starts the server monitor
+ * search <QueueName>    - searches for the specified queue name
  * show <QueueName>      - starts the queue monitor for the specified queue
  * flush <QueueName>     - flushes the the specified queue
  * flushall              - flushes all queues

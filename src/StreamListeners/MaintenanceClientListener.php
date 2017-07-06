@@ -14,6 +14,7 @@ use PHPMQ\Server\Commands\FlushAllQueuesCommand;
 use PHPMQ\Server\Commands\FlushQueueCommand;
 use PHPMQ\Server\Commands\HelpCommand;
 use PHPMQ\Server\Commands\QuitRefreshCommand;
+use PHPMQ\Server\Commands\SearchQueueCommand;
 use PHPMQ\Server\Commands\ShowQueueCommand;
 use PHPMQ\Server\Commands\StartMonitorCommand;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
@@ -25,6 +26,7 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedOverviewMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueSearch;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Interfaces\CarriesEventData;
@@ -104,6 +106,10 @@ final class MaintenanceClientListener implements ListensForStreamActivity
 			case Command::START_MONITOR:
 				/** @var StartMonitorCommand $command */
 				return new ClientRequestedOverviewMonitor( $stream, $loop, $command );
+				break;
+			case Command::SEARCH_QUEUE:
+				/** @var SearchQueueCommand $command */
+				return new ClientRequestedQueueSearch( $stream, $command );
 				break;
 			case Command::SHOW_QUEUE:
 				/** @var ShowQueueCommand $command */

@@ -11,9 +11,11 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedOverviewMonitor;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueMonitor;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueSearch;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
+use PHPMQ\Server\Monitoring\Formatters\ByteFormatter;
 use PHPMQ\Server\Monitoring\ServerMonitor;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
@@ -56,6 +58,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			ClientRequestedQuittingRefresh::class,
 			ClientRequestedFlushingQueue::class,
 			ClientRequestedFlushingAllQueues::class,
+			ClientRequestedQueueSearch::class,
 		];
 	}
 
@@ -77,14 +80,14 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		if ( !file_exists( $helpFile ) )
 		{
 			$content = $this->cliWriter->clearScreen( 'HELP' )
-			                           ->writeLn( '' )
-			                           ->writeLn(
-				                           'Help for unknown command "%s" requested.',
-				                           $helpCommand->getCommandName()
-			                           )
-			                           ->writeLn( '' )
-			                           ->writeFileContent( $this->getHelpFile( '' ) )
-			                           ->getInteractiveOutput();
+									   ->writeLn( '' )
+									   ->writeLn(
+										   'Help for unknown command "%s" requested.',
+										   $helpCommand->getCommandName()
+									   )
+									   ->writeLn( '' )
+									   ->writeFileContent( $this->getHelpFile( '' ) )
+									   ->getInteractiveOutput();
 
 			$client->write( $content );
 
@@ -149,9 +152,9 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 
 		$helpFile = $this->getHelpFile( '' );
 		$this->cliWriter->clearScreen( 'HELP' )
-		                ->writeLn( '<bg:red>ERROR:<:bg> Unknown command "%s"', $event->getUnknownCommandString() )
-		                ->writeLn( '' )
-		                ->writeFileContent( $helpFile );
+						->writeLn( '<bg:red>ERROR:<:bg> Unknown command "%s"', $event->getUnknownCommandString() )
+						->writeLn( '' )
+						->writeFileContent( $helpFile );
 
 		$stream->write( $this->cliWriter->getInteractiveOutput() );
 	}
@@ -211,5 +214,59 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		$this->logger->debug( '<fg:green>√ All queues flushed.<:fg>' );
 
 		$stream->write( $this->cliWriter->writeLn( 'OK' )->getInteractiveOutput() );
+	}
+
+	protected function whenClientRequestedQueueSearch( ClientRequestedQueueSearch $event ) : void
+	{
+		$stream  = $event->getStream();
+		$command = $event->getSearchQueueCommand();
+
+		$this->logger->debug(
+			sprintf(
+				'Maintenance client %s searched queues for "%s".',
+				$stream->getStreamId(),
+				$command->getSearchTerm()
+			)
+		);
+
+		$foundQueueNames = [];
+		$searchPattern   = str_replace( '*', '•', $command->getSearchTerm() );
+		$searchPattern   = preg_quote( $searchPattern, '#' );
+		$searchPattern   = str_replace( '•', '.*', $searchPattern );
+		$byteFormatter   = new ByteFormatter();
+
+		foreach ( $this->serverMonitoringInfo->getQueueInfos() as $queueInfo )
+		{
+			if ( preg_match( "#{$searchPattern}#i", $queueInfo->getQueueName() ) )
+			{
+				$foundQueueNames[] = sprintf(
+					'%s (Messages: %d, Size: %s)',
+					$queueInfo->getQueueName(),
+					$queueInfo->getMessageCount(),
+					$byteFormatter->format( $queueInfo->getSize(), 0 )
+				);
+			}
+		}
+
+		if ( count( $foundQueueNames ) === 0 )
+		{
+			$this->cliWriter->writeLn( 'No queues found matching: "%s"', $command->getSearchTerm() );
+			$stream->write( $this->cliWriter->getInteractiveOutput() );
+
+			return;
+		}
+
+		$this->cliWriter->writeLn(
+			'Found %d queues matching "%s":',
+			(string)count( $foundQueueNames ),
+			$command->getSearchTerm()
+		);
+
+		foreach ( $foundQueueNames as $foundQueueName )
+		{
+			$this->cliWriter->writeLn( ' * %s', $foundQueueName );
+		}
+
+		$stream->write( $this->cliWriter->getInteractiveOutput() );
 	}
 }
