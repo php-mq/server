@@ -20,7 +20,7 @@ interface ProvidesServerMonitoringInfo
 
 	public function getMaxQueueSize() : int;
 
-	public function getQueueInfos() : iterable;
+	public function getQueueInfos() : \Generator;
 
 	public function getQueueInfo( IdentifiesQueue $queueName ) : QueueInfo;
 }

@@ -26,6 +26,14 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 	/** @var array */
 	private $queueInfos = [];
 
+	/** @var int */
+	private $startTime;
+
+	public function __construct()
+	{
+		$this->startTime = time();
+	}
+
 	public function addConnectedClient( IdentifiesStream $streamId ) : void
 	{
 		$this->connectedClients[ $streamId->toString() ] = true;
@@ -110,9 +118,9 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 	}
 
 	/**
-	 * @return iterable|QueueInfo[]
+	 * @return \Generator|QueueInfo[]
 	 */
-	public function getQueueInfos() : iterable
+	public function getQueueInfos() : \Generator
 	{
 		foreach ( $this->queueInfos as $queueName => $messageInfos )
 		{
@@ -142,5 +150,10 @@ final class ServerMonitoringInfo implements ProvidesServerMonitoringInfo, Collec
 		}
 
 		return $instance;
+	}
+
+	public function getStartTime() : int
+	{
+		return $this->startTime;
 	}
 }
