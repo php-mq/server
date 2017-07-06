@@ -14,6 +14,8 @@ use PHPMQ\Server\Monitoring\Types\QueueInfo;
  */
 interface ProvidesServerMonitoringInfo
 {
+	public function getStartTime();
+
 	public function getConnectedClientsCount() : int;
 
 	public function getQueueCount() : int;

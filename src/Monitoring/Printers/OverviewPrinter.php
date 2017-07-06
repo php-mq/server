@@ -25,7 +25,7 @@ final class OverviewPrinter extends AbstractPrinter
 		$this->byteFormatter = new ByteFormatter();
 	}
 
-	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ): string
+	public function getOutput( ProvidesServerMonitoringInfo $serverMonitoringInfo ) : string
 	{
 		$this->getCliWriter()->clearScreen(
 			sprintf(
@@ -41,8 +41,16 @@ final class OverviewPrinter extends AbstractPrinter
 		return $this->getCliWriter()->getInteractiveOutput();
 	}
 
-	private function addHeader( ProvidesServerMonitoringInfo $monitoringInfo ): void
+	private function addHeader( ProvidesServerMonitoringInfo $monitoringInfo ) : void
 	{
+		$startDate = date( 'Y-m-d H:i:s', $monitoringInfo->getStartTime() );
+		$uptime    = (new \DateTime())->diff( new \DateTime( $startDate ) );
+
+		$this->getCliWriter()->writeLn(
+			'<fg:yellow>Uptime: %s<:fg>',
+			$uptime->format( '%D days %H hours %i minutes %s seconds' )
+		);
+		$this->getCliWriter()->writeLn( '' );
 		$this->getCliWriter()->writeLn( 'Type "q"+ENTER to quit the monitor.' );
 		$this->getCliWriter()->writeLn( '' );
 		$this->getCliWriter()->writeLn(
@@ -54,7 +62,7 @@ final class OverviewPrinter extends AbstractPrinter
 		$this->getCliWriter()->writeLn( '<fg:yellow>%-20s %5s %10s  Workload<:fg>', 'Queue', 'Msgs', 'Size' );
 	}
 
-	private function addQueueInfos( ProvidesServerMonitoringInfo $monitoringInfo ): void
+	private function addQueueInfos( ProvidesServerMonitoringInfo $monitoringInfo ) : void
 	{
 		$index          = 0;
 		$alternate      = false;
@@ -83,7 +91,7 @@ final class OverviewPrinter extends AbstractPrinter
 		}
 	}
 
-	private function getQueueLine( QueueInfo $queueInfo, int $maxQueueSize ): string
+	private function getQueueLine( QueueInfo $queueInfo, int $maxQueueSize ) : string
 	{
 		$messageCount  = $queueInfo->getMessageCount();
 		$terminalWidth = $this->getCliWriter()->getTerminalWidth() - 39;
