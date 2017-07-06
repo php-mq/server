@@ -53,6 +53,9 @@ final class CommandBuilder implements BuildsCommands
 				return new QuitRefreshCommand();
 				break;
 
+			case Command::CLEAR_SCREEN:
+				return new ClearScreenCommand();
+
 			case Command::QUIT:
 			case Command::EXIT:
 				return new QuitCommand();

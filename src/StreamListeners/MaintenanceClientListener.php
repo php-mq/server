@@ -8,6 +8,7 @@ namespace PHPMQ\Server\StreamListeners;
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Clients\Interfaces\BuildsCommands;
 use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
+use PHPMQ\Server\Commands\ClearScreenCommand;
 use PHPMQ\Server\Commands\Constants\Command;
 use PHPMQ\Server\Commands\Exceptions\UnknownCommandException;
 use PHPMQ\Server\Commands\FlushAllQueuesCommand;
@@ -21,6 +22,7 @@ use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedClearScreen;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
@@ -122,6 +124,10 @@ final class MaintenanceClientListener implements ListensForStreamActivity
 			case Command::FLUSH_ALL_QUEUES:
 				/** @var FlushAllQueuesCommand $command */
 				return new ClientRequestedFlushingAllQueues( $stream, $command );
+				break;
+			case Command::CLEAR_SCREEN:
+				/** @var ClearScreenCommand $command */
+				return new ClientRequestedClearScreen( $stream, $command );
 				break;
 			case Command::QUIT_REFRESH:
 				/** @var QuitRefreshCommand $command */

@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Commands;
 
+use PHPMQ\Server\Commands\ClearScreenCommand;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Commands\Constants\Command;
 use PHPMQ\Server\Commands\FlushAllQueuesCommand;
@@ -214,6 +215,17 @@ final class CommandBuilderTest extends TestCase
 		$this->assertInstanceOf( SearchQueueCommand::class, $command );
 		$this->assertSame( Command::SEARCH_QUEUE, $command->getName() );
 		$this->assertSame( '*test*', $command->getSearchTerm() );
+	}
+
+	public function testCanGetClearScreenCommand() : void
+	{
+		$builder = new CommandBuilder();
+
+		/** @var ClearScreenCommand $command */
+		$command = $builder->buildCommand( 'clear' );
+
+		$this->assertInstanceOf( ClearScreenCommand::class, $command );
+		$this->assertSame( Command::CLEAR_SCREEN, $command->getName() );
 	}
 
 	/**

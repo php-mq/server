@@ -1,6 +1,7 @@
 <fg:yellow>Available commands<:fg>
 
  * help [command]        - shows this help or help for the specified command
+ * clear                 - clears the current screen
  * monitor               - starts the server monitor
  * search <QueueName>    - searches for the specified queue name
  * show <QueueName>      - starts the queue monitor for the specified queue

@@ -1,0 +1,9 @@
+<fg:yellow>Clear help<:fg>
+
+<fg:blue>Usage:<:fg>
+
+clear
+
+<fg:blue>Description:<:fg>
+
+The clear command will clear the current maintenance screen.

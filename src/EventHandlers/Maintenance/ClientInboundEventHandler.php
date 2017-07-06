@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\EventHandlers\Maintenance;
 
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
+use PHPMQ\Server\Events\Maintenance\ClientRequestedClearScreen;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingQueue;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedHelp;
@@ -59,6 +60,7 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 			ClientRequestedFlushingQueue::class,
 			ClientRequestedFlushingAllQueues::class,
 			ClientRequestedQueueSearch::class,
+			ClientRequestedClearScreen::class,
 		];
 	}
 
@@ -268,5 +270,19 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		}
 
 		$stream->write( $this->cliWriter->getInteractiveOutput() );
+	}
+
+	protected function whenClientRequestedClearScreen( ClientRequestedClearScreen $event ) : void
+	{
+		$stream = $event->getStream();
+
+		$this->logger->debug(
+			sprintf(
+				'Maintenance client %s requested to clear screen.',
+				$stream->getStreamId()
+			)
+		);
+
+		$stream->write( $this->cliWriter->clearScreen( 'Welcome!' )->getInteractiveOutput() );
 	}
 }

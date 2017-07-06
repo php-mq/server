@@ -23,6 +23,8 @@ abstract class Command
 
 	public const QUIT_REFRESH     = 'q';
 
+	public const CLEAR_SCREEN     = 'clear';
+
 	public const HELP             = 'help';
 
 	public const QUIT             = 'quit';
