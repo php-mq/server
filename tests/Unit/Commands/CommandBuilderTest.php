@@ -8,6 +8,7 @@ namespace PHPMQ\Server\Tests\Unit\Commands;
 use PHPMQ\Server\Commands\ClearScreenCommand;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Commands\Constants\Command;
+use PHPMQ\Server\Commands\Exceptions\UnknownCommandException;
 use PHPMQ\Server\Commands\FlushAllQueuesCommand;
 use PHPMQ\Server\Commands\FlushQueueCommand;
 use PHPMQ\Server\Commands\HelpCommand;
@@ -228,12 +229,16 @@ final class CommandBuilderTest extends TestCase
 		$this->assertSame( Command::CLEAR_SCREEN, $command->getName() );
 	}
 
-	/**
-	 * @expectedException \PHPMQ\Server\Commands\Exceptions\UnknownCommandException
-	 */
 	public function testUnknownCommandThrowsException() : void
 	{
-		$builder = new CommandBuilder();
-		$builder->buildCommand( 'unknown' );
+		try
+		{
+			$builder = new CommandBuilder();
+			$builder->buildCommand( 'unknown' );
+		}
+		catch ( UnknownCommandException $e )
+		{
+			$this->assertSame( 'unknown', $e->getUnknownCommandString() );
+		}
 	}
 }

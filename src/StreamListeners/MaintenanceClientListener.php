@@ -101,42 +101,41 @@ final class MaintenanceClientListener implements ListensForStreamActivity
 	{
 		switch ( $command->getName() )
 		{
-			case Command::HELP:
-				/** @var HelpCommand $command */
-				return new ClientRequestedHelp( $stream, $command );
-				break;
 			case Command::START_MONITOR:
 				/** @var StartMonitorCommand $command */
 				return new ClientRequestedOverviewMonitor( $stream, $loop, $command );
-				break;
+
 			case Command::SEARCH_QUEUE:
 				/** @var SearchQueueCommand $command */
 				return new ClientRequestedQueueSearch( $stream, $command );
-				break;
+
 			case Command::SHOW_QUEUE:
 				/** @var ShowQueueCommand $command */
 				return new ClientRequestedQueueMonitor( $stream, $loop, $command );
-				break;
+
 			case Command::FLUSH_QUEUE:
 				/** @var FlushQueueCommand $command */
 				return new ClientRequestedFlushingQueue( $stream, $command );
-				break;
+
 			case Command::FLUSH_ALL_QUEUES:
 				/** @var FlushAllQueuesCommand $command */
 				return new ClientRequestedFlushingAllQueues( $stream, $command );
-				break;
+
 			case Command::CLEAR_SCREEN:
 				/** @var ClearScreenCommand $command */
 				return new ClientRequestedClearScreen( $stream, $command );
-				break;
+
 			case Command::QUIT_REFRESH:
 				/** @var QuitRefreshCommand $command */
 				return new ClientRequestedQuittingRefresh( $stream, $loop, $command );
-				break;
+
 			case Command::QUIT:
 				throw new ClientDisconnectedException();
+
 			default:
-				throw (new UnknownCommandException())->withUnknownCommandString( $command->getName() );
+			case Command::HELP:
+				/** @var HelpCommand $command */
+				return new ClientRequestedHelp( $stream, $command );
 		}
 	}
 }
