@@ -9,7 +9,7 @@ use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Monitoring\ServerMonitor;
+use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -23,10 +23,10 @@ class MaintenanceMonitoringListener implements ListensForStreamActivity
 	/** @var IdentifiesQueue */
 	private $queueName;
 
-	/** @var ServerMonitor */
+	/** @var RefreshesMonitoringInformation */
 	private $serverMonitor;
 
-	public function __construct( IdentifiesQueue $queueName, ServerMonitor $serverMonitor )
+	public function __construct( IdentifiesQueue $queueName, RefreshesMonitoringInformation $serverMonitor )
 	{
 		$this->queueName     = $queueName;
 		$this->serverMonitor = $serverMonitor;

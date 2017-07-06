@@ -12,12 +12,13 @@ use PHPMQ\Server\Monitoring\Interfaces\CreatesMonitoringOutput;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Printers\OverviewPrinter;
 use PHPMQ\Server\Monitoring\Printers\SingleQueuePrinter;
+use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
 
 /**
  * Class ServerMonitor
  * @package PHPMQ\Server\Monitoring
  */
-final class ServerMonitor
+final class ServerMonitor implements RefreshesMonitoringInformation
 {
 	private const REFRESH_INTERVAL = 0.5;
 
