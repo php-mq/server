@@ -22,7 +22,6 @@ use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
 use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException;
@@ -44,10 +43,10 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	/** @var PublishesEvents */
 	private $eventBus;
 
-	public function __construct( PublishesEvents $evenBus )
+	public function __construct( PublishesEvents $evenBus, BuildsMessages $messageBuilder )
 	{
 		$this->eventBus       = $evenBus;
-		$this->messageBuilder = new MessageBuilder();
+		$this->messageBuilder = $messageBuilder;
 	}
 
 	/**
@@ -78,6 +77,7 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
+	 * @throws \PHPMQ\Server\Streams\Exceptions\ReadTimedOutException
 	 */
 	private function readMessages( TransfersData $stream, TracksStreams $loop ) : void
 	{
@@ -114,6 +114,7 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	 * @param TransfersData $stream
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
+	 * @throws \PHPMQ\Server\Streams\Exceptions\ReadTimedOutException
 	 * @return CarriesMessageData
 	 */
 	private function readMessage( MessageHeader $messageHeader, TransfersData $stream ) : CarriesMessageData
