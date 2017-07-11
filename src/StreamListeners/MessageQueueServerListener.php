@@ -10,6 +10,7 @@ use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\MessageQueue\ClientConnected;
 use PHPMQ\Server\Interfaces\PublishesEvents;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -29,7 +30,7 @@ final class MessageQueueServerListener implements ListensForStreamActivity
 	public function __construct( PublishesEvents $eventBus )
 	{
 		$this->eventBus                   = $eventBus;
-		$this->messageQueueClientListener = new MessageQueueClientListener( $eventBus );
+		$this->messageQueueClientListener = new MessageQueueClientListener( $eventBus, new MessageBuilder() );
 	}
 
 	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
