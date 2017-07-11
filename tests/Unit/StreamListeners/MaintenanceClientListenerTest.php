@@ -50,7 +50,7 @@ final class MaintenanceClientListenerTest extends TestCase
 	 *
 	 * @dataProvider commandEventClassProvider
 	 */
-	public function testCanGetCommandPublished( string $command, string $expectedEventClass ) : void
+	public function testCanGetEventPublished( string $command, string $expectedEventClass ) : void
 	{
 		$logger   = new NullLogger();
 		$eventBus = new EventBus( $logger );
