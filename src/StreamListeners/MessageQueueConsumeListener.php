@@ -48,6 +48,7 @@ final class MessageQueueConsumeListener implements ListensForStreamActivity
 	public function handleStreamActivity( TransfersData $stream, TracksStreams $loop ) : void
 	{
 		$consumptionInfo = $this->consumptionPool->getConsumptionInfo( $stream->getStreamId() );
+
 		if ( !$consumptionInfo->canConsume() )
 		{
 			return;
