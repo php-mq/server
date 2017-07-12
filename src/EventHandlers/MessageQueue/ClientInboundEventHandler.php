@@ -7,7 +7,6 @@ namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\ConsumptionPool;
-use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
@@ -34,20 +33,15 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	/** @var CollectsServerMonitoringInfo */
 	private $serverMonitoringInfo;
 
-	/** @var MessageQueueConsumeListener */
-	private $messageQueueConsumeListener;
-
 	public function __construct(
 		StoresMessages $storage,
 		ConsumptionPool $consumptionPool,
-		CollectsServerMonitoringInfo $serverMonitoringInfo,
-		ListensForStreamActivity $messageQueueConsumeListener
+		CollectsServerMonitoringInfo $serverMonitoringInfo
 	)
 	{
-		$this->storage                     = $storage;
-		$this->consumptionPool             = $consumptionPool;
-		$this->serverMonitoringInfo        = $serverMonitoringInfo;
-		$this->messageQueueConsumeListener = $messageQueueConsumeListener;
+		$this->storage              = $storage;
+		$this->consumptionPool      = $consumptionPool;
+		$this->serverMonitoringInfo = $serverMonitoringInfo;
 	}
 
 	protected function getAcceptedEvents() : array
@@ -86,7 +80,15 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 		$this->consumptionPool->setConsumptionInfo( $stream->getStreamId(), $consumptionInfo );
 
 		$loop = $event->getLoop();
-		$loop->addWriteStream( $stream, $this->messageQueueConsumeListener );
+
+		$loop->addWriteStream(
+			$stream,
+			new MessageQueueConsumeListener(
+				$this->storage,
+				$this->consumptionPool,
+				$this->serverMonitoringInfo
+			)
+		);
 	}
 
 	private function cleanUpConsumptionInfo( TransfersData $stream ) : void
