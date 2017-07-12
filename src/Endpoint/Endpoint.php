@@ -6,6 +6,7 @@
 namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
+use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 use Psr\Log\LoggerInterface;
 
@@ -21,10 +22,10 @@ final class Endpoint
 	/** @var Loop */
 	private $loop;
 
-	public function __construct( LoggerInterface $logger )
+	public function __construct( LoggerInterface $logger, TracksStreams $loop )
 	{
 		$this->logger = $logger;
-		$this->loop   = new Loop();
+		$this->loop   = $loop;
 	}
 
 	public function addServer( EstablishesStream $server, ListensForStreamActivity $handler ) : void

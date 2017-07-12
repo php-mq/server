@@ -9,6 +9,7 @@ namespace PHPMQ\Server;
 use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Configs\ConfigBuilder;
 use PHPMQ\Server\Endpoint\Endpoint;
+use PHPMQ\Server\Endpoint\Loop;
 use PHPMQ\Server\EventHandlers\Maintenance;
 use PHPMQ\Server\EventHandlers\MessageQueue;
 use PHPMQ\Server\Loggers\CompositeLogger;
@@ -54,7 +55,7 @@ try
 	$messageQueueServerSocket = new ServerSocket( $configBuilder->getMessageQueueServerSocketAddress() );
 	$maintenanceServerSocket  = new ServerSocket( $configBuilder->getMaintenanceServerSocketAddress() );
 	$eventBus                 = new EventBus( $logger );
-	$endoint                  = new Endpoint( $logger );
+	$endoint                  = new Endpoint( $logger, new Loop() );
 
 	$consumptionPool = new ConsumptionPool();
 
