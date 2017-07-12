@@ -57,7 +57,7 @@ final class MessageQueueConsumeListenerTest extends TestCase
 
 		$this->enqueueMessages( $queueName, 2, $serverMonitoringInfo );
 
-		$listener = new MessageQueueConsumeListener( $this->messageQueue, $consumptionPool, $serverMonitoringInfo );
+		$listener = new MessageQueueConsumeListener( $this->storage, $consumptionPool, $serverMonitoringInfo );
 		$listener->setLogger( $logger );
 
 		$stream       = new Stream( $this->serverSocket );
@@ -141,7 +141,7 @@ final class MessageQueueConsumeListenerTest extends TestCase
 
 			$message = new Message( $this->getMessageId( "Unit-Test-ID-{$nr}" ), "Unit-Test-{$nr}" );
 
-			$this->messageQueue->enqueue( $queueName, $message );
+			$this->storage->enqueue( $queueName, $message );
 			$serverMonitoringInfo->addMessage( $queueName, $message );
 		}
 	}
@@ -156,7 +156,7 @@ final class MessageQueueConsumeListenerTest extends TestCase
 
 		$this->enqueueMessages( $queueName, 1, $serverMonitoringInfo );
 
-		$listener = new MessageQueueConsumeListener( $this->messageQueue, $consumptionPool, $serverMonitoringInfo );
+		$listener = new MessageQueueConsumeListener( $this->storage, $consumptionPool, $serverMonitoringInfo );
 		$listener->setLogger( $logger );
 
 		$stream       = new Stream( $this->serverSocket );

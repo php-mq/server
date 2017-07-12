@@ -269,16 +269,16 @@ final class ServerMonitoringInfoTest extends TestCase
 		$exampleMessage1 = new Message( $messageId1, 'Unit-Example-1' );
 		$exampleMessage2 = new Message( $messageId2, 'Unit-Example-2' );
 
-		$info = ServerMonitoringInfo::fromStorage( $this->messageQueue );
+		$info = ServerMonitoringInfo::fromStorage( $this->storage );
 		$this->assertSame( 0, $info->getQueueCount() );
 		$this->assertSame( 0, $info->getMaxQueueSize() );
 		$this->assertSame( 0, $info->getConnectedClientsCount() );
 
-		$this->messageQueue->enqueue( $testQueue, $testMessage );
-		$this->messageQueue->enqueue( $exampleQueue, $exampleMessage1 );
-		$this->messageQueue->enqueue( $exampleQueue, $exampleMessage2 );
+		$this->storage->enqueue( $testQueue, $testMessage );
+		$this->storage->enqueue( $exampleQueue, $exampleMessage1 );
+		$this->storage->enqueue( $exampleQueue, $exampleMessage2 );
 
-		$info = ServerMonitoringInfo::fromStorage( $this->messageQueue );
+		$info = ServerMonitoringInfo::fromStorage( $this->storage );
 		$this->assertSame( 2, $info->getQueueCount() );
 		$this->assertSame( 2, $info->getMaxQueueSize() );
 		$this->assertSame( 0, $info->getConnectedClientsCount() );

@@ -16,7 +16,7 @@ use PHPMQ\Server\Storage\SQLiteStorage;
 trait StorageMockingSQLite
 {
 	/** @var StoresMessages */
-	private $messageQueue;
+	private $storage;
 
 	public function setUpStorage() : void
 	{
@@ -28,13 +28,13 @@ trait StorageMockingSQLite
 			}
 		};
 
-		$this->messageQueue = new SQLiteStorage( $config );
-		$this->messageQueue->flushAllQueues();
+		$this->storage = new SQLiteStorage( $config );
+		$this->storage->flushAllQueues();
 	}
 
 	public function tearDownStorage() : void
 	{
-		$this->messageQueue->flushAllQueues();
-		$this->messageQueue = null;
+		$this->storage->flushAllQueues();
+		$this->storage = null;
 	}
 }

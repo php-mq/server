@@ -36,9 +36,9 @@ final class SQLiteStorageTest extends TestCase
 	{
 		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
-		$this->messageQueue->enqueue( $queueName, $message );
+		$this->storage->enqueue( $queueName, $message );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName ) );
 
 		$this->assertCount( 1, $messages );
 		$this->assertEquals( $message, $messages[0] );
@@ -54,11 +54,11 @@ final class SQLiteStorageTest extends TestCase
 		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
 
-		$this->messageQueue->enqueue( $queueName, $message );
+		$this->storage->enqueue( $queueName, $message );
 
-		$this->messageQueue->markAsDispached( $queueName, $message->getMessageId() );
+		$this->storage->markAsDispached( $queueName, $message->getMessageId() );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName ) );
 
 		$this->assertCount( 0, $messages );
 	}
@@ -68,13 +68,13 @@ final class SQLiteStorageTest extends TestCase
 		$queueName = $this->getQueueName( 'TestQueue' );
 		$message   = $this->getMessage( 'unit-test' );
 
-		$this->messageQueue->enqueue( $queueName, $message );
+		$this->storage->enqueue( $queueName, $message );
 
-		$this->messageQueue->markAsDispached( $queueName, $message->getMessageId() );
+		$this->storage->markAsDispached( $queueName, $message->getMessageId() );
 
-		$this->messageQueue->markAsUndispatched( $queueName, $message->getMessageId() );
+		$this->storage->markAsUndispatched( $queueName, $message->getMessageId() );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName ) );
 
 		$this->assertCount( 1, $messages );
 		$this->assertEquals( $message, $messages[0] );
@@ -86,23 +86,23 @@ final class SQLiteStorageTest extends TestCase
 		$message1  = $this->getMessage( 'unit-test' );
 		$message2  = $this->getMessage( 'test-unit' );
 
-		$this->messageQueue->enqueue( $queueName, $message1 );
-		$this->messageQueue->enqueue( $queueName, $message2 );
+		$this->storage->enqueue( $queueName, $message1 );
+		$this->storage->enqueue( $queueName, $message2 );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 2 ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName, 2 ) );
 
 		$this->assertCount( 2, $messages );
 
-		$this->messageQueue->dequeue( $queueName, $message1->getMessageId() );
+		$this->storage->dequeue( $queueName, $message1->getMessageId() );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName ) );
 
 		$this->assertCount( 1, $messages );
 		$this->assertEquals( $message2, $messages[0] );
 
-		$this->messageQueue->dequeue( $queueName, $message2->getMessageId() );
+		$this->storage->dequeue( $queueName, $message2->getMessageId() );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName ) );
 		$this->assertCount( 0, $messages );
 	}
 
@@ -113,9 +113,9 @@ final class SQLiteStorageTest extends TestCase
 		$message2  = $this->getMessage( 'test-unit' );
 		$message3  = $this->getMessage( 'last' );
 
-		$this->messageQueue->enqueue( $queueName, $message1 );
-		$this->messageQueue->enqueue( $queueName, $message2 );
-		$this->messageQueue->enqueue( $queueName, $message3 );
+		$this->storage->enqueue( $queueName, $message1 );
+		$this->storage->enqueue( $queueName, $message2 );
+		$this->storage->enqueue( $queueName, $message3 );
 
 		$expectedMessages = [
 			$message1,
@@ -125,12 +125,12 @@ final class SQLiteStorageTest extends TestCase
 
 		$this->assertEquals(
 			$message1,
-			$this->messageQueue->getUndispatched( $queueName )->current()
+			$this->storage->getUndispatched( $queueName )->current()
 		);
 
 		$this->assertEquals(
 			$expectedMessages,
-			iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) )
+			iterator_to_array( $this->storage->getUndispatched( $queueName, 3 ) )
 		);
 	}
 
@@ -141,17 +141,17 @@ final class SQLiteStorageTest extends TestCase
 		$message2  = $this->getMessage( 'test-unit' );
 		$message3  = $this->getMessage( 'last' );
 
-		$this->messageQueue->enqueue( $queueName, $message1 );
-		$this->messageQueue->enqueue( $queueName, $message2 );
-		$this->messageQueue->enqueue( $queueName, $message3 );
+		$this->storage->enqueue( $queueName, $message1 );
+		$this->storage->enqueue( $queueName, $message2 );
+		$this->storage->enqueue( $queueName, $message3 );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName, 3 ) );
 
 		$this->assertCount( 3, $messages );
 
-		$this->messageQueue->flushQueue( $queueName );
+		$this->storage->flushQueue( $queueName );
 
-		$messages = iterator_to_array( $this->messageQueue->getUndispatched( $queueName, 3 ) );
+		$messages = iterator_to_array( $this->storage->getUndispatched( $queueName, 3 ) );
 
 		$this->assertCount( 0, $messages );
 	}
@@ -164,24 +164,24 @@ final class SQLiteStorageTest extends TestCase
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
 
-		$this->messageQueue->enqueue( $queueName1, $message1 );
-		$this->messageQueue->enqueue( $queueName1, $message2 );
-		$this->messageQueue->enqueue( $queueName1, $message3 );
+		$this->storage->enqueue( $queueName1, $message1 );
+		$this->storage->enqueue( $queueName1, $message2 );
+		$this->storage->enqueue( $queueName1, $message3 );
 
-		$this->messageQueue->enqueue( $queueName2, $message1 );
-		$this->messageQueue->enqueue( $queueName2, $message2 );
-		$this->messageQueue->enqueue( $queueName2, $message3 );
+		$this->storage->enqueue( $queueName2, $message1 );
+		$this->storage->enqueue( $queueName2, $message2 );
+		$this->storage->enqueue( $queueName2, $message3 );
 
-		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
-		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+		$messages1 = iterator_to_array( $this->storage->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->storage->getUndispatched( $queueName2, 3 ) );
 
 		$this->assertCount( 3, $messages1 );
 		$this->assertCount( 3, $messages2 );
 
-		$this->messageQueue->flushAllQueues();
+		$this->storage->flushAllQueues();
 
-		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
-		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+		$messages1 = iterator_to_array( $this->storage->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->storage->getUndispatched( $queueName2, 3 ) );
 
 		$this->assertCount( 0, $messages1 );
 		$this->assertCount( 0, $messages2 );
@@ -195,32 +195,32 @@ final class SQLiteStorageTest extends TestCase
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
 
-		$this->messageQueue->enqueue( $queueName1, $message1 );
-		$this->messageQueue->enqueue( $queueName1, $message2 );
-		$this->messageQueue->enqueue( $queueName1, $message3 );
+		$this->storage->enqueue( $queueName1, $message1 );
+		$this->storage->enqueue( $queueName1, $message2 );
+		$this->storage->enqueue( $queueName1, $message3 );
 
-		$this->messageQueue->enqueue( $queueName2, $message1 );
-		$this->messageQueue->enqueue( $queueName2, $message2 );
-		$this->messageQueue->enqueue( $queueName2, $message3 );
+		$this->storage->enqueue( $queueName2, $message1 );
+		$this->storage->enqueue( $queueName2, $message2 );
+		$this->storage->enqueue( $queueName2, $message3 );
 
-		$this->messageQueue->markAsDispached( $queueName1, $message1->getMessageId() );
-		$this->messageQueue->markAsDispached( $queueName1, $message2->getMessageId() );
-		$this->messageQueue->markAsDispached( $queueName1, $message3->getMessageId() );
+		$this->storage->markAsDispached( $queueName1, $message1->getMessageId() );
+		$this->storage->markAsDispached( $queueName1, $message2->getMessageId() );
+		$this->storage->markAsDispached( $queueName1, $message3->getMessageId() );
 
-		$this->messageQueue->markAsDispached( $queueName2, $message1->getMessageId() );
-		$this->messageQueue->markAsDispached( $queueName2, $message2->getMessageId() );
-		$this->messageQueue->markAsDispached( $queueName2, $message3->getMessageId() );
+		$this->storage->markAsDispached( $queueName2, $message1->getMessageId() );
+		$this->storage->markAsDispached( $queueName2, $message2->getMessageId() );
+		$this->storage->markAsDispached( $queueName2, $message3->getMessageId() );
 
-		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
-		$messages2  = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+		$messages1 = iterator_to_array( $this->storage->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->storage->getUndispatched( $queueName2, 3 ) );
 
 		$this->assertCount( 0, $messages1 );
 		$this->assertCount( 0, $messages2 );
 
-		$this->messageQueue->resetAllDispatched();
+		$this->storage->resetAllDispatched();
 
-		$messages1 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName1, 3 ) );
-		$messages2 = iterator_to_array( $this->messageQueue->getUndispatched( $queueName2, 3 ) );
+		$messages1 = iterator_to_array( $this->storage->getUndispatched( $queueName1, 3 ) );
+		$messages2 = iterator_to_array( $this->storage->getUndispatched( $queueName2, 3 ) );
 
 		$this->assertCount( 3, $messages1 );
 		$this->assertCount( 3, $messages2 );
@@ -234,13 +234,13 @@ final class SQLiteStorageTest extends TestCase
 		$message2   = $this->getMessage( 'test-unit' );
 		$message3   = $this->getMessage( 'last' );
 
-		$this->messageQueue->enqueue( $queueName1, $message1 );
-		$this->messageQueue->enqueue( $queueName1, $message2 );
-		$this->messageQueue->enqueue( $queueName1, $message3 );
+		$this->storage->enqueue( $queueName1, $message1 );
+		$this->storage->enqueue( $queueName1, $message2 );
+		$this->storage->enqueue( $queueName1, $message3 );
 
-		$this->messageQueue->enqueue( $queueName2, $message1 );
-		$this->messageQueue->enqueue( $queueName2, $message2 );
-		$this->messageQueue->enqueue( $queueName2, $message3 );
+		$this->storage->enqueue( $queueName2, $message1 );
+		$this->storage->enqueue( $queueName2, $message2 );
+		$this->storage->enqueue( $queueName2, $message3 );
 
 		$expectedArray = [
 			'TestQueue1' => [
@@ -257,7 +257,7 @@ final class SQLiteStorageTest extends TestCase
 
 		$actualArray = [];
 
-		foreach ( $this->messageQueue->getAllUndispatchedGroupedByQueueName() as $queueName => $messages )
+		foreach ( $this->storage->getAllUndispatchedGroupedByQueueName() as $queueName => $messages )
 		{
 			$this->assertInstanceOf( IdentifiesQueue::class, $queueName );
 			$actualArray[ $queueName->toString() ] = iterator_to_array( $messages );
