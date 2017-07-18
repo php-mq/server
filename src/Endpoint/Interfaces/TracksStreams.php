@@ -26,4 +26,6 @@ interface TracksStreams
 	public function start() : void;
 
 	public function stop() : void;
+
+	public function shutdown() : void;
 }

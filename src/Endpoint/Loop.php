@@ -90,7 +90,7 @@ final class Loop implements TracksStreams
 	{
 		$this->registerSignalHandler();
 
-		$this->isRunning = (count( $this->readStreams ) > 0);
+		$this->isRunning = (count( $this->readStreams ) + count( $this->writeStreams ) > 0);
 
 		declare(ticks=1);
 
@@ -109,12 +109,11 @@ final class Loop implements TracksStreams
 		}
 	}
 
-	private function shutDownBySignal( int $signal ) : void
+	public function shutDownBySignal( int $signal ) : void
 	{
 		if ( in_array( $signal, [ SIGINT, SIGTERM, SIGKILL ], true ) )
 		{
 			$this->shutdown();
-			exit( 0 );
 		}
 	}
 
@@ -130,11 +129,7 @@ final class Loop implements TracksStreams
 
 		try
 		{
-			$active = $this->streamSelect(
-				$activeReadStreams,
-				$activeWriteStreams,
-				self::STREAM_SELECT_TIMEOUT_USEC
-			);
+			$active = $this->streamSelect( $activeReadStreams, $activeWriteStreams );
 		}
 		catch ( RuntimeException $e )
 		{
@@ -160,25 +155,24 @@ final class Loop implements TracksStreams
 	/**
 	 * @param array|resource[] $activeReadStreams
 	 * @param array|resource[] $activeWriteStreams
-	 * @param int|null         $timeout
 	 *
 	 * @throws \PHPMQ\Server\Exceptions\RuntimeException
 	 * @return int
 	 */
-	private function streamSelect( array &$activeReadStreams, array &$activeWriteStreams, ?int $timeout ) : int
+	private function streamSelect( array &$activeReadStreams, array &$activeWriteStreams ) : int
 	{
 		$readStreams  = $this->getRawStreams( $this->readStreams );
 		$writeStreams = $this->getRawStreams( $this->writeStreams );
 
+		usleep( self::STREAM_SELECT_TIMEOUT_USEC );
+
 		if ( count( $readStreams ) + count( $writeStreams ) === 0 )
 		{
-			$timeout && usleep( $timeout );
-
 			return 0;
 		}
 
 		$except = null;
-		$active = @stream_select( $readStreams, $writeStreams, $except, $timeout === null ? null : 0, $timeout );
+		$active = @stream_select( $readStreams, $writeStreams, $except, 0, self::STREAM_SELECT_TIMEOUT_USEC );
 
 		if ( false === $active )
 		{
