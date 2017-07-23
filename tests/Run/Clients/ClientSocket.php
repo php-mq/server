@@ -3,7 +3,7 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Clients;
+namespace PHPMQ\Server\Tests\Run\Clients;
 
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Exceptions\RuntimeException;
@@ -13,7 +13,7 @@ use PHPMQ\Server\Streams\Stream;
 
 /**
  * Class ServerSocket
- * @package PHPMQ\Server\Clients
+ * @package PHPMQ\Server\Tests\Run\Clients
  */
 final class ClientSocket implements EstablishesStream
 {

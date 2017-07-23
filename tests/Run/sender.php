@@ -3,15 +3,15 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server;
+namespace PHPMQ\Server\Tests\Run;
 
-use PHPMQ\Server\Clients\ClientSocket;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
+use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
 use PHPMQ\Server\Types\QueueName;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 $sender = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
 

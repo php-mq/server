@@ -3,9 +3,8 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server;
+namespace PHPMQ\Server\Tests\Run;
 
-use PHPMQ\Server\Clients\ClientSocket;
 use PHPMQ\Server\Protocol\Constants\PacketLength;
 use PHPMQ\Server\Protocol\Headers\MessageHeader;
 use PHPMQ\Server\Protocol\Headers\PacketHeader;
@@ -15,9 +14,10 @@ use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
+use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
 use PHPMQ\Server\Types\QueueName;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 $consumer       = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
 $consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 5 );
