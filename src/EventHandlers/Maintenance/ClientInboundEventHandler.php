@@ -152,6 +152,14 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	{
 		$stream = $event->getStream();
 
+		$this->logger->debug(
+			sprintf(
+				'Maintenance client %s sent unknown command "%s"',
+				$event->getUnknownCommandString(),
+				$stream->getStreamId()
+			)
+		);
+
 		$helpFile = $this->getHelpFile( '' );
 		$this->cliWriter->clearScreen( 'HELP' )
 						->writeLn( '<bg:red>ERROR:<:bg> Unknown command "%s"', $event->getUnknownCommandString() )
