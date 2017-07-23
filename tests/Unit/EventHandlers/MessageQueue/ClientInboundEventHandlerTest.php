@@ -87,6 +87,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertSame( 1, $serverMonitoringInfo->getQueueCount() );
 		$this->assertSame( 1, $serverMonitoringInfo->getQueueInfo( $queueName )->getMessageCount() );
 		$this->assertCount( 1, iterator_to_array( $this->storage->getUndispatched( $queueName, 5 ) ) );
+		$this->assertSame( $this->clientStream, $event->getStream() );
+		$this->assertSame( $loop, $event->getLoop() );
 	}
 
 	public function testCanHandleClientSentConsumeRequest() : void
@@ -98,8 +100,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$consumeRequest       = new ConsumeRequest( $queueName, 5 );
 
 		$loop = $this->getMockBuilder( TracksStreams::class )
-		             ->setMethods( [ 'addWriteStream' ] )
-		             ->getMockForAbstractClass();
+					 ->setMethods( ['addWriteStream'] )
+					 ->getMockForAbstractClass();
 		$loop->expects( $this->once() )->method( 'addWriteStream' );
 
 		/** @var TracksStreams $loop */
@@ -146,8 +148,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$consumeRequest = new ConsumeRequest( $queueName, 5 );
 
 		$loop = $this->getMockBuilder( TracksStreams::class )
-		             ->setMethods( [ 'addWriteStream' ] )
-		             ->getMockForAbstractClass();
+					 ->setMethods( ['addWriteStream'] )
+					 ->getMockForAbstractClass();
 		$loop->expects( $this->once() )->method( 'addWriteStream' );
 
 		/** @var TracksStreams $loop */
@@ -228,5 +230,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertCount( 0, $consumptionInfo->getMessageIds() );
 		$this->assertSame( 0, $serverMonitoringInfo->getQueueCount() );
 		$this->assertCount( 0, iterator_to_array( $this->storage->getUndispatched( $queueName ) ) );
+
+		$this->assertSame( $this->clientStream, $event->getStream() );
+		$this->assertSame( $loop, $event->getLoop() );
 	}
 }

@@ -213,12 +213,10 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$loop = $this->getMockBuilder( TracksStreams::class )->getMockForAbstractClass();
 		$loop->expects( $this->once() )->method( 'addWriteStream' )->with( $this->clientStream );
 
+		$command = new StartMonitorCommand();
+
 		/** @var TracksStreams $loop */
-		$event                = new ClientRequestedOverviewMonitor(
-			$this->clientStream,
-			$loop,
-			new StartMonitorCommand()
-		);
+		$event                = new ClientRequestedOverviewMonitor( $this->clientStream, $loop, $command );
 		$cliWriter            = new CliWriter();
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
@@ -229,6 +227,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertTrue( $handler->acceptsEvent( $event ) );
 
 		$handler->notify( $event );
+
+		$this->assertSame( $command, $event->getStartMonitorCommand() );
 	}
 
 	public function testCanHandleClientRequestedQueueMonitor() : void
@@ -261,12 +261,10 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$loop = $this->getMockBuilder( TracksStreams::class )->getMockForAbstractClass();
 		$loop->expects( $this->once() )->method( 'removeWriteStream' )->with( $this->clientStream );
 
+		$command = new QuitRefreshCommand();
+
 		/** @var TracksStreams $loop */
-		$event                = new ClientRequestedQuittingRefresh(
-			$this->clientStream,
-			$loop,
-			new QuitRefreshCommand()
-		);
+		$event                = new ClientRequestedQuittingRefresh( $this->clientStream, $loop, $command );
 		$cliWriter            = new CliWriter();
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
@@ -277,6 +275,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertTrue( $handler->acceptsEvent( $event ) );
 
 		$handler->notify( $event );
+
+		$this->assertSame( $command, $event->getQuitRefreshCommand() );
 	}
 
 	public function testCanHandleClientRequestedFlushingQueue() : void
@@ -330,6 +330,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertTrue( $handler->acceptsEvent( $event ) );
 
 		$handler->notify( $event );
+
+		$this->assertSame( $command, $event->getFlushAllQueuesCommand() );
 	}
 
 	public function testCanHandleClientRequestedClearScreen() : void
@@ -356,6 +358,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$expectedOutput = $cliWriter->clearScreen( 'Welcome!' )->getInteractiveOutput();
 
 		$this->assertEquals( $expectedOutput, $response );
+		$this->assertSame( $command, $event->getClearScreenCommand() );
 	}
 
 	/**
