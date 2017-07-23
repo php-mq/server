@@ -31,6 +31,11 @@ final class OverviewPrinterTest extends TestCase
 		$output = $printer->getOutput( $serverMonitoringInfo );
 
 		$this->assertRegExp(
+			'#OVERVIEW\-MONITOR#',
+			$output
+		);
+
+		$this->assertRegExp(
 			'#Queues total\:.+    0 .+#',
 			$output
 		);
