@@ -55,7 +55,7 @@ try
 	$messageQueueServerSocket = new ServerSocket( $configBuilder->getMessageQueueServerSocketAddress() );
 	$maintenanceServerSocket  = new ServerSocket( $configBuilder->getMaintenanceServerSocketAddress() );
 	$eventBus                 = new EventBus( $logger );
-	$endoint                  = new Endpoint( $logger, new Loop() );
+	$endpoint                 = new Endpoint( $logger, new Loop() );
 
 	$consumptionPool = new ConsumptionPool();
 
@@ -66,20 +66,20 @@ try
 		new Maintenance\ClientInboundEventHandler( $storage, $cliWriter, $serverMonitoringInfo )
 	);
 
-	$endoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );
-	$endoint->addServer( $maintenanceServerSocket, new MaintenanceServerListener( $eventBus ) );
+	$endpoint->addServer( $messageQueueServerSocket, new MessageQueueServerListener( $eventBus ) );
+	$endpoint->addServer( $maintenanceServerSocket, new MaintenanceServerListener( $eventBus ) );
 
-	$endoint->run();
+	$endpoint->run();
 
 	exit( 0 );
 }
 catch ( \Throwable $e )
 {
 	$cliWriter->clearScreen( 'FAILURE' )
-	          ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
-	          ->writeLn( 'Exception: ' . get_class( $e ) )
-	          ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
-	          ->writeLn( $e->getTraceAsString() );
+			  ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
+			  ->writeLn( 'Exception: ' . get_class( $e ) )
+			  ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
+			  ->writeLn( $e->getTraceAsString() );
 
 	fwrite( STDERR, $cliWriter->getOutput() );
 
