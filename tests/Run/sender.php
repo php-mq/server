@@ -15,7 +15,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 $sender = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
 
-$fileContent = file_get_contents( __DIR__ . '/../tests/Unit/Fixtures/test.jpg' );
+$fileContent = file_get_contents( __DIR__ . '/../Unit/Fixtures/test.jpg' );
 
 $message1 = new MessageC2E( new QueueName( $argv[1] ), $fileContent );
 $message2 = new MessageC2E( new QueueName( $argv[1] ), 'This is a second test' );
