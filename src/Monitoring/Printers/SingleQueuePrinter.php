@@ -87,10 +87,10 @@ final class SingleQueuePrinter extends AbstractPrinter
 		foreach ( $queueInfo->getMessageInfos() as $messageInfo )
 		{
 			$alternate ^= true;
-
-			$line = sprintf(
+			$rowNumber = ++$index;
+			$line      = sprintf(
 				'%5d  %s  %s  %8s  %s',
-				++$index,
+				$rowNumber,
 				(string)$messageInfo['messageId'],
 				(bool)$messageInfo['dispatched'] ? '→' : '•',
 				$this->byteFormatter->format( (int)$messageInfo['size'], 0 ),
