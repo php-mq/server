@@ -8,10 +8,10 @@ namespace PHPMQ\Server\Configs;
 use PHPMQ\Server\Constants\LoggerType;
 use PHPMQ\Server\Constants\ServerType;
 use PHPMQ\Server\Constants\StorageType;
-use PHPMQ\Server\Endpoint\Types\UnixDomainSocket;
 use PHPMQ\Server\Loggers\Interfaces\ConfiguresLogFileLogger;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
+use PHPMQ\Server\Servers\Types\UnixDomainSocket;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresRedisStorage;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
 

@@ -3,7 +3,7 @@
  * @author hollodotme
  */
 
-namespace PHPMQ\Server\Endpoint\Types;
+namespace PHPMQ\Server\Servers\Types;
 
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 
