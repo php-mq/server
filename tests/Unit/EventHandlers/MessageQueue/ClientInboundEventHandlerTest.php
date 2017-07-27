@@ -13,11 +13,19 @@ use PHPMQ\Server\EventHandlers\MessageQueue\ClientInboundEventHandler;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
+use PHPMQ\Server\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
+use PHPMQ\Server\Protocol\Constants\PacketLength;
+use PHPMQ\Server\Protocol\Headers\MessageHeader;
+use PHPMQ\Server\Protocol\Headers\PacketHeader;
 use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Server\Protocol\Messages\MessageReceipt;
+use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
@@ -87,8 +95,30 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$this->assertSame( 1, $serverMonitoringInfo->getQueueCount() );
 		$this->assertSame( 1, $serverMonitoringInfo->getQueueInfo( $queueName )->getMessageCount() );
 		$this->assertCount( 1, iterator_to_array( $this->storage->getUndispatched( $queueName, 5 ) ) );
-		$this->assertSame( $this->clientStream, $event->getStream() );
 		$this->assertSame( $loop, $event->getLoop() );
+
+		$read          = $this->remoteStream->read( PacketLength::MESSAGE_HEADER );
+		$messageHeader = MessageHeader::fromString( $read );
+		$packets       = [];
+
+		for ( $i = 0; $i < $messageHeader->getMessageType()->getPacketCount(); $i++ )
+		{
+			$bytes = $this->remoteStream->readChunked( PacketLength::PACKET_HEADER, ChunkSize::READ );
+
+			$packetHeader = PacketHeader::fromString( $bytes );
+
+			$bytes = $this->remoteStream->readChunked( $packetHeader->getContentLength(), ChunkSize::READ );
+
+			$packets[ $packetHeader->getPacketType() ] = $bytes;
+		}
+
+		/** @var MessageReceipt $receipt */
+		$receipt = (new MessageBuilder())->buildMessage( $messageHeader, $packets );
+
+		$this->assertInstanceOf( MessageReceipt::class, $receipt );
+		$this->assertSame( MessageType::MESSAGE_RECEIPT, $receipt->getMessageType()->getType() );
+		$this->assertSame( $queueName->toString(), $receipt->getQueueName()->toString() );
+		$this->assertInstanceOf( IdentifiesMessage::class, $receipt->getMessageId() );
 	}
 
 	public function testCanHandleClientSentConsumeRequest() : void

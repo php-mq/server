@@ -64,6 +64,15 @@ final class MessageBuilder implements BuildsMessages
 				break;
 			}
 
+			case MessageType::MESSAGE_RECEIPT:
+			{
+				return new MessageReceipt(
+					new QueueName( (string)$packets[ PacketType::QUEUE_NAME ] ),
+					new MessageId( (string)$packets[ PacketType::MESSAGE_ID ] )
+				);
+				break;
+			}
+
 			default:
 			{
 				throw new MessageTypeNotImplementedException(
