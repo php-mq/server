@@ -14,6 +14,7 @@ use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Protocol\Messages\MessageBuilder;
 use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Server\Protocol\Messages\MessageReceipt;
 use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\Types\MessageId;
 use PHPUnit\Framework\TestCase;
@@ -119,7 +120,7 @@ final class MessageBuilderTest extends TestCase
 			PacketType::MESSAGE_ID => $messageId->toString(),
 		];
 
-		/** @var MessageE2C $message */
+		/** @var Acknowledgement $message */
 		$message = $builder->buildMessage( $messageHeader, $packets );
 
 		$this->assertInstanceOf( CarriesMessageData::class, $message );
@@ -128,6 +129,33 @@ final class MessageBuilderTest extends TestCase
 		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
 		$this->assertSame( $messageId->toString(), $message->getMessageId()->toString() );
 		$this->assertSame( MessageType::ACKNOWLEDGEMENT, $message->getMessageType()->getType() );
+	}
+
+	public function testCanBuildMessageReceipt() : void
+	{
+		$builder = new MessageBuilder();
+
+		$messageHeader = new MessageHeader(
+			ProtocolVersion::VERSION_1,
+			new MessageType( MessageType::MESSAGE_RECEIPT )
+		);
+
+		$messageId = MessageId::generate();
+
+		$packets = [
+			PacketType::QUEUE_NAME => 'Test-Queue',
+			PacketType::MESSAGE_ID => $messageId->toString(),
+		];
+
+		/** @var MessageReceipt $message */
+		$message = $builder->buildMessage( $messageHeader, $packets );
+
+		$this->assertInstanceOf( CarriesMessageData::class, $message );
+		$this->assertInstanceOf( MessageReceipt::class, $message );
+
+		$this->assertSame( 'Test-Queue', $message->getQueueName()->toString() );
+		$this->assertSame( $messageId->toString(), $message->getMessageId()->toString() );
+		$this->assertSame( MessageType::MESSAGE_RECEIPT, $message->getMessageType()->getType() );
 	}
 
 	/**
