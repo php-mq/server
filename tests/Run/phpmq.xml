@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PHPMQ>
+    <servers>
+        <messagequeue>
+            <network>
+                <config name="host" value="192.168.3.13"/>
+                <config name="port" value="9100"/>
+            </network>
+        </messagequeue>
+        <maintenance>
+            <network>
+                <config name="host" value="192.168.3.13"/>
+                <config name="port" value="9101"/>
+            </network>
+        </maintenance>
+    </servers>
+    <storage>
+        <sqlite>
+            <config name="storagePath" value=":memory:"/>
+        </sqlite>
+    </storage>
+    <logging>
+        <logfile>
+            <config name="logFilePath" value="../../build/logs/phpmq.log" loglevel="debug"/>
+        </logfile>
+        <output/>
+    </logging>
+</PHPMQ>
