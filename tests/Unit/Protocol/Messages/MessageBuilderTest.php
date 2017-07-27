@@ -16,7 +16,7 @@ use PHPMQ\Server\Protocol\Messages\MessageC2E;
 use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Protocol\Messages\MessageReceipt;
 use PHPMQ\Server\Protocol\Types\MessageType;
-use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -25,6 +25,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class MessageBuilderTest extends TestCase
 {
+	use MessageIdentifierMocking;
+
 	public function testCanBuildMessageC2E() : void
 	{
 		$builder = new MessageBuilder();
@@ -84,7 +86,7 @@ final class MessageBuilderTest extends TestCase
 			new MessageType( MessageType::MESSAGE_E2C )
 		);
 
-		$messageId = MessageId::generate();
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
 
 		$packets = [
 			PacketType::QUEUE_NAME      => 'Test-Queue',
@@ -113,7 +115,7 @@ final class MessageBuilderTest extends TestCase
 			new MessageType( MessageType::ACKNOWLEDGEMENT )
 		);
 
-		$messageId = MessageId::generate();
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
 
 		$packets = [
 			PacketType::QUEUE_NAME => 'Test-Queue',
@@ -140,7 +142,7 @@ final class MessageBuilderTest extends TestCase
 			new MessageType( MessageType::MESSAGE_RECEIPT )
 		);
 
-		$messageId = MessageId::generate();
+		$messageId = $this->getMessageId( 'Unit-Test-ID' );
 
 		$packets = [
 			PacketType::QUEUE_NAME => 'Test-Queue',
