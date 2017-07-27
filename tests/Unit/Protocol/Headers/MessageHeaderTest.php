@@ -59,6 +59,11 @@ final class MessageHeaderTest extends TestCase
 				'messageType'    => new MessageType( MessageType::ACKNOWLEDGEMENT ),
 				'expectedPacket' => 'H0100402',
 			],
+			[
+				'version'        => ProtocolVersion::VERSION_1,
+				'messageType'    => new MessageType( MessageType::MESSAGE_RECEIPT ),
+				'expectedPacket' => 'H0100502',
+			],
 		];
 	}
 
@@ -105,6 +110,11 @@ final class MessageHeaderTest extends TestCase
 				'string'              => 'H0100402',
 				'expectedVersion'     => ProtocolVersion::VERSION_1,
 				'expetcedMessageType' => new MessageType( MessageType::ACKNOWLEDGEMENT ),
+			],
+			[
+				'string'              => 'H0100502',
+				'expectedVersion'     => ProtocolVersion::VERSION_1,
+				'expetcedMessageType' => new MessageType( MessageType::MESSAGE_RECEIPT ),
 			],
 		];
 	}

@@ -24,10 +24,11 @@ So a header always has a length of 8 byte.
  
 ## Message types
 
-* `001` - Client sends a message
-* `002` - Client wants to consume messages
-* `003` - Endpoint dispatches a message
-* `004` - Client acknowledges a message
+* `001` - Client sends a message (client to endpoint)
+* `002` - Client wants to consume messages (consume request)
+* `003` - Endpoint dispatches a message (endpoint to client)
+* `004` - Client acknowledges a message (acknowledgement)
+* `005` - Endpoint acknowledges message receipt (receipt)
 
 ## Packet headers
 
@@ -86,6 +87,11 @@ So a package header always has a length of 32 byte.
 * `01` - Queue name
 * `03` - Message ID
 
+### For message receipt
+
+* `01` - Queue name
+* `03` - Message ID
+
 ---
 
 ## Full message examples
@@ -134,6 +140,19 @@ Client acknowledges the consumed message with ID `d7e7f68761d34838494b233148b548
 
 ```
 H0100402
+P0100000000000000000000000000003
+Foo
+P0300000000000000000000000000032
+d7e7f68761d34838494b233148b5486c
+```
+
+
+### Message receipt
+
+Endpoint acknowledges message receipt for message with ID `d7e7f68761d34838494b233148b5486c`.
+
+```
+H0100502
 P0100000000000000000000000000003
 Foo
 P0300000000000000000000000000032
