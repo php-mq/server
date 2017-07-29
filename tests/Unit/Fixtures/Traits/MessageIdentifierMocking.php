@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
 use PHPMQ\Server\Traits\StringRepresenting;
 
 /**
@@ -28,9 +28,9 @@ trait MessageIdentifierMocking
 				$this->messageId = $messageId;
 			}
 
-			public static function generate() : IdentifiesMessage
+			public function equals( IdentifiesMessage $other ) : bool
 			{
-				return new static( bin2hex( random_bytes( 16 ) ) );
+				return ($other->toString() === $this->toString());
 			}
 
 			public function toString() : string

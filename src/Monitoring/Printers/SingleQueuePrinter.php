@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Monitoring\Printers;
 
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 use PHPMQ\Server\Monitoring\Formatters\ByteFormatter;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;

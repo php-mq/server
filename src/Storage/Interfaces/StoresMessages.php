@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Storage\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 
 /**
  * Interface StoresMessages

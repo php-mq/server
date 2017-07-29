@@ -5,8 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Run;
 
-use PHPMQ\Server\Protocol\Messages\MessageBuilder;
-use PHPMQ\Server\Protocol\Messages\MessageC2E;
+use PHPMQ\Protocol\Messages\MessageClientToServer;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
 use PHPMQ\Server\Tests\Run\Clients\Sender;
@@ -18,21 +17,20 @@ $sender = new Sender(
 	(new ClientSocket(
 		new NetworkSocket( '127.0.0.1', 9100 )
 	)
-	)->getStream(),
-	new MessageBuilder()
+	)->getStream()
 );
 
 $fileContent = file_get_contents( __DIR__ . '/../Unit/Fixtures/test.jpg' );
 
-$message1 = new MessageC2E( new QueueName( $argv[1] ), $fileContent );
-$message2 = new MessageC2E( new QueueName( $argv[1] ), 'This is a second test' );
+$message1 = new MessageClientToServer( new QueueName( $argv[1] ), $fileContent );
+$message2 = new MessageClientToServer( new QueueName( $argv[1] ), 'This is a second test' );
 
-$messageId1 = $sender->writeMessage( $message1 );
+$sender->writeMessage( $message1 );
 
-echo "√ Sent message 'This is a first test', got message ID: {$messageId1}\n";
+echo "√ Sent message 'This is a first test'\n";
 
-$messageId2 = $sender->writeMessage( $message2 );
+$sender->writeMessage( $message2 );
 
-echo "√ Sent message 'This is a second test', got message ID {$messageId2}\n";
+echo "√ Sent message 'This is a second test'\n";
 
 $sender->disconnect();

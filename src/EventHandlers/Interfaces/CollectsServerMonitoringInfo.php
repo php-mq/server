@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\EventHandlers\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;

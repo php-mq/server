@@ -129,7 +129,7 @@ final class Stream implements TransfersData
 			return null;
 		}
 
-		return new Stream( $connection );
+		return new self( $connection );
 	}
 
 	public function hasUnreadBytes() : bool

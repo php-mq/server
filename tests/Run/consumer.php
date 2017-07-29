@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\Tests\Run;
 
-use PHPMQ\Server\Protocol\Constants\PacketLength;
-use PHPMQ\Server\Protocol\Headers\MessageHeader;
-use PHPMQ\Server\Protocol\Headers\PacketHeader;
-use PHPMQ\Server\Protocol\Messages\Acknowledgement;
-use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Protocol\Messages\MessageBuilder;
-use PHPMQ\Server\Protocol\Messages\MessageE2C;
+use PHPMQ\Protocol\Constants\PacketLength;
+use PHPMQ\Protocol\Messages\Acknowledgement;
+use PHPMQ\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Protocol\Messages\MessageServerToClient;
+use PHPMQ\Protocol\Types\MessageHeader;
+use PHPMQ\Protocol\Types\PacketHeader;
+use PHPMQ\Server\Builders\MessageBuilder;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
@@ -67,7 +67,7 @@ while ( true )
 			$packets[ $packetHeader->getPacketType() ] = $buffer;
 		}
 
-		/** @var MessageE2C $message */
+		/** @var MessageServerToClient $message */
 		$message = $messageBuilder->buildMessage( $messageHeader, $packets );
 
 		echo sprintf(

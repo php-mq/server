@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Protocol\Messages\MessageServerToClient;
 use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
-use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Streams\Exceptions\WriteTimedOutException;
@@ -73,19 +73,19 @@ final class MessageQueueConsumeListener implements ListensForStreamActivity
 
 		foreach ( $messages as $message )
 		{
-			$messageE2C = new MessageE2C(
+			$messageServerToClient = new MessageServerToClient(
 				$message->getMessageId(),
 				$consumptionInfo->getQueueName(),
 				$message->getContent()
 			);
 
-			$this->sendMessageToConsumer( $messageE2C, $stream );
+			$this->sendMessageToConsumer( $messageServerToClient, $stream );
 
-			$consumptionInfo->addMessageId( $messageE2C->getMessageId() );
+			$consumptionInfo->addMessageId( $messageServerToClient->getMessageId() );
 		}
 	}
 
-	private function sendMessageToConsumer( MessageE2C $message, TransfersData $stream ) : void
+	private function sendMessageToConsumer( MessageServerToClient $message, TransfersData $stream ) : void
 	{
 		$stream->writeChunked( $message->toString(), ChunkSize::WRITE );
 

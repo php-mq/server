@@ -13,7 +13,14 @@
 	"require": {
 		"php": ">=7.1",
 		"psr/log": "^1.0.2",
+		"php-mq/protocol": "dev-master",
 		"roave/security-advisories": "dev-master"
+	},
+	"repositories": {
+		"php-mq/protocol": {
+			"type": "vcs",
+			"url": "https://github.com/php-mq/protocol.git"
+		}
 	},
 	"autoload": {
 		"psr-4": {

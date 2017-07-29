@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Storage;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Exceptions\StorageException;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;

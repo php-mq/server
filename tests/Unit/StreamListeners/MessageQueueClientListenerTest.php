@@ -5,21 +5,21 @@
 
 namespace PHPMQ\Server\Tests\Unit\StreamListeners;
 
+use PHPMQ\Protocol\Interfaces\BuildsMessages;
+use PHPMQ\Protocol\Interfaces\DefinesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessageType;
+use PHPMQ\Protocol\Interfaces\ProvidesMessageData;
+use PHPMQ\Protocol\Messages\Acknowledgement;
+use PHPMQ\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Protocol\Messages\MessageClientToServer;
+use PHPMQ\Protocol\Types\MessageType;
+use PHPMQ\Server\Builders\MessageBuilder;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\EventBus;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
-use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
-use PHPMQ\Server\Protocol\Headers\MessageHeader;
-use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
-use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
-use PHPMQ\Server\Protocol\Interfaces\IdentifiesMessageType;
-use PHPMQ\Server\Protocol\Messages\Acknowledgement;
-use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Protocol\Messages\MessageBuilder;
-use PHPMQ\Server\Protocol\Messages\MessageC2E;
-use PHPMQ\Server\Protocol\Types\MessageType;
+use PHPMQ\Server\Events\MessageQueue\ClientSentMessage;
 use PHPMQ\Server\StreamListeners\MessageQueueClientListener;
 use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\EventHandlerMocking;
@@ -52,12 +52,12 @@ final class MessageQueueClientListenerTest extends TestCase
 	}
 
 	/**
-	 * @param CarriesMessageData $message
-	 * @param string             $expectedEventClass
+	 * @param ProvidesMessageData $message
+	 * @param string              $expectedEventClass
 	 *
 	 * @dataProvider messageEventClassProvider
 	 */
-	public function testCanGetMessageEventPublished( CarriesMessageData $message, string $expectedEventClass ) : void
+	public function testCanGetMessageEventPublished( ProvidesMessageData $message, string $expectedEventClass ) : void
 	{
 		$logger   = new NullLogger();
 		$eventBus = new EventBus( $logger );
@@ -87,8 +87,8 @@ final class MessageQueueClientListenerTest extends TestCase
 	{
 		return [
 			[
-				'message'            => new MessageC2E( $this->getQueueName( 'Test-Queue' ), 'Unit-Test' ),
-				'expectedEventClass' => ClientSentMessageC2E::class,
+				'message'            => new MessageClientToServer( $this->getQueueName( 'Test-Queue' ), 'Unit-Test' ),
+				'expectedEventClass' => ClientSentMessage::class,
 			],
 			[
 				'message'            => new ConsumeRequest( $this->getQueueName( 'Test-Queue' ), 5 ),
@@ -139,9 +139,9 @@ final class MessageQueueClientListenerTest extends TestCase
 
 		$messageBuilder = new class implements BuildsMessages
 		{
-			public function buildMessage( MessageHeader $messageHeader, array $packets ) : CarriesMessageData
+			public function buildMessage( DefinesMessage $messageHeader, array $packets ) : ProvidesMessageData
 			{
-				return new class implements CarriesMessageData
+				return new class implements ProvidesMessageData
 				{
 					use StringRepresenting;
 
@@ -167,7 +167,7 @@ final class MessageQueueClientListenerTest extends TestCase
 
 		$loop = $this->getMockBuilder( TracksStreams::class )->getMockForAbstractClass();
 
-		$message = new MessageC2E( $this->getQueueName( 'Test-Queue' ), 'Unit-Test' );
+		$message = new MessageClientToServer( $this->getQueueName( 'Test-Queue' ), 'Unit-Test' );
 		$remoteStream->write( $message->toString() );
 
 		/** @var TracksStreams $loop */

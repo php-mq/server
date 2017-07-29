@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Storage\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
 
 /**
  * Interface ProvidesMessageData

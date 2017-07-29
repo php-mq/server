@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Traits\StringRepresenting;
 
 /**

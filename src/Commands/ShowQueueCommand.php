@@ -5,9 +5,9 @@
 
 namespace PHPMQ\Server\Commands;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Clients\Interfaces\TriggersExecution;
 use PHPMQ\Server\Commands\Constants\Command;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 
 /**
  * Class ShowQueueCommand

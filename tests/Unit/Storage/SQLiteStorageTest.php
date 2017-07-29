@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Tests\Unit\Storage;
 
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;

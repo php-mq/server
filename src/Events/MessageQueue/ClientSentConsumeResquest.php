@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
+use PHPMQ\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
 
 /**
  * Class ClientSentConsumeResquest

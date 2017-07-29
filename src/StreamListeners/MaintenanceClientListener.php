@@ -130,7 +130,7 @@ final class MaintenanceClientListener implements ListensForStreamActivity
 				return new ClientRequestedQuittingRefresh( $stream, $loop, $command );
 
 			case Command::QUIT:
-				throw new ClientDisconnectedException();
+				throw new ClientDisconnectedException( 'Client disconnected.' );
 
 			default:
 			case Command::HELP:

@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Types;
 
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Traits\StringRepresenting;
 
 /**

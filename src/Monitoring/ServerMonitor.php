@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Monitoring;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 use PHPMQ\Server\Monitoring\Interfaces\CreatesMonitoringOutput;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;

@@ -5,13 +5,13 @@
 
 namespace PHPMQ\Server\Tests\Unit\StreamListeners;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Messages\MessageServerToClient;
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
-use PHPMQ\Server\Protocol\Messages\MessageE2C;
 use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
 use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
@@ -78,7 +78,7 @@ final class MessageQueueConsumeListenerTest extends TestCase
 		/** @var TracksStreams $loop */
 		$listener->handleStreamActivity( $clientStream, $loop );
 
-		$expectedMessage = new MessageE2C(
+		$expectedMessage = new MessageServerToClient(
 			$this->getMessageId( 'Unit-Test-ID-1' ),
 			$this->getQueueName( 'Test-Queue' ),
 			'Unit-Test-1'
@@ -95,7 +95,7 @@ final class MessageQueueConsumeListenerTest extends TestCase
 		/** @var TracksStreams $loop */
 		$listener->handleStreamActivity( $clientStream, $loop );
 
-		$expectedMessage = new MessageE2C(
+		$expectedMessage = new MessageServerToClient(
 			$this->getMessageId( 'Unit-Test-ID-2' ),
 			$this->getQueueName( 'Test-Queue' ),
 			'Unit-Test-2'
@@ -169,8 +169,8 @@ final class MessageQueueConsumeListenerTest extends TestCase
 		);
 
 		$loop = $this->getMockBuilder( TracksStreams::class )
-		             ->setMethods( [ 'removeWriteStream' ] )
-		             ->getMockForAbstractClass();
+			->setMethods( [ 'removeWriteStream' ] )
+			->getMockForAbstractClass();
 		$loop->expects( $this->once() )->method( 'removeWriteStream' );
 
 		$clientStream->shutDown();

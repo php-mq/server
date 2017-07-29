@@ -5,7 +5,7 @@
 
 namespace PHPMQ\Server\Monitoring\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
 
 /**

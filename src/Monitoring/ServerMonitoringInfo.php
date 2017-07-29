@@ -5,9 +5,9 @@
 
 namespace PHPMQ\Server\Monitoring;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;

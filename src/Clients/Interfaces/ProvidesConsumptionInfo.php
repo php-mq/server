@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Clients\Interfaces;
 
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Interfaces\RepresentsString;
 
 /**

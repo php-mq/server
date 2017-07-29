@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\Clients;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Exceptions\LogicException;
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Traits\StringRepresenting;
 
 /**

@@ -12,8 +12,7 @@ use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
-use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
-use PHPMQ\Server\Protocol\Messages\MessageReceipt;
+use PHPMQ\Server\Events\MessageQueue\ClientSentMessage;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
 use PHPMQ\Server\Types\Message;
@@ -48,24 +47,20 @@ final class ClientInboundEventHandler extends AbstractEventHandler
 	protected function getAcceptedEvents() : array
 	{
 		return [
-			ClientSentMessageC2E::class,
+			ClientSentMessage::class,
 			ClientSentConsumeResquest::class,
 			ClientSentAcknowledgement::class,
 		];
 	}
 
-	protected function whenClientSentMessageC2E( ClientSentMessageC2E $event ) : void
+	protected function whenClientSentMessage( ClientSentMessage $event ) : void
 	{
-		$messageC2E   = $event->getMessageC2E();
-		$stream       = $event->getStream();
-		$storeMessage = new Message( MessageId::generate(), $messageC2E->getContent() );
+		$messageClientToServer = $event->getMessageClientToServer();
+		$storeMessage          = new Message( MessageId::generate(), $messageClientToServer->getContent() );
 
-		$this->storage->enqueue( $messageC2E->getQueueName(), $storeMessage );
+		$this->storage->enqueue( $messageClientToServer->getQueueName(), $storeMessage );
 
-		$receipt = new MessageReceipt( $messageC2E->getQueueName(), $storeMessage->getMessageId() );
-		$stream->write( $receipt->toString() );
-
-		$this->serverMonitoringInfo->addMessage( $messageC2E->getQueueName(), $storeMessage );
+		$this->serverMonitoringInfo->addMessage( $messageClientToServer->getQueueName(), $storeMessage );
 
 		$this->logger->debug( sprintf( '<fg:green>√ Queued message with ID %s<:fg>', $storeMessage->getMessageId() ) );
 	}

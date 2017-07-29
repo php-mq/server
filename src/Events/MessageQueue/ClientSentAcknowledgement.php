@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\Events\MessageQueue;
 
+use PHPMQ\Protocol\Messages\Acknowledgement;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
-use PHPMQ\Server\Protocol\Messages\Acknowledgement;
 
 /**
  * Class ClientSentAcknowledgement

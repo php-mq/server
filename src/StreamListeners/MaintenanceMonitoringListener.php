@@ -5,10 +5,10 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
 use Psr\Log\LoggerAwareTrait;
 

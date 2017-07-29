@@ -5,9 +5,9 @@
 
 namespace PHPMQ\Server\Storage;
 
+use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
+use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Exceptions\RuntimeException;
-use PHPMQ\Server\Interfaces\IdentifiesMessage;
-use PHPMQ\Server\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresRedisStorage;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
@@ -21,9 +21,9 @@ use PHPMQ\Server\Types\QueueName;
  */
 final class RedisStorage implements StoresMessages
 {
-	private const PREFIX_DEFAULT         = 'PHPMQ:';
+	private const PREFIX_DEFAULT = 'PHPMQ:';
 
-	public const  BGSAVE_DEFAULT         = 0;
+	public const  BGSAVE_DEFAULT = 0;
 
 	public const  BGSAVE_ALWAYS          = 1;
 
@@ -46,11 +46,11 @@ final class RedisStorage implements StoresMessages
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
-		     ->sAdd( self::KEY_QUEUE_SET, $queueName->toString() )
-		     ->rPush(
-			     $this->getUndispatchedQueueKey( $queueName ),
-			     $message->getMessageId()->toString()
-		     )->hMset(
+			->sAdd( self::KEY_QUEUE_SET, $queueName->toString() )
+			->rPush(
+				$this->getUndispatchedQueueKey( $queueName ),
+				$message->getMessageId()->toString()
+			)->hMset(
 				$this->getMessageKey( $queueName, $message->getMessageId() ),
 				[
 					'messageId' => $message->getMessageId()->toString(),
@@ -144,17 +144,17 @@ final class RedisStorage implements StoresMessages
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
-		     ->lRem( $this->getDispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
-		     ->lRem( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
-		     ->del( $this->getMessageKey( $queueName, $messageId ) )
-		     ->exec();
+			->lRem( $this->getDispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
+			->lRem( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
+			->del( $this->getMessageKey( $queueName, $messageId ) )
+			->exec();
 
 		/** @noinspection PhpUndefinedMethodInspection */
 		$queueListLength = array_sum(
 			$this->getRedis()->multi()
-			     ->lLen( $this->getDispatchedQueueKey( $queueName ) )
-			     ->lLen( $this->getUndispatchedQueueKey( $queueName ) )
-			     ->exec()
+				->lLen( $this->getDispatchedQueueKey( $queueName ) )
+				->lLen( $this->getUndispatchedQueueKey( $queueName ) )
+				->exec()
 		);
 
 		if ( 0 === (int)$queueListLength )
@@ -169,9 +169,9 @@ final class RedisStorage implements StoresMessages
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
-		     ->lRem( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
-		     ->rPush( $this->getDispatchedQueueKey( $queueName ), $messageId->toString() )
-		     ->exec();
+			->lRem( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
+			->rPush( $this->getDispatchedQueueKey( $queueName ), $messageId->toString() )
+			->exec();
 
 		$this->bgSave( 'markAsDispatched' );
 	}
@@ -180,9 +180,9 @@ final class RedisStorage implements StoresMessages
 	{
 		/** @noinspection PhpUndefinedMethodInspection */
 		$this->getRedis()->multi()
-		     ->lRem( $this->getDispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
-		     ->rPush( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString() )
-		     ->exec();
+			->lRem( $this->getDispatchedQueueKey( $queueName ), $messageId->toString(), 1 )
+			->rPush( $this->getUndispatchedQueueKey( $queueName ), $messageId->toString() )
+			->exec();
 
 		$this->bgSave( 'markAsUndispatched' );
 	}
@@ -239,8 +239,7 @@ final class RedisStorage implements StoresMessages
 		);
 
 		$messageIds = array_map(
-			function ( string $messageId ) use ( $queueName )
-			{
+			function ( string $messageId ) use ( $queueName ) {
 				return $this->getMessageKey( $queueName, new MessageId( $messageId ) );
 			},
 			$messageIds
@@ -264,8 +263,7 @@ final class RedisStorage implements StoresMessages
 	private function getAllQueueNames() : array
 	{
 		return array_map(
-			function ( $queueName )
-			{
+			function ( $queueName ) {
 				return new QueueName( $queueName );
 			},
 			$this->getRedis()->sMembers( self::KEY_QUEUE_SET )

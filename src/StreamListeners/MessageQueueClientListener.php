@@ -5,6 +5,16 @@
 
 namespace PHPMQ\Server\StreamListeners;
 
+use PHPMQ\Protocol\Constants\PacketLength;
+use PHPMQ\Protocol\Interfaces\BuildsMessages;
+use PHPMQ\Protocol\Interfaces\DefinesMessage;
+use PHPMQ\Protocol\Interfaces\ProvidesMessageData;
+use PHPMQ\Protocol\Messages\Acknowledgement;
+use PHPMQ\Protocol\Messages\ConsumeRequest;
+use PHPMQ\Protocol\Messages\MessageClientToServer;
+use PHPMQ\Protocol\Types\MessageHeader;
+use PHPMQ\Protocol\Types\MessageType;
+use PHPMQ\Protocol\Types\PacketHeader;
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
@@ -12,18 +22,9 @@ use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
-use PHPMQ\Server\Events\MessageQueue\ClientSentMessageC2E;
+use PHPMQ\Server\Events\MessageQueue\ClientSentMessage;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Interfaces\PublishesEvents;
-use PHPMQ\Server\Protocol\Constants\PacketLength;
-use PHPMQ\Server\Protocol\Headers\MessageHeader;
-use PHPMQ\Server\Protocol\Headers\PacketHeader;
-use PHPMQ\Server\Protocol\Interfaces\BuildsMessages;
-use PHPMQ\Server\Protocol\Interfaces\CarriesMessageData;
-use PHPMQ\Server\Protocol\Messages\Acknowledgement;
-use PHPMQ\Server\Protocol\Messages\ConsumeRequest;
-use PHPMQ\Server\Protocol\Messages\MessageC2E;
-use PHPMQ\Server\Protocol\Types\MessageType;
 use PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException;
 use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Streams\Exceptions\ReadTimedOutException;
@@ -110,14 +111,14 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	}
 
 	/**
-	 * @param MessageHeader $messageHeader
-	 * @param TransfersData $stream
+	 * @param DefinesMessage $messageHeader
+	 * @param TransfersData  $stream
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @throws \PHPMQ\Server\Streams\Exceptions\ReadTimedOutException
-	 * @return CarriesMessageData
+	 * @return ProvidesMessageData
 	 */
-	private function readMessage( MessageHeader $messageHeader, TransfersData $stream ) : CarriesMessageData
+	private function readMessage( DefinesMessage $messageHeader, TransfersData $stream ) : ProvidesMessageData
 	{
 		$packetCount = $messageHeader->getMessageType()->getPacketCount();
 
@@ -138,15 +139,15 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	}
 
 	/**
-	 * @param CarriesMessageData $message
-	 * @param TransfersData      $stream
-	 * @param TracksStreams      $loop
+	 * @param ProvidesMessageData $message
+	 * @param TransfersData       $stream
+	 * @param TracksStreams       $loop
 	 *
 	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
 	 * @return CarriesEventData
 	 */
 	private function createMessageEvent(
-		CarriesMessageData $message,
+		ProvidesMessageData $message,
 		TransfersData $stream,
 		TracksStreams $loop
 	) : CarriesEventData
@@ -155,9 +156,9 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 
 		switch ( $messageType )
 		{
-			case MessageType::MESSAGE_C2E:
-				/** @var MessageC2E $message */
-				return new ClientSentMessageC2E( $message, $stream, $loop );
+			case MessageType::MESSAGE_CLIENT_TO_SERVER:
+				/** @var MessageClientToServer $message */
+				return new ClientSentMessage( $message, $stream, $loop );
 
 			case MessageType::CONSUME_REQUEST:
 				/** @var ConsumeRequest $message */
