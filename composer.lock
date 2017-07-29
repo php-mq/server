@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-mq/protocol.git",
-                "reference": "29a869ee2dce3c54a3c09a18ea99c8636c891fe2"
+                "reference": "cbfe71543bb0f17d44a8c621bc9f412f35b65f2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-mq/protocol/zipball/29a869ee2dce3c54a3c09a18ea99c8636c891fe2",
-                "reference": "29a869ee2dce3c54a3c09a18ea99c8636c891fe2",
+                "url": "https://api.github.com/repos/php-mq/protocol/zipball/cbfe71543bb0f17d44a8c621bc9f412f35b65f2b",
+                "reference": "cbfe71543bb0f17d44a8c621bc9f412f35b65f2b",
                 "shasum": ""
             },
             "require": {
@@ -76,7 +76,7 @@
                 "source": "https://github.com/php-mq/protocol/tree/master",
                 "issues": "https://github.com/php-mq/protocol/issues"
             },
-            "time": "2017-07-29 19:46:19"
+            "time": "2017-07-29 22:11:08"
         },
         {
             "name": "psr/log",
