@@ -11,7 +11,7 @@ use PHPMQ\Server\Storage\RedisStorage;
 
 /**
  * Trait StorageMockingRedis
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
  */
 trait StorageMockingRedis
 {

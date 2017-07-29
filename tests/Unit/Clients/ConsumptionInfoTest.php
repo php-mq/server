@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class ConsumptionInfoTest
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Clients
+ * @package PHPMQ\Server\Tests\Unit\Clients
  */
 final class ConsumptionInfoTest extends TestCase
 {

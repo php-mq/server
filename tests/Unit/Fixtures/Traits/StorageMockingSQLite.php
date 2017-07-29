@@ -11,7 +11,7 @@ use PHPMQ\Server\Storage\SQLiteStorage;
 
 /**
  * Trait StorageMockingSQLite
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Fixtures\Traits
+ * @package PHPMQ\Server\Tests\Unit\Fixtures\Traits
  */
 trait StorageMockingSQLite
 {

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class SQLiteStorageTest
- * @package PHPMQ\MessageQueueServer\Tests\Unit\Storage
+ * @package PHPMQ\Server\Tests\Unit\Storage
  */
 final class RedisStorageTest extends TestCase
 {
