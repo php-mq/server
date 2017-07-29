@@ -13,7 +13,7 @@ At the moment this is a proof-of-concept implementation.
 
 This implementation aims to implement the following requirements.
 
-For details of the client-endpoint-communication see the message [protocol documentation](./docs/MessageProtocol.md).
+For details of the client-endpoint-communication see the message [protocol documentation](https://github.com/php-mq/protocol/blob/master/README.md).
 
 ### Message endpoint
 
