@@ -12,7 +12,6 @@ use PHPMQ\Protocol\Interfaces\ProvidesMessageData;
 use PHPMQ\Protocol\Messages\Acknowledgement;
 use PHPMQ\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Protocol\Messages\MessageClientToServer;
-use PHPMQ\Protocol\Messages\MessageServerToClient;
 use PHPMQ\Protocol\Types\MessageType;
 use PHPMQ\Server\Builders\Exceptions\MessageTypeNotImplementedException;
 use PHPMQ\Server\Builders\Exceptions\PacketCountMismatchException;
@@ -45,16 +44,6 @@ final class MessageBuilder implements BuildsMessages
 				return new ConsumeRequest(
 					new QueueName( (string)$packets[ PacketType::QUEUE_NAME ] ),
 					(int)$packets[ PacketType::MESSAGE_CONSUME_COUNT ]
-				);
-				break;
-			}
-
-			case MessageType::MESSAGE_SERVER_TO_CLIENT:
-			{
-				return new MessageServerToClient(
-					new MessageId( (string)$packets[ PacketType::MESSAGE_ID ] ),
-					new QueueName( (string)$packets[ PacketType::QUEUE_NAME ] ),
-					(string)$packets[ PacketType::MESSAGE_CONTENT ]
 				);
 				break;
 			}
