@@ -7,10 +7,10 @@ namespace PHPMQ\Server\Tests\Unit\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Endpoint\Loop;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Interfaces\TransfersData;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerAwareTrait;
 

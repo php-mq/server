@@ -8,9 +8,9 @@ namespace PHPMQ\Server\StreamListeners;
 use PHPMQ\Server\Commands\CommandBuilder;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Interfaces\PublishesEvents;
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareTrait;
 
 /**

@@ -13,13 +13,13 @@ use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
 use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StreamIdentifierMocking;
 use PHPMQ\Server\Types\Message;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

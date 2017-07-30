@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "22a7e334fe1426d4941ee3332f8076c0",
+    "content-hash": "989ed8bec6d4a710fad9430d0d61d6fc",
     "packages": [
         {
             "name": "php-mq/protocol",
@@ -77,6 +77,78 @@
                 "issues": "https://github.com/php-mq/protocol/issues"
             },
             "time": "2017-07-29 22:11:08"
+        },
+        {
+            "name": "php-mq/stream",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-mq/stream.git",
+                "reference": "b94bf234a0503e90affe8b4dc2db23a429e3c14a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-mq/stream/zipball/b94bf234a0503e90affe8b4dc2db23a429e3c14a",
+                "reference": "b94bf234a0503e90affe8b4dc2db23a429e3c14a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "roave/security-advisories": "dev-master",
+                "tm/tooly-composer-script": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "tools": {
+                    "phpunit": {
+                        "url": "https://phar.phpunit.de/phpunit-6.2.3.phar",
+                        "only-dev": true
+                    },
+                    "coveralls": {
+                        "url": "https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar",
+                        "only-dev": true
+                    },
+                    "phpmetrics": {
+                        "url": "https://github.com/phpmetrics/PhpMetrics/releases/download/v2.2.0/phpmetrics.phar",
+                        "only-dev": true
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPMQ\\Stream\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "PHPMQ\\Stream\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "post-install-cmd": [
+                    "Tooly\\ScriptHandler::installPharTools"
+                ],
+                "post-update-cmd": [
+                    "Tooly\\ScriptHandler::installPharTools"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Holger Woltersdorf",
+                    "email": "hw@hollo.me"
+                }
+            ],
+            "description": "PHPMQ Stream",
+            "support": {
+                "source": "https://github.com/php-mq/stream/tree/master",
+                "issues": "https://github.com/php-mq/stream/issues"
+            },
+            "time": "2017-07-30 21:33:00"
         },
         {
             "name": "psr/log",
@@ -348,6 +420,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "php-mq/protocol": 20,
+        "php-mq/stream": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

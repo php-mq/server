@@ -5,6 +5,8 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
+use PHPMQ\Stream\Interfaces\TransfersData;
+
 /**
  * Interface TracksStreams
  * @package PHPMQ\Server\Endpoint\Interfaces

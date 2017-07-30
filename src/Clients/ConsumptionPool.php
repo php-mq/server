@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\Clients;
 
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
-use PHPMQ\Server\Interfaces\IdentifiesStream;
+use PHPMQ\Stream\Interfaces\IdentifiesStream;
 
 /**
  * Class ConsumptionPool

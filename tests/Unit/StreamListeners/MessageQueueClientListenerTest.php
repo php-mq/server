@@ -21,12 +21,12 @@ use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
 use PHPMQ\Server\Events\MessageQueue\ClientSentMessage;
 use PHPMQ\Server\StreamListeners\MessageQueueClientListener;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\EventHandlerMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
 use PHPMQ\Server\Traits\StringRepresenting;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Events\Maintenance;
 
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class ClientDisconnected

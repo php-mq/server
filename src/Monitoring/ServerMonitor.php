@@ -6,13 +6,13 @@
 namespace PHPMQ\Server\Monitoring;
 
 use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 use PHPMQ\Server\Monitoring\Interfaces\CreatesMonitoringOutput;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Printers\OverviewPrinter;
 use PHPMQ\Server\Monitoring\Printers\SingleQueuePrinter;
 use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class ServerMonitor

@@ -20,7 +20,6 @@ use PHPMQ\Server\Commands\ShowQueueCommand;
 use PHPMQ\Server\Commands\StartMonitorCommand;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedClearScreen;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedFlushingAllQueues;
@@ -33,7 +32,8 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Interfaces\PublishesEvents;
-use PHPMQ\Server\Streams\Constants\ChunkSize;
+use PHPMQ\Stream\Constants\ChunkSize;
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareTrait;
 
 /**

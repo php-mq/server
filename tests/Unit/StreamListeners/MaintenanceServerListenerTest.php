@@ -9,9 +9,9 @@ use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\EventBus;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\StreamListeners\MaintenanceServerListener;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\EventHandlerMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

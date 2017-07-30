@@ -9,8 +9,8 @@ use PHPMQ\Server\Endpoint\Endpoint;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

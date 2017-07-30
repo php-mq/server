@@ -7,17 +7,17 @@ namespace PHPMQ\Server\Tests\Unit\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\ConsumptionPool;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\MessageQueue\ClientConnectionEventHandler;
 use PHPMQ\Server\Events\MessageQueue\ClientConnected;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Monitoring\ServerMonitoringInfo;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\MessageIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\StorageMockingSQLite;
 use PHPMQ\Server\Types\Message;
+use PHPMQ\Stream\Interfaces\TransfersData;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

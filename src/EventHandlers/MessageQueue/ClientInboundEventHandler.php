@@ -7,7 +7,6 @@ namespace PHPMQ\Server\EventHandlers\MessageQueue;
 
 use PHPMQ\Server\Clients\ConsumptionInfo;
 use PHPMQ\Server\Clients\ConsumptionPool;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\AbstractEventHandler;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
@@ -17,6 +16,7 @@ use PHPMQ\Server\Storage\Interfaces\StoresMessages;
 use PHPMQ\Server\StreamListeners\MessageQueueConsumeListener;
 use PHPMQ\Server\Types\Message;
 use PHPMQ\Server\Types\MessageId;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class ClientInboundEventHandler

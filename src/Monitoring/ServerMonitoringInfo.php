@@ -8,11 +8,11 @@ namespace PHPMQ\Server\Monitoring;
 use PHPMQ\Protocol\Interfaces\IdentifiesMessage;
 use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
-use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Monitoring\Interfaces\ProvidesServerMonitoringInfo;
 use PHPMQ\Server\Monitoring\Types\QueueInfo;
 use PHPMQ\Server\Storage\Interfaces\ProvidesMessageData;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
+use PHPMQ\Stream\Interfaces\IdentifiesStream;
 
 /**
  * Class ServerMonitoringInfo

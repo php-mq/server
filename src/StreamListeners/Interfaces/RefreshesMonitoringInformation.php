@@ -6,7 +6,7 @@
 namespace PHPMQ\Server\StreamListeners\Interfaces;
 
 use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class ServerMonitor

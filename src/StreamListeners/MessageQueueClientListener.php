@@ -18,7 +18,6 @@ use PHPMQ\Protocol\Types\PacketHeader;
 use PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Events\MessageQueue\ClientDisconnected;
 use PHPMQ\Server\Events\MessageQueue\ClientSentAcknowledgement;
 use PHPMQ\Server\Events\MessageQueue\ClientSentConsumeResquest;
@@ -26,8 +25,9 @@ use PHPMQ\Server\Events\MessageQueue\ClientSentMessage;
 use PHPMQ\Server\Interfaces\CarriesEventData;
 use PHPMQ\Server\Interfaces\PublishesEvents;
 use PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException;
-use PHPMQ\Server\Streams\Constants\ChunkSize;
-use PHPMQ\Server\Streams\Exceptions\ReadTimedOutException;
+use PHPMQ\Stream\Constants\ChunkSize;
+use PHPMQ\Stream\Exceptions\ReadTimedOutException;
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareTrait;
 
 /**
@@ -78,7 +78,7 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
 	 * @throws \PHPMQ\Server\StreamListeners\Exceptions\InvalidMessageTypeReceivedException
-	 * @throws \PHPMQ\Server\Streams\Exceptions\ReadTimedOutException
+	 * @throws \PHPMQ\Stream\Exceptions\ReadTimedOutException
 	 */
 	private function readMessages( TransfersData $stream, TracksStreams $loop ) : void
 	{
@@ -115,7 +115,7 @@ final class MessageQueueClientListener implements ListensForStreamActivity
 	 * @param TransfersData  $stream
 	 *
 	 * @throws \PHPMQ\Server\Clients\Exceptions\ClientDisconnectedException
-	 * @throws \PHPMQ\Server\Streams\Exceptions\ReadTimedOutException
+	 * @throws \PHPMQ\Stream\Exceptions\ReadTimedOutException
 	 * @return ProvidesMessageData
 	 */
 	private function readMessage( DefinesMessage $messageHeader, TransfersData $stream ) : ProvidesMessageData

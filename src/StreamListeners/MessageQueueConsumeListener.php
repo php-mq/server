@@ -10,11 +10,11 @@ use PHPMQ\Server\Clients\ConsumptionPool;
 use PHPMQ\Server\Clients\Interfaces\ProvidesConsumptionInfo;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\Interfaces\CollectsServerMonitoringInfo;
 use PHPMQ\Server\Storage\Interfaces\StoresMessages;
-use PHPMQ\Server\Streams\Constants\ChunkSize;
-use PHPMQ\Server\Streams\Exceptions\WriteTimedOutException;
+use PHPMQ\Stream\Constants\ChunkSize;
+use PHPMQ\Stream\Exceptions\WriteTimedOutException;
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareTrait;
 
 /**

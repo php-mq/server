@@ -19,9 +19,9 @@ use PHPMQ\Server\Events\Maintenance\ClientRequestedQueueSearch;
 use PHPMQ\Server\Events\Maintenance\ClientRequestedQuittingRefresh;
 use PHPMQ\Server\Events\Maintenance\ClientSentUnknownCommand;
 use PHPMQ\Server\StreamListeners\MaintenanceClientListener;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\EventHandlerMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

@@ -8,9 +8,9 @@ namespace PHPMQ\Server\Tests\Unit\StreamListeners;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
 use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
 use PHPMQ\Server\StreamListeners\MaintenanceMonitoringListener;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\QueueIdentifierMocking;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 
 /**

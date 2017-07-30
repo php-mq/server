@@ -7,8 +7,8 @@ namespace PHPMQ\Server\Events\Maintenance;
 
 use PHPMQ\Server\Commands\QuitRefreshCommand;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Interfaces\CarriesEventData;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class ClientRequestedQuittingRefresh

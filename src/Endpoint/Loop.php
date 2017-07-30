@@ -7,8 +7,8 @@ namespace PHPMQ\Server\Endpoint;
 
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Exceptions\RuntimeException;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class Loop

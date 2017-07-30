@@ -5,8 +5,8 @@
 
 namespace PHPMQ\Server\Tests\Unit\Fixtures\Traits;
 
-use PHPMQ\Server\Interfaces\IdentifiesStream;
 use PHPMQ\Server\Traits\StringRepresenting;
+use PHPMQ\Stream\Interfaces\IdentifiesStream;
 
 /**
  * Trait StreamIdentifierMocking

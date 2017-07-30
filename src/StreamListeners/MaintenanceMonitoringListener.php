@@ -8,8 +8,8 @@ namespace PHPMQ\Server\StreamListeners;
 use PHPMQ\Protocol\Interfaces\IdentifiesQueue;
 use PHPMQ\Server\Endpoint\Interfaces\ListensForStreamActivity;
 use PHPMQ\Server\Endpoint\Interfaces\TracksStreams;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\StreamListeners\Interfaces\RefreshesMonitoringInformation;
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareTrait;
 
 /**

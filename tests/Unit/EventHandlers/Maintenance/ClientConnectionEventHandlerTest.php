@@ -6,13 +6,13 @@
 namespace PHPMQ\Server\Tests\Unit\EventHandlers\Maintenance;
 
 use PHPMQ\Server\CliWriter;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\EventHandlers\Maintenance\ClientConnectionEventHandler;
 use PHPMQ\Server\Events\Maintenance\ClientConnected;
 use PHPMQ\Server\Events\Maintenance\ClientDisconnected;
 use PHPMQ\Server\Loggers\AbstractLogger;
-use PHPMQ\Server\Streams\Stream;
 use PHPMQ\Server\Tests\Unit\Fixtures\Traits\SocketMocking;
+use PHPMQ\Stream\Interfaces\TransfersData;
+use PHPMQ\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 

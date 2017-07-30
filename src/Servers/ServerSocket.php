@@ -5,11 +5,11 @@
 
 namespace PHPMQ\Server\Servers;
 
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
 use PHPMQ\Server\Exceptions\RuntimeException;
 use PHPMQ\Server\Servers\Interfaces\EstablishesStream;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
-use PHPMQ\Server\Streams\Stream;
+use PHPMQ\Stream\Interfaces\TransfersData;
+use PHPMQ\Stream\Stream;
 
 /**
  * Class ServerSocket

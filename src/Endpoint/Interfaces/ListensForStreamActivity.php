@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Endpoint\Interfaces;
 
+use PHPMQ\Stream\Interfaces\TransfersData;
 use Psr\Log\LoggerAwareInterface;
 
 /**
