@@ -47,7 +47,7 @@
 	"extra": {
 		"tools": {
 			"phpunit": {
-				"url": "https://phar.phpunit.de/phpunit-6.2.3.phar",
+				"url": "https://phar.phpunit.de/phpunit-6.3.0.phar",
 				"only-dev": true
 			},
 			"coveralls": {

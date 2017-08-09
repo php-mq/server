@@ -20,6 +20,7 @@ use PHPMQ\Server\StreamListeners\MaintenanceServerListener;
 use PHPMQ\Server\StreamListeners\MessageQueueServerListener;
 use PHPMQ\Server\Validators\ArgumentValidator;
 use PHPMQ\Server\Validators\CompositeValidator;
+use PHPMQ\Server\Validators\ConfigFileValidator;
 use PHPMQ\Server\Validators\PHPVersionValidator;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -33,7 +34,8 @@ $validator = new CompositeValidator();
 
 $validator->addValidators(
 	new PHPVersionValidator( $minPhpVersion, PHP_VERSION, PHP_BINARY, $packageVersion ),
-	new ArgumentValidator( $argv )
+	new ArgumentValidator( $argv ),
+	new ConfigFileValidator( $argv[1] ?? $defaultConfigFile )
 );
 
 if ( $validator->failed() )
@@ -76,10 +78,10 @@ try
 catch ( \Throwable $e )
 {
 	$cliWriter->clearScreen( 'FAILURE' )
-			  ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
-			  ->writeLn( 'Exception: ' . get_class( $e ) )
-			  ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
-			  ->writeLn( $e->getTraceAsString() );
+	          ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
+	          ->writeLn( 'Exception: ' . get_class( $e ) )
+	          ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
+	          ->writeLn( $e->getTraceAsString() );
 
 	fwrite( STDERR, $cliWriter->getOutput() );
 

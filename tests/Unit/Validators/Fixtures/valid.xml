@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PHPMQ>
+	<servers>
+		<messagequeue>
+			<network>
+				<config name="host" value="192.168.3.13"/>
+				<config name="port" value="9100"/>
+			</network>
+		</messagequeue>
+	</servers>
+</PHPMQ>
