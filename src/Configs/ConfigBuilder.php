@@ -9,6 +9,7 @@ use PHPMQ\Server\Constants\LoggerType;
 use PHPMQ\Server\Constants\ServerType;
 use PHPMQ\Server\Constants\StorageType;
 use PHPMQ\Server\Loggers\Interfaces\ConfiguresLogFileLogger;
+use PHPMQ\Server\Loggers\Interfaces\ConfiguresOutputLogger;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Servers\Types\UnixDomainSocket;
@@ -73,8 +74,8 @@ final class ConfigBuilder
 			(int)$port,
 			(int)$database,
 			(float)$timeout,
-			$password ?: null,
-			$prefix ?: null,
+			$password ? : null,
+			$prefix ? : null,
 			(int)$backgroundSaveBehaviour
 		);
 	}
@@ -100,6 +101,14 @@ final class ConfigBuilder
 		$logFile = (string)realpath( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath );
 
 		return new LogFileLoggerConfig( $logFile, $logLevel );
+	}
+
+	public function getOutputLoggerConfig() : ConfiguresOutputLogger
+	{
+		$parentNode = $this->xml->xpath( '//logging/' . LoggerType::OUTPUT )[0];
+		$logLevel   = (string)$parentNode->attributes()['loglevel'];
+
+		return new OutputLoggerConfig( $logLevel );
 	}
 
 	public function getMessageQueueServerSocketAddress() : IdentifiesSocketAddress

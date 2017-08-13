@@ -4,6 +4,6 @@
 		<logfile>
 			<config name="path" value="../../../../build/logs/phpmq.log" loglevel="debug"/>
 		</logfile>
-		<output loglevel="error"/>
+		<output loglevel="debug"/>
 	</logging>
 </PHPMQ>

@@ -45,7 +45,7 @@ final class CompositeLogger extends AbstractLogger
 
 		if ( in_array( LoggerType::OUTPUT, $configBuilder->getActiveLoggers(), true ) )
 		{
-			$logger->addLoggers( new OutputLogger() );
+			$logger->addLoggers( new OutputLogger( $configBuilder->getOutputLoggerConfig() ) );
 		}
 
 		return $logger;

@@ -48,12 +48,14 @@ final class CompositeLoggerTest extends TestCase
 		$logFile       = dirname( __DIR__, 3 ) . '/build/logs/phpmq.log';
 		@unlink( $logFile );
 
-		$this->expectOutputRegex( '#^[debug] | .* | Unit-Test#' );
+		$expetcedRegExp = '#^[debug] | .* | Unit-Test#';
+
+		$this->expectOutputRegex( $expetcedRegExp );
 
 		$logger->debug( 'Unit-Test' );
 
 		$content = file_get_contents( $logFile );
 
-		$this->assertRegExp( '#^[debug] | .* | Unit-Test#', $content );
+		$this->assertRegExp( $expetcedRegExp, $content );
 	}
 }
