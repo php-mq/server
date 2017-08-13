@@ -2,7 +2,7 @@
 <PHPMQ>
 	<storage>
 		<invalid>
-			<config name="storagePath" value=":memory:"/>
+			<config name="path" value=":memory:"/>
 		</invalid>
 	</storage>
 </PHPMQ>

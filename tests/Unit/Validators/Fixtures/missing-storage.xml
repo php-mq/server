@@ -7,10 +7,11 @@
 				<config name="port" value="9100"/>
 			</network>
 		</messagequeue>
+		<maintenance>
+			<network>
+				<config name="host" value="192.168.3.13"/>
+				<config name="port" value="9101"/>
+			</network>
+		</maintenance>
 	</servers>
-	<storage>
-		<sqlite>
-			<config name="path" value=":memory:"/>
-		</sqlite>
-	</storage>
 </PHPMQ>

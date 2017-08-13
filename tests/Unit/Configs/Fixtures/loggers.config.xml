@@ -2,7 +2,7 @@
 <PHPMQ>
 	<logging>
 		<logfile>
-			<config name="logFilePath" value="../../../../build/logs/phpmq.log" loglevel="debug"/>
+			<config name="path" value="../../../../build/logs/phpmq.log" loglevel="debug"/>
 		</logfile>
 		<output/>
 	</logging>

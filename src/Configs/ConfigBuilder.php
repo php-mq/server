@@ -41,7 +41,7 @@ final class ConfigBuilder
 	public function getSQLiteStorageConfig() : ConfiguresSQLiteStorage
 	{
 		$parentNode  = $this->xml->xpath( '//storage/' . StorageType::SQLITE )[0];
-		$storagePath = $this->getConfigValue( $parentNode, 'storagePath' );
+		$storagePath = $this->getConfigValue( $parentNode, 'path' );
 
 		return new SQLiteStorageConfig( $storagePath );
 	}
@@ -94,8 +94,8 @@ final class ConfigBuilder
 	public function getLogFileLoggerConfig() : ConfiguresLogFileLogger
 	{
 		$parentNode  = $this->xml->xpath( '//logging/' . LoggerType::LOG_FILE )[0];
-		$logFilePath = $this->getConfigValue( $parentNode, 'logFilePath' );
-		$logLevel    = $this->getConfigValue( $parentNode, 'logFilePath', 'loglevel' );
+		$logFilePath = $this->getConfigValue( $parentNode, 'path' );
+		$logLevel    = $this->getConfigValue( $parentNode, 'path', 'loglevel' );
 
 		$logFile = (string)realpath( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath );
 

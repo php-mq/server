@@ -48,6 +48,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 
 		$this->passed && $this->checkMessageQueueServer();
 		$this->passed && $this->checkMaintenanceServer();
+		$this->passed && $this->checkStorage();
 
 		return !$this->passed;
 	}
@@ -97,10 +98,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		$networkXPath = $baseXPath . '/network';
-		$unixXPath    = $baseXPath . '/unix';
-
-		if ( !$this->elementExists( $networkXPath ) && !$this->elementExists( $unixXPath ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, [ 'network', 'unix' ] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid message queue server socket type. Allowed: network, unix' );
@@ -108,29 +106,68 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
+		$networkXPath            = $baseXPath . '/network';
+		$networkMandatoryConfigs = [ 'host', 'port' ];
+
 		if ( $this->elementExists( $networkXPath )
-		     && (!$this->configValueExists( $networkXPath, 'host' )
-		         || !$this->configValueExists( $networkXPath, 'port' ))
+		     && !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
-			$this->addErrorMessage( 'Invalid message queue server socket config. Host and port must be configured.' );
+			$this->addErrorMessage(
+				'Invalid message queue server socket config. Values for %s must be configured.',
+				implode( ', ', $networkMandatoryConfigs )
+			);
 
 			return;
 		}
 
-		if ( $this->elementExists( $unixXPath ) && !$this->configValueExists( $unixXPath, 'path' ) )
+		$unixXPath            = $baseXPath . '/unix';
+		$unixMandatoryConfigs = [ 'path' ];
+
+		if ( $this->elementExists( $unixXPath )
+		     && !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
+		)
 		{
 			$this->passed = false;
-			$this->addErrorMessage( 'Invalid message queue server socket config. Path must be configured.' );
+			$this->addErrorMessage(
+				'Invalid message queue server socket config. Values for %s must be configured.',
+				implode( ', ', $networkMandatoryConfigs )
+			);
 
 			return;
 		}
 	}
 
+	private function oneElementOfListExists( string $baseXPath, array $elements ) : bool
+	{
+		foreach ( $elements as $element )
+		{
+			if ( $this->elementExists( $baseXPath . '/' . $element ) )
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private function elementExists( string $xpath ) : bool
 	{
 		return (count( $this->xml->xpath( $xpath ) ) >= 1);
+	}
+
+	private function mandatoryConfigValuesExist( string $baseXPath, array $names ) : bool
+	{
+		foreach ( $names as $name )
+		{
+			if ( !$this->configValueExists( $baseXPath, $name ) )
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private function configValueExists( string $baseXPath, string $name ) : bool
@@ -147,10 +184,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		$networkXPath = $baseXPath . '/network';
-		$unixXPath    = $baseXPath . '/unix';
-
-		if ( !$this->elementExists( $networkXPath ) && !$this->elementExists( $unixXPath ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, [ 'network', 'unix' ] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid maintenance server socket type. Allowed: network, unix' );
@@ -158,21 +192,89 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
+		$networkXPath            = $baseXPath . '/network';
+		$networkMandatoryConfigs = [ 'host', 'port' ];
+
 		if ( $this->elementExists( $networkXPath )
-		     && (!$this->configValueExists( $networkXPath, 'host' )
-		         || !$this->configValueExists( $networkXPath, 'port' ))
+		     && !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
-			$this->addErrorMessage( 'Invalid maintenance server socket config. Host and port must be configured.' );
+			$this->addErrorMessage(
+				'Invalid maintenance server socket config. Values for %s must be configured.',
+				implode( ', ', $networkMandatoryConfigs )
+			);
 
 			return;
 		}
 
-		if ( $this->elementExists( $unixXPath ) && !$this->configValueExists( $unixXPath, 'path' ) )
+		$unixXPath            = $baseXPath . '/unix';
+		$unixMandatoryConfigs = [ 'path' ];
+
+		if ( $this->elementExists( $unixXPath )
+		     && !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
+		)
 		{
 			$this->passed = false;
-			$this->addErrorMessage( 'Invalid maintenance server socket config. Path must be configured.' );
+			$this->addErrorMessage(
+				'Invalid maintenance server socket config. Values for %s must be configured.',
+				implode( ', ', $networkMandatoryConfigs )
+			);
+
+			return;
+		}
+	}
+
+	private function checkStorage() : void
+	{
+		$baseXPath = '/PHPMQ/storage';
+
+		if ( !$this->elementExists( $baseXPath ) )
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Missing configuration part: storage' );
+
+			return;
+		}
+
+		if ( !$this->oneElementOfListExists( $baseXPath, [ 'sqlite', 'redis' ] ) )
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Invalid storage type. Allowed: sqlite, redis' );
+
+			return;
+		}
+
+		$sqliteXPath            = $baseXPath . '/sqlite';
+		$sqliteMandatoryConfigs = [ 'path' ];
+
+		if ( $this->elementExists( $sqliteXPath )
+		     && !$this->mandatoryConfigValuesExist( $sqliteXPath, $sqliteMandatoryConfigs )
+		)
+		{
+			$this->passed = false;
+			$this->addErrorMessage(
+				'Invalid storage config. Values for %s must be configured.',
+				implode( ', ', $sqliteMandatoryConfigs )
+			);
+
+			return;
+		}
+
+		$redisXPath            = $baseXPath . '/redis';
+		$redisMandatoryConfigs = [
+			'host', 'port', 'database', 'timeout', 'password', 'prefix', 'backgroundSaveBehaviour',
+		];
+
+		if ( $this->elementExists( $redisXPath )
+		     && !$this->mandatoryConfigValuesExist( $redisXPath, $redisMandatoryConfigs )
+		)
+		{
+			$this->passed = false;
+			$this->addErrorMessage(
+				'Invalid storage config. Values for %s must be configured.',
+				implode( ', ', $redisMandatoryConfigs )
+			);
 
 			return;
 		}

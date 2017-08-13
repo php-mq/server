@@ -93,4 +93,36 @@ final class ConfigFileValidatorTest extends TestCase
 		$this->assertTrue( $validator->failed() );
 		$this->assertNotEmpty( $validator->getMessages() );
 	}
+
+	public function testFailsIfStorageConfigIsMissing() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/missing-storage.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfStorageTypeIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-storage-type.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfStorageSqliteConfigIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-storage-sqlite.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfStorageRedisConfigIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-storage-redis.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
 }

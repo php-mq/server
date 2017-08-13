@@ -14,4 +14,9 @@
 			</network>
 		</maintenance>
 	</servers>
+	<storage>
+		<sqlite>
+			<config name="path" value=":memory:"/>
+		</sqlite>
+	</storage>
 </PHPMQ>

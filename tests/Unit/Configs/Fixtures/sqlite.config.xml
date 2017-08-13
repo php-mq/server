@@ -2,7 +2,7 @@
 <PHPMQ>
 	<storage>
 		<sqlite>
-			<config name="storagePath" value=":memory:"/>
+			<config name="path" value=":memory:"/>
 		</sqlite>
 	</storage>
 </PHPMQ>
