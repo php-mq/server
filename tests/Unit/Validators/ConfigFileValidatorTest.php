@@ -61,4 +61,36 @@ final class ConfigFileValidatorTest extends TestCase
 		$this->assertTrue( $validator->failed() );
 		$this->assertNotEmpty( $validator->getMessages() );
 	}
+
+	public function testMaintenanceServerConfigIsOptional() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/valid-no-maintenance-server.xml' );
+
+		$this->assertFalse( $validator->failed() );
+		$this->assertEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfMaintenanceServerSocketTypeIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-maintenance-server-socket-type.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfMaintenanceServerNetworkSocketIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-maintenance-server-network-socket.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfMaintenanceServerUnixSocketIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-maintenance-server-unix-socket.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
 }

@@ -20,17 +20,19 @@ final class ConfigFileValidator implements ValidatesEnvironment
 	private $xml;
 
 	/** @var bool */
-	private $passed = false;
+	private $passed;
 
 	/** @var array */
-	private $messages = [];
+	private $messages;
 
 	/** @var array|\LibXMLError[] */
-	private $xmlErrors = [];
+	private $xmlErrors;
 
 	public function __construct( string $configFilePath )
 	{
 		$this->configFilePath = $configFilePath;
+		$this->passed         = false;
+		$this->messages       = [];
 
 		libxml_use_internal_errors( true );
 
@@ -45,6 +47,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		$this->checkForParseErrors();
 
 		$this->passed && $this->checkMessageQueueServer();
+		$this->passed && $this->checkMaintenanceServer();
 
 		return !$this->passed;
 	}
@@ -105,11 +108,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		$networkHostXPath = $networkXPath . '/config[@name="host"]';
-		$networkPortXPath = $networkXPath . '/config[@name="port"]';
-
 		if ( $this->elementExists( $networkXPath )
-		     && (!$this->elementExists( $networkHostXPath ) || !$this->elementExists( $networkPortXPath )) )
+		     && (!$this->configValueExists( $networkXPath, 'host' )
+		         || !$this->configValueExists( $networkXPath, 'port' ))
+		)
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid message queue server socket config. Host and port must be configured.' );
@@ -117,9 +119,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		$unixPathXPath = $unixXPath . '/config[@name="path"]';
-
-		if ( $this->elementExists( $unixXPath ) && !$this->elementExists( $unixPathXPath ) )
+		if ( $this->elementExists( $unixXPath ) && !$this->configValueExists( $unixXPath, 'path' ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid message queue server socket config. Path must be configured.' );
@@ -131,6 +131,51 @@ final class ConfigFileValidator implements ValidatesEnvironment
 	private function elementExists( string $xpath ) : bool
 	{
 		return (count( $this->xml->xpath( $xpath ) ) >= 1);
+	}
+
+	private function configValueExists( string $baseXPath, string $name ) : bool
+	{
+		return (count( $this->xml->xpath( $baseXPath . "/config[@name=\"{$name}\"][@value]" ) ) >= 1);
+	}
+
+	private function checkMaintenanceServer() : void
+	{
+		$baseXPath = '/PHPMQ/servers/maintenance';
+
+		if ( !$this->elementExists( $baseXPath ) )
+		{
+			return;
+		}
+
+		$networkXPath = $baseXPath . '/network';
+		$unixXPath    = $baseXPath . '/unix';
+
+		if ( !$this->elementExists( $networkXPath ) && !$this->elementExists( $unixXPath ) )
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Invalid maintenance server socket type. Allowed: network, unix' );
+
+			return;
+		}
+
+		if ( $this->elementExists( $networkXPath )
+		     && (!$this->configValueExists( $networkXPath, 'host' )
+		         || !$this->configValueExists( $networkXPath, 'port' ))
+		)
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Invalid maintenance server socket config. Host and port must be configured.' );
+
+			return;
+		}
+
+		if ( $this->elementExists( $unixXPath ) && !$this->configValueExists( $unixXPath, 'path' ) )
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Invalid maintenance server socket config. Path must be configured.' );
+
+			return;
+		}
 	}
 
 	public function getMessages() : array
