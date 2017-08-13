@@ -12,6 +12,7 @@ final class ByteFormatterTest extends TestCase
 {
 	/**
 	 * @param int    $bytes
+	 * @param int    $precision
 	 * @param string $expectedString
 	 *
 	 * @dataProvider bytesProvider

@@ -13,9 +13,9 @@ use PHPMQ\Protocol\Types\MessageHeader;
 use PHPMQ\Protocol\Types\PacketHeader;
 use PHPMQ\Server\Builders\MessageBuilder;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
-use PHPMQ\Server\Streams\Constants\ChunkSize;
 use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
 use PHPMQ\Server\Types\QueueName;
+use PHPMQ\Stream\Constants\ChunkSize;
 
 require __DIR__ . '/../../vendor/autoload.php';
 

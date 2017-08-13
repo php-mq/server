@@ -6,8 +6,8 @@
 namespace PHPMQ\Server\Tests\Run\Clients;
 
 use PHPMQ\Protocol\Interfaces\ProvidesMessageData;
-use PHPMQ\Server\Endpoint\Interfaces\TransfersData;
-use PHPMQ\Server\Streams\Constants\ChunkSize;
+use PHPMQ\Stream\Constants\ChunkSize;
+use PHPMQ\Stream\Interfaces\TransfersData;
 
 /**
  * Class Sender

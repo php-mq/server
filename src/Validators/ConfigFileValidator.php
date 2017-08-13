@@ -39,7 +39,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		$this->xml       = simplexml_load_file( $configFilePath );
 		$this->xmlErrors = libxml_get_errors();
 
-		libxml_use_internal_errors( false );
+		libxml_use_internal_errors();
 	}
 
 	public function failed() : bool

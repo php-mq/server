@@ -363,6 +363,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 
 	/**
 	 * @param string $searchTerm
+	 * @param string $expectedOutputRegExp
 	 *
 	 * @dataProvider queueSearchProvider
 	 */

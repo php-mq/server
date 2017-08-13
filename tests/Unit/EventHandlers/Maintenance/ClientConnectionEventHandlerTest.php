@@ -88,7 +88,7 @@ final class ClientConnectionEventHandlerTest extends TestCase
 		$handler           = new ClientConnectionEventHandler( new CliWriter() );
 		$logger            = new class extends AbstractLogger
 		{
-			public function log( $level, $message, array $context = [] )
+			public function log( $level, $message, array $context = [] ) : void
 			{
 				echo $level . ' - ' . $message;
 			}

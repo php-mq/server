@@ -17,7 +17,7 @@ final class CompositeLoggerTest extends TestCase
 		$logger        = new CompositeLogger();
 		$loggerOutput1 = new class extends AbstractLogger
 		{
-			public function log( $level, $message, array $context = [] )
+			public function log( $level, $message, array $context = [] ) : void
 			{
 				echo sprintf( "Logger1 - [%s]: %s\n", $level, sprintf( $message, ...$context ) );
 			}
@@ -25,7 +25,7 @@ final class CompositeLoggerTest extends TestCase
 
 		$loggerOutput2 = new class extends AbstractLogger
 		{
-			public function log( $level, $message, array $context = [] )
+			public function log( $level, $message, array $context = [] ) : void
 			{
 				echo sprintf( "Logger2 - [%s]: %s\n", $level, sprintf( $message, ...$context ) );
 			}

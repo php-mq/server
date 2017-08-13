@@ -14,11 +14,11 @@ final class AbstractEventHandlerTest extends TestCase
 	/**
 	 * @expectedException \PHPMQ\Server\EventHandlers\Exceptions\EventHandlerMethodNotCallableException
 	 */
-	public function testNotCallableMethodThrowsException(): void
+	public function testNotCallableMethodThrowsException() : void
 	{
 		$handler = new class extends AbstractEventHandler
 		{
-			protected function getAcceptedEvents(): array
+			protected function getAcceptedEvents() : array
 			{
 				return [ TestEvent::class ];
 			}
@@ -27,31 +27,31 @@ final class AbstractEventHandlerTest extends TestCase
 		$handler->notify( new TestEvent() );
 	}
 
-	public function testCanCallHandlerMethodForEvent(): void
+	public function testCanCallHandlerMethodForEvent() : void
 	{
 		$handler = new class extends AbstractEventHandler
 		{
-			protected function getAcceptedEvents(): array
+			protected function getAcceptedEvents() : array
 			{
 				return [ TestEvent::class ];
 			}
 
-			protected function whenTestEvent( TestEvent $event ): void
+			protected function whenTestEvent( TestEvent $event ) : void
 			{
-				echo 'TestEvent was handled.';
+				echo get_class( $event ) . ' was handled.';
 			}
 		};
 
-		$this->expectOutputString( 'TestEvent was handled.' );
+		$this->expectOutputString( TestEvent::class . ' was handled.' );
 
 		$handler->notify( new TestEvent() );
 	}
 
-	public function testCanCheckIfHandlerAcceptsEvent(): void
+	public function testCanCheckIfHandlerAcceptsEvent() : void
 	{
 		$acceptingHandler = new class extends AbstractEventHandler
 		{
-			protected function getAcceptedEvents(): array
+			protected function getAcceptedEvents() : array
 			{
 				return [ TestEvent::class ];
 			}
@@ -59,7 +59,7 @@ final class AbstractEventHandlerTest extends TestCase
 
 		$notAcceptingHandler = new class extends AbstractEventHandler
 		{
-			protected function getAcceptedEvents(): array
+			protected function getAcceptedEvents() : array
 			{
 				return [];
 			}
