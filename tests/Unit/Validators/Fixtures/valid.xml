@@ -19,4 +19,10 @@
 			<config name="path" value=":memory:"/>
 		</sqlite>
 	</storage>
+	<logging>
+		<logfile>
+			<config name="path" value="/var/log/phpmq.log" loglevel="debug"/>
+		</logfile>
+		<output loglevel="debug"/>
+	</logging>
 </PHPMQ>

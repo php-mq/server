@@ -14,6 +14,14 @@ use PHPUnit\Framework\TestCase;
  */
 final class ConfigFileValidatorTest extends TestCase
 {
+	public function testDefaultLConfigPassesValidation() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/../../../config/phpmq.default.xml' );
+
+		$this->assertFalse( $validator->failed() );
+		$this->assertEmpty( $validator->getMessages() );
+	}
+
 	public function testValidationFailsForBrokenXmlConfigFile() : void
 	{
 		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/broken.xml' );
@@ -121,6 +129,30 @@ final class ConfigFileValidatorTest extends TestCase
 	public function testFailsIfStorageRedisConfigIsInvalid() : void
 	{
 		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-storage-redis.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testLoggingConfigIsOptional() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/valid-no-logging.xml' );
+
+		$this->assertFalse( $validator->failed() );
+		$this->assertEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfLoggingTypeIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-logging-type.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
+	public function testFailsIfLogfileLoggingConfigIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-logging-logfile.xml' );
 
 		$this->assertTrue( $validator->failed() );
 		$this->assertNotEmpty( $validator->getMessages() );

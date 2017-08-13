@@ -49,6 +49,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		$this->passed && $this->checkMessageQueueServer();
 		$this->passed && $this->checkMaintenanceServer();
 		$this->passed && $this->checkStorage();
+		$this->passed && $this->checkLogging();
 
 		return !$this->passed;
 	}
@@ -274,6 +275,40 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			$this->addErrorMessage(
 				'Invalid storage config. Values for %s must be configured.',
 				implode( ', ', $redisMandatoryConfigs )
+			);
+
+			return;
+		}
+	}
+
+	private function checkLogging() : void
+	{
+		$baseXPath = '/PHPMQ/logging';
+
+		if ( !$this->elementExists( $baseXPath ) )
+		{
+			return;
+		}
+
+		if ( !$this->oneElementOfListExists( $baseXPath, [ 'logfile', 'output' ] ) )
+		{
+			$this->passed = false;
+			$this->addErrorMessage( 'Invalid logging config. Allowed: logfile and/or output.' );
+
+			return;
+		}
+
+		$logfileXPath            = $baseXPath . '/logfile';
+		$logfileMandatoryConfigs = [ 'path' ];
+
+		if ( $this->elementExists( $logfileXPath )
+		     && !$this->mandatoryConfigValuesExist( $logfileXPath, $logfileMandatoryConfigs )
+		)
+		{
+			$this->passed = false;
+			$this->addErrorMessage(
+				'Invalid logging config. Values for %s must be configured.',
+				implode( ', ', $logfileMandatoryConfigs )
 			);
 
 			return;
