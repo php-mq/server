@@ -24,7 +24,7 @@ final class OverviewPrinterTest extends TestCase
 
 	public function testCanGetOutputForEmptyQueueList() : void
 	{
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$printer              = new OverviewPrinter( $cliWriter );
 
@@ -43,7 +43,7 @@ final class OverviewPrinterTest extends TestCase
 
 	public function testCanGetOutputWithQueues() : void
 	{
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$printer              = new OverviewPrinter( $cliWriter );
 		$queueCount           = 24;

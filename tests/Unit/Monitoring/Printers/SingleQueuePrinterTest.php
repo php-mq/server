@@ -24,7 +24,7 @@ final class SingleQueuePrinterTest extends TestCase
 
 	public function testCanGetOutputForEmptyQueue() : void
 	{
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$queueName            = $this->getQueueName( 'Test-Queue' );
 		$printer              = new SingleQueuePrinter( $cliWriter, $queueName );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
@@ -39,7 +39,7 @@ final class SingleQueuePrinterTest extends TestCase
 
 	public function testCanGetOutputForQueueWithMessages() : void
 	{
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$queueName            = $this->getQueueName( 'Test-Queue' );
 		$printer              = new SingleQueuePrinter( $cliWriter, $queueName );
 		$serverMonitoringInfo = new ServerMonitoringInfo();

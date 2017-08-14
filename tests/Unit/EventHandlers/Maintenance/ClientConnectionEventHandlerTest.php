@@ -52,7 +52,7 @@ final class ClientConnectionEventHandlerTest extends TestCase
 	 */
 	public function testAcceptsEvents( string $eventClass ) : void
 	{
-		$handler = new ClientConnectionEventHandler( new CliWriter() );
+		$handler = new ClientConnectionEventHandler( new CliWriter( '1.2.3' ) );
 
 		$event = new $eventClass( $this->clientStream );
 
@@ -74,7 +74,7 @@ final class ClientConnectionEventHandlerTest extends TestCase
 	public function testCanHandleClientConnectedEvent() : void
 	{
 		$event   = new ClientConnected( $this->clientStream );
-		$handler = new ClientConnectionEventHandler( new CliWriter() );
+		$handler = new ClientConnectionEventHandler( new CliWriter( '1.2.3' ) );
 		$handler->setLogger( new NullLogger() );
 
 		$handler->notify( $event );
@@ -85,7 +85,7 @@ final class ClientConnectionEventHandlerTest extends TestCase
 	public function testCanHandleClientDisconnectedEvent() : void
 	{
 		$disconnectedEvent = new ClientDisconnected( $this->clientStream );
-		$handler           = new ClientConnectionEventHandler( new CliWriter() );
+		$handler           = new ClientConnectionEventHandler( new CliWriter( '1.2.3' ) );
 		$logger            = new class extends AbstractLogger
 		{
 			public function log( $level, $message, array $context = [] ) : void

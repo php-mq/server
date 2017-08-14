@@ -82,7 +82,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 	{
 		$helpCommand          = new HelpCommand( $helpString );
 		$event                = new ClientRequestedHelp( $this->clientStream, $helpCommand );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -96,8 +96,8 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$response = $this->remoteStream->read( 1024 );
 
 		$expectedOutput = $cliWriter->clearScreen( 'HELP' )
-									->write( $expectedResponse )
-									->getInteractiveOutput();
+		                            ->write( $expectedResponse )
+		                            ->getInteractiveOutput();
 
 		$this->assertEquals( $expectedOutput, $response );
 	}
@@ -150,7 +150,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 	{
 		$helpCommand          = new HelpCommand( 'Unit-Test' );
 		$event                = new ClientRequestedHelp( $this->clientStream, $helpCommand );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -164,16 +164,16 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$response = $this->remoteStream->read( 1024 );
 
 		$expectedOutput = $cliWriter->clearScreen( 'HELP' )
-									->writeLn( '' )
-									->writeLn(
-										'Help for unknown command "Unit-Test" requested.',
-										$helpCommand->getCommandName()
-									)
-									->writeLn( '' )
-									->writeFileContent(
-										dirname( __DIR__, 4 ) . '/docs/MaintenanceCommandHelp/help.txt'
-									)
-									->getInteractiveOutput();
+		                            ->writeLn( '' )
+		                            ->writeLn(
+			                            'Help for unknown command "Unit-Test" requested.',
+			                            $helpCommand->getCommandName()
+		                            )
+		                            ->writeLn( '' )
+		                            ->writeFileContent(
+			                            dirname( __DIR__, 4 ) . '/docs/MaintenanceCommandHelp/help.txt'
+		                            )
+		                            ->getInteractiveOutput();
 
 		$this->assertEquals( $expectedOutput, $response );
 	}
@@ -181,7 +181,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 	public function testCanHandleClientSentUnknownCommand() : void
 	{
 		$event                = new ClientSentUnknownCommand( $this->clientStream, 'Unit-Test' );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -193,15 +193,15 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$handler->notify( $event );
 
 		$expectedOutput = $cliWriter->clearScreen( 'HELP' )
-									->writeLn(
-										'<bg:red>ERROR:<:bg> Unknown command "Unit-Test"',
-										$event->getUnknownCommandString()
-									)
-									->writeLn( '' )
-									->writeFileContent(
-										dirname( __DIR__, 4 ) . '/docs/MaintenanceCommandHelp/help.txt'
-									)
-									->getInteractiveOutput();
+		                            ->writeLn(
+			                            '<bg:red>ERROR:<:bg> Unknown command "Unit-Test"',
+			                            $event->getUnknownCommandString()
+		                            )
+		                            ->writeLn( '' )
+		                            ->writeFileContent(
+			                            dirname( __DIR__, 4 ) . '/docs/MaintenanceCommandHelp/help.txt'
+		                            )
+		                            ->getInteractiveOutput();
 
 		$response = $this->remoteStream->read( 1024 );
 
@@ -217,7 +217,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 
 		/** @var TracksStreams $loop */
 		$event                = new ClientRequestedOverviewMonitor( $this->clientStream, $loop, $command );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -244,7 +244,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 			$loop,
 			$showQueueCommand
 		);
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -265,7 +265,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 
 		/** @var TracksStreams $loop */
 		$event                = new ClientRequestedQuittingRefresh( $this->clientStream, $loop, $command );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 		$logger               = new NullLogger();
 		$handler              = new ClientInboundEventHandler( $this->storage, $cliWriter, $serverMonitoringInfo );
@@ -289,7 +289,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 
-		$cliWriter = new CliWriter();
+		$cliWriter = new CliWriter( '1.2.3' );
 		$logger    = new NullLogger();
 
 		/** @var StoresMessages $storage */
@@ -315,7 +315,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 
-		$cliWriter = new CliWriter();
+		$cliWriter = new CliWriter( '1.2.3' );
 		$logger    = new NullLogger();
 
 		/** @var StoresMessages $storage */
@@ -338,7 +338,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 	{
 		$command              = new ClearScreenCommand();
 		$event                = new ClientRequestedClearScreen( $this->clientStream, $command );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$logger               = new NullLogger();
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 
@@ -372,7 +372,7 @@ final class ClientInboundEventHandlerTest extends TestCase
 		$queueName            = $this->getQueueName( 'Test-Queue' );
 		$command              = new SearchQueueCommand( $searchTerm );
 		$event                = new ClientRequestedQueueSearch( $this->clientStream, $command );
-		$cliWriter            = new CliWriter();
+		$cliWriter            = new CliWriter( '1.2.3' );
 		$logger               = new NullLogger();
 		$serverMonitoringInfo = new ServerMonitoringInfo();
 

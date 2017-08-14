@@ -15,6 +15,9 @@ use PHPMQ\Server\Interfaces\PreparesOutputForCli;
 final class CliWriter implements PreparesOutputForCli
 {
 	/** @var string */
+	private $packageVersion;
+
+	/** @var string */
 	private $output = '';
 
 	/** @var int */
@@ -23,12 +26,23 @@ final class CliWriter implements PreparesOutputForCli
 	/** @var int */
 	private $terminalHeight = 24;
 
+	public function __construct( string $packageVersion )
+	{
+		$this->packageVersion = $packageVersion;
+	}
+
 	public function clearScreen( string $title ) : PreparesOutputForCli
 	{
 		$this->output = "\e[2J\e[0;0H\n";
-		$this->output .= "\e[30;42m PHP \e[37;41m MQ \e[30;42m";
-		$this->output .= '- ' . $title;
-		$this->output .= str_repeat( ' ', $this->terminalWidth - 11 - mb_strlen( $title ) );
+		$this->output .= "\e[30;42m PHP \e[37;41m MQ \e[30;42m v{$this->packageVersion}";
+		$this->output .= ' - ' . $title;
+		$this->output .= str_repeat(
+			' ',
+			$this->terminalWidth
+			- 11
+			- mb_strlen( $this->packageVersion )
+			- mb_strlen( $title )
+		);
 		$this->output .= "\e[0m\n\n";
 
 		return $this;
