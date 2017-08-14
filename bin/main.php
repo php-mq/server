@@ -22,13 +22,18 @@ use PHPMQ\Server\Validators\CompositeValidator;
 use PHPMQ\Server\Validators\ConfigFileValidator;
 use PHPMQ\Server\Validators\PHPVersionValidator;
 
-require __DIR__ . '/../vendor/autoload.php';
+$packageAutoloadScript = dirname( __DIR__ ) . '/vendor/autoload.php';
+$pharAutoloadScript    = dirname( __DIR__, 4 ) . '/vendor/autoload.php';
+$autoloadScript        = file_exists( $packageAutoloadScript ) ? $packageAutoloadScript : $pharAutoloadScript;
+
+/** @noinspection PhpIncludeInspection */
+require $autoloadScript;
 
 $minPhpVersion     = '7.1.0';
-$packageVersion    = 'v0.1.0-dev';
+$packageVersion    = 'package_version';
 $defaultConfigFile = dirname( __DIR__ ) . '/config/phpmq.default.xml';
 
-$cliWriter = new CliWriter();
+$cliWriter = new CliWriter( $packageVersion );
 $validator = new CompositeValidator();
 
 $validator->addValidators(
