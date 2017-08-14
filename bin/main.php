@@ -30,7 +30,7 @@ $autoloadScript        = file_exists( $packageAutoloadScript ) ? $packageAutoloa
 require $autoloadScript;
 
 $minPhpVersion     = '7.1.0';
-$packageVersion    = 'package_version';
+$packageVersion    = '@package_version@';
 $defaultConfigFile = dirname( __DIR__ ) . '/config/phpmq.default.xml';
 
 $cliWriter = new CliWriter( $packageVersion );
