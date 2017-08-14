@@ -97,8 +97,12 @@ final class ConfigBuilder
 		$parentNode  = $this->xml->xpath( '//logging/' . LoggerType::LOG_FILE )[0];
 		$logFilePath = $this->getConfigValue( $parentNode, 'path' );
 		$logLevel    = $this->getConfigValue( $parentNode, 'path', 'loglevel' );
+		$logFile     = $logFilePath;
 
-		$logFile = (string)realpath( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath );
+		if ( $logFile[0] !== DIRECTORY_SEPARATOR )
+		{
+			$logFile = (string)realpath( $this->configDir . DIRECTORY_SEPARATOR . $logFilePath );
+		}
 
 		return new LogFileLoggerConfig( $logFile, $logLevel );
 	}
