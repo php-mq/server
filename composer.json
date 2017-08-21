@@ -17,16 +17,6 @@
 		"php-mq/stream": "dev-master",
 		"roave/security-advisories": "dev-master"
 	},
-	"repositories": {
-		"php-mq/protocol": {
-			"type": "vcs",
-			"url": "https://github.com/php-mq/protocol.git"
-		},
-		"php-mq/stream": {
-			"type": "vcs",
-			"url": "https://github.com/php-mq/stream.git"
-		}
-	},
 	"autoload": {
 		"psr-4": {
 			"PHPMQ\\Server\\": "src/"
