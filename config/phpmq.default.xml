@@ -3,13 +3,13 @@
 	<servers>
 		<messagequeue>
 			<network>
-				<config name="host" value="127.0.0.1"/>
+				<config name="host" value="0.0.0.0"/>
 				<config name="port" value="9100"/>
 			</network>
 		</messagequeue>
 		<maintenance>
 			<network>
-				<config name="host" value="127.0.0.1"/>
+				<config name="host" value="0.0.0.0"/>
 				<config name="port" value="9101"/>
 			</network>
 		</maintenance>
