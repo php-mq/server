@@ -82,10 +82,10 @@ try
 catch ( \Throwable $e )
 {
 	$cliWriter->clearScreen( 'FAILURE' )
-	          ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
-	          ->writeLn( 'Exception: ' . get_class( $e ) )
-	          ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
-	          ->writeLn( $e->getTraceAsString() );
+			  ->writeLn( '<fg:red>ERROR:<:fg> ' . $e->getMessage() )
+			  ->writeLn( 'Exception: ' . get_class( $e ) )
+			  ->writeLn( 'In file %s on line %s', $e->getFile(), (string)$e->getLine() )
+			  ->writeLn( $e->getTraceAsString() );
 
 	fwrite( STDERR, $cliWriter->getOutput() );
 

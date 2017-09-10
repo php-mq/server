@@ -12,6 +12,7 @@ use PHPMQ\Server\Loggers\Interfaces\ConfiguresLogFileLogger;
 use PHPMQ\Server\Loggers\Interfaces\ConfiguresOutputLogger;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 use PHPMQ\Server\Servers\Types\NetworkSocket;
+use PHPMQ\Server\Servers\Types\TlsSocket;
 use PHPMQ\Server\Servers\Types\UnixDomainSocket;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresRedisStorage;
 use PHPMQ\Server\Storage\Interfaces\ConfiguresSQLiteStorage;
@@ -74,8 +75,8 @@ final class ConfigBuilder
 			(int)$port,
 			(int)$database,
 			(float)$timeout,
-			$password ? : null,
-			$prefix ? : null,
+			$password ?: null,
+			$prefix ?: null,
 			(int)$backgroundSaveBehaviour
 		);
 	}
@@ -134,9 +135,39 @@ final class ConfigBuilder
 			return new NetworkSocket( $host, (int)$port );
 		}
 
+		if ( $addressTypeNode->getName() === 'tls' )
+		{
+			$host = $this->getConfigValue( $addressTypeNode, 'host' );
+			$port = $this->getConfigValue( $addressTypeNode, 'port' );
+
+			return new TlsSocket( $host, (int)$port, $this->getMessageQueueServerSocketContextOptions() );
+		}
+
 		$path = $this->getConfigValue( $addressTypeNode, 'path' );
 
 		return new UnixDomainSocket( $path );
+	}
+
+	private function getMessageQueueServerSocketContextOptions() : array
+	{
+		$contextOptions = [];
+
+		$ignore = ['host', 'port'];
+		$nodes  = $this->xml->xpath( '//servers/' . ServerType::MESSAGE_QUEUE . '/*/config' );
+		foreach ( $nodes as $node )
+		{
+			$configName  = (string)$node->attributes()['name'];
+			$configValue = (string)$node->attributes()['value'];
+
+			if ( in_array( $configName, $ignore, true ) )
+			{
+				continue;
+			}
+
+			$contextOptions[ $configName ] = $configValue;
+		}
+
+		return ['ssl' => $contextOptions];
 	}
 
 	public function getMaintenanceServerSocketAddress() : IdentifiesSocketAddress
