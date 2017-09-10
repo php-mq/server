@@ -12,4 +12,6 @@ namespace PHPMQ\Server\Servers\Interfaces;
 interface IdentifiesSocketAddress
 {
 	public function getSocketAddress() : string;
+
+	public function getType() : int;
 }

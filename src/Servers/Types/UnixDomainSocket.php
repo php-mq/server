@@ -5,6 +5,7 @@
 
 namespace PHPMQ\Server\Servers\Types;
 
+use PHPMQ\Server\Servers\Constants\SocketType;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 
 /**
@@ -24,5 +25,10 @@ final class UnixDomainSocket implements IdentifiesSocketAddress
 	public function getSocketAddress() : string
 	{
 		return sprintf( 'unix://%s', $this->socketPath );
+	}
+
+	public function getType() : int
+	{
+		return SocketType::UNIX;
 	}
 }
