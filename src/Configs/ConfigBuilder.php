@@ -30,7 +30,7 @@ final class ConfigBuilder
 
 	public function __construct( string $configFile )
 	{
-		$this->xml       = simplexml_load_file( $configFile );
+		$this->xml       = simplexml_load_string( file_get_contents( $configFile ) );
 		$this->configDir = dirname( $configFile );
 	}
 

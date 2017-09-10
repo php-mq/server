@@ -36,7 +36,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 
 		libxml_use_internal_errors( true );
 
-		$this->xml       = simplexml_load_file( $configFilePath );
+		$this->xml       = simplexml_load_string( file_get_contents( $configFilePath ) );
 		$this->xmlErrors = libxml_get_errors();
 
 		libxml_use_internal_errors();
@@ -99,7 +99,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		if ( !$this->oneElementOfListExists( $baseXPath, [ 'network', 'unix' ] ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, ['network', 'unix'] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid message queue server socket type. Allowed: network, unix' );
@@ -108,10 +108,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$networkXPath            = $baseXPath . '/network';
-		$networkMandatoryConfigs = [ 'host', 'port' ];
+		$networkMandatoryConfigs = ['host', 'port'];
 
 		if ( $this->elementExists( $networkXPath )
-		     && !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -124,10 +124,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$unixXPath            = $baseXPath . '/unix';
-		$unixMandatoryConfigs = [ 'path' ];
+		$unixMandatoryConfigs = ['path'];
 
 		if ( $this->elementExists( $unixXPath )
-		     && !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -185,7 +185,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		if ( !$this->oneElementOfListExists( $baseXPath, [ 'network', 'unix' ] ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, ['network', 'unix'] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid maintenance server socket type. Allowed: network, unix' );
@@ -194,10 +194,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$networkXPath            = $baseXPath . '/network';
-		$networkMandatoryConfigs = [ 'host', 'port' ];
+		$networkMandatoryConfigs = ['host', 'port'];
 
 		if ( $this->elementExists( $networkXPath )
-		     && !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -210,10 +210,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$unixXPath            = $baseXPath . '/unix';
-		$unixMandatoryConfigs = [ 'path' ];
+		$unixMandatoryConfigs = ['path'];
 
 		if ( $this->elementExists( $unixXPath )
-		     && !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $unixXPath, $unixMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -238,7 +238,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		if ( !$this->oneElementOfListExists( $baseXPath, [ 'sqlite', 'redis' ] ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, ['sqlite', 'redis'] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid storage type. Allowed: sqlite, redis' );
@@ -247,10 +247,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$sqliteXPath            = $baseXPath . '/sqlite';
-		$sqliteMandatoryConfigs = [ 'path' ];
+		$sqliteMandatoryConfigs = ['path'];
 
 		if ( $this->elementExists( $sqliteXPath )
-		     && !$this->mandatoryConfigValuesExist( $sqliteXPath, $sqliteMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $sqliteXPath, $sqliteMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -268,7 +268,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		];
 
 		if ( $this->elementExists( $redisXPath )
-		     && !$this->mandatoryConfigValuesExist( $redisXPath, $redisMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $redisXPath, $redisMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
@@ -290,7 +290,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		if ( !$this->oneElementOfListExists( $baseXPath, [ 'logfile', 'output' ] ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, ['logfile', 'output'] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid logging config. Allowed: logfile and/or output.' );
@@ -299,10 +299,10 @@ final class ConfigFileValidator implements ValidatesEnvironment
 		}
 
 		$logfileXPath            = $baseXPath . '/logfile';
-		$logfileMandatoryConfigs = [ 'path' ];
+		$logfileMandatoryConfigs = ['path'];
 
 		if ( $this->elementExists( $logfileXPath )
-		     && !$this->mandatoryConfigValuesExist( $logfileXPath, $logfileMandatoryConfigs )
+			&& !$this->mandatoryConfigValuesExist( $logfileXPath, $logfileMandatoryConfigs )
 		)
 		{
 			$this->passed = false;
