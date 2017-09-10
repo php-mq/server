@@ -11,15 +11,30 @@ use PHPMQ\Protocol\Messages\ConsumeRequest;
 use PHPMQ\Protocol\Messages\MessageServerToClient;
 use PHPMQ\Protocol\Types\MessageHeader;
 use PHPMQ\Protocol\Types\PacketHeader;
-use PHPMQ\Server\Builders\MessageBuilder;
-use PHPMQ\Server\Servers\Types\NetworkSocket;
 use PHPMQ\Server\Tests\Run\Clients\ClientSocket;
+use PHPMQ\Server\Tests\Run\Clients\MessageBuilder;
+use PHPMQ\Server\Tests\Run\Clients\TlsSocket;
 use PHPMQ\Server\Types\QueueName;
 use PHPMQ\Stream\Constants\ChunkSize;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-$consumer       = (new ClientSocket( new NetworkSocket( '127.0.0.1', 9100 ) ))->getStream();
+$consumer = (new ClientSocket(
+	new TlsSocket(
+		'127.0.0.1', 9443,
+		[
+			'ssl' => [
+				'local_cert'        => __DIR__ . '/../../tests/TLS/server.pem',
+				'passphrase'        => 'root',
+				'allow_self_signed' => true,
+				'verify_peer'       => true,
+				'verify_peer_name'  => true,
+				'peer_name'         => 'phpmq.org',
+			],
+		]
+	)
+))->getStream();
+
 $consumeRequest = new ConsumeRequest( new QueueName( $argv[1] ), 5 );
 
 $consumer->writeChunked( $consumeRequest->toString(), ChunkSize::WRITE );
@@ -36,9 +51,10 @@ while ( true )
 	$consumer->collectRawStream( $reads );
 	$writes = $excepts = null;
 
+	usleep( 200000 );
+	
 	if ( !@stream_select( $reads, $writes, $excepts, 0, 200000 ) )
 	{
-		usleep( 200000 );
 		continue;
 	}
 

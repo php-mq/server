@@ -2,10 +2,16 @@
 <PHPMQ>
     <servers>
         <messagequeue>
-            <network>
-                <config name="host" value="192.168.3.13"/>
-                <config name="port" value="9100"/>
-            </network>
+            <tls>
+                <config name="host" value="127.0.0.1"/>
+                <config name="port" value="9443"/>
+                <config name="local_cert" value="/vagrant/tests/TLS/server.pem"/>
+                <config name="passphrase" value="root"/>
+                <config name="allow_self_signed" value="1"/>
+                <config name="verify_peer" value="1"/>
+                <config name="verify_peer_name" value="1"/>
+                <config name="peer_name" value="phpmq.org"/>
+            </tls>
         </messagequeue>
         <maintenance>
             <network>
@@ -16,13 +22,13 @@
     </servers>
     <storage>
         <sqlite>
-            <config name="storagePath" value=":memory:"/>
+            <config name="path" value=":memory:"/>
         </sqlite>
     </storage>
     <logging>
         <logfile>
-            <config name="logFilePath" value="../../build/logs/phpmq.log" loglevel="debug"/>
+            <config name="path" value="../../build/logs/phpmq.log" loglevel="debug"/>
         </logfile>
-        <output/>
+        <output loglevel="debug"/>
     </logging>
 </PHPMQ>

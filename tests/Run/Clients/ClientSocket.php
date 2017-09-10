@@ -34,11 +34,15 @@ final class ClientSocket implements EstablishesStream
 	private function establishSocket()
 	{
 		$errorNumber = $errorString = null;
+		$context     = stream_context_create( $this->socketAddress->getContextOptions() );
 
 		$socket = @stream_socket_client(
 			$this->socketAddress->getSocketAddress(),
 			$errorNumber,
-			$errorString
+			$errorString,
+			30,
+			STREAM_CLIENT_CONNECT,
+			$context
 		);
 
 		$this->guardSocketEstablished( $socket, $errorNumber, $errorString );
@@ -52,7 +56,7 @@ final class ClientSocket implements EstablishesStream
 		{
 			throw new RuntimeException(
 				sprintf(
-					'Could not establish server socket at %s: %s [%s].',
+					'Could not establish client socket at %s: %s [%s].',
 					$this->socketAddress->getSocketAddress(),
 					$errorString,
 					$errorNumber
@@ -67,7 +71,7 @@ final class ClientSocket implements EstablishesStream
 		{
 			throw new RuntimeException(
 				sprintf(
-					'Could not set server socket at %s to non-blocking.',
+					'Could not set client socket at %s to non-blocking.',
 					$this->socketAddress->getSocketAddress()
 				)
 			);
