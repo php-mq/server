@@ -99,7 +99,7 @@ final class ConfigFileValidator implements ValidatesEnvironment
 			return;
 		}
 
-		if ( !$this->oneElementOfListExists( $baseXPath, ['network', 'unix'] ) )
+		if ( !$this->oneElementOfListExists( $baseXPath, ['network', 'tls', 'unix'] ) )
 		{
 			$this->passed = false;
 			$this->addErrorMessage( 'Invalid message queue server socket type. Allowed: network, unix' );
@@ -109,6 +109,22 @@ final class ConfigFileValidator implements ValidatesEnvironment
 
 		$networkXPath            = $baseXPath . '/network';
 		$networkMandatoryConfigs = ['host', 'port'];
+
+		if ( $this->elementExists( $networkXPath )
+			&& !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
+		)
+		{
+			$this->passed = false;
+			$this->addErrorMessage(
+				'Invalid message queue server socket config. Values for %s must be configured.',
+				implode( ', ', $networkMandatoryConfigs )
+			);
+
+			return;
+		}
+
+		$networkXPath            = $baseXPath . '/tls';
+		$networkMandatoryConfigs = ['host', 'port', 'local_cert'];
 
 		if ( $this->elementExists( $networkXPath )
 			&& !$this->mandatoryConfigValuesExist( $networkXPath, $networkMandatoryConfigs )
