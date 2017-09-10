@@ -77,6 +77,30 @@ final class ConfigBuilderTest extends TestCase
 		$this->assertSame( 'tcp://127.0.0.1:9100', $address->getSocketAddress() );
 	}
 
+	public function testCanGetMessageQueueServerTlsSocketAddress() : void
+	{
+		$file          = __DIR__ . '/Fixtures/messagequeue.tls.config.xml';
+		$configBuilder = new ConfigBuilder( $file );
+
+		$expectedContextOptions = [
+			'ssl' => [
+				'local_cert'        => 'server.pem',
+				'passphrase'        => 'root',
+				'allow_self_signed' => '1',
+				'verify_peer'       => '1',
+				'verify_peer_name'  => '1',
+				'peer_name'         => 'phpmq.org',
+				'crypto_method'     => 56,
+			],
+		];
+
+		$address = $configBuilder->getMessageQueueServerSocketAddress();
+
+		$this->assertInstanceOf( IdentifiesSocketAddress::class, $address );
+		$this->assertSame( 'tls://127.0.0.1:9443', $address->getSocketAddress() );
+		$this->assertEquals( $expectedContextOptions, $address->getContextOptions() );
+	}
+
 	public function testCanGetMessageQueueServerUnixSocketAddress() : void
 	{
 		$file          = __DIR__ . '/Fixtures/messagequeue.unix.config.xml';
