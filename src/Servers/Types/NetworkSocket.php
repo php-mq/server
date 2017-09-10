@@ -5,7 +5,6 @@
 
 namespace PHPMQ\Server\Servers\Types;
 
-use PHPMQ\Server\Servers\Constants\SocketType;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 
 /**
@@ -20,10 +19,14 @@ final class NetworkSocket implements IdentifiesSocketAddress
 	/** @var int */
 	private $port;
 
-	public function __construct( string $host, int $port )
+	/** @var array */
+	private $contextOptions;
+
+	public function __construct( string $host, int $port, array $contextOptions = [] )
 	{
-		$this->host = $host;
-		$this->port = $port;
+		$this->host           = $host;
+		$this->port           = $port;
+		$this->contextOptions = $contextOptions;
 	}
 
 	public function getSocketAddress() : string
@@ -31,8 +34,8 @@ final class NetworkSocket implements IdentifiesSocketAddress
 		return sprintf( 'tcp://%s:%s', $this->host, $this->port );
 	}
 
-	public function getType() : int
+	public function getContextOptions() : array
 	{
-		return SocketType::TCP;
+		return $this->contextOptions;
 	}
 }

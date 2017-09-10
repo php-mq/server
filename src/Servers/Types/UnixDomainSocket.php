@@ -5,7 +5,6 @@
 
 namespace PHPMQ\Server\Servers\Types;
 
-use PHPMQ\Server\Servers\Constants\SocketType;
 use PHPMQ\Server\Servers\Interfaces\IdentifiesSocketAddress;
 
 /**
@@ -17,9 +16,13 @@ final class UnixDomainSocket implements IdentifiesSocketAddress
 	/** @var string */
 	private $socketPath;
 
-	public function __construct( string $socketPath )
+	/** @var array */
+	private $contextOptions;
+
+	public function __construct( string $socketPath, array $contextOptions = [] )
 	{
-		$this->socketPath = $socketPath;
+		$this->socketPath     = $socketPath;
+		$this->contextOptions = $contextOptions;
 	}
 
 	public function getSocketAddress() : string
@@ -27,8 +30,8 @@ final class UnixDomainSocket implements IdentifiesSocketAddress
 		return sprintf( 'unix://%s', $this->socketPath );
 	}
 
-	public function getType() : int
+	public function getContextOptions() : array
 	{
-		return SocketType::UNIX;
+		return $this->contextOptions;
 	}
 }

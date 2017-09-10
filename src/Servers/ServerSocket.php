@@ -34,11 +34,14 @@ final class ServerSocket implements EstablishesStream
 	private function establishSocket()
 	{
 		$errorNumber = $errorString = null;
+		$context     = stream_context_create( $this->socketAddress->getContextOptions() );
 
 		$socket = @stream_socket_server(
 			$this->socketAddress->getSocketAddress(),
 			$errorNumber,
-			$errorString
+			$errorString,
+			STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+			$context
 		);
 
 		$this->guardSocketEstablished( $socket, $errorNumber, $errorString );
@@ -61,25 +64,11 @@ final class ServerSocket implements EstablishesStream
 		}
 	}
 
-	private function makeSocketNonBlocking( $socket ) : void
-	{
-		if ( !stream_set_blocking( $socket, false ) )
-		{
-			throw new RuntimeException(
-				sprintf(
-					'Could not set server socket at %s to non-blocking.',
-					$this->socketAddress->getSocketAddress()
-				)
-			);
-		}
-	}
-
 	public function getStream() : TransfersData
 	{
 		if ( null === $this->stream )
 		{
 			$socket = $this->establishSocket();
-			$this->makeSocketNonBlocking( $socket );
 
 			$this->stream = new Stream( $socket );
 		}

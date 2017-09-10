@@ -13,5 +13,5 @@ interface IdentifiesSocketAddress
 {
 	public function getSocketAddress() : string;
 
-	public function getType() : int;
+	public function getContextOptions() : array;
 }
