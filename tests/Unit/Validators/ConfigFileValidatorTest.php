@@ -62,6 +62,14 @@ final class ConfigFileValidatorTest extends TestCase
 		$this->assertNotEmpty( $validator->getMessages() );
 	}
 
+	public function testFailsIfMessageQueueServerTlsSocketIsInvalid() : void
+	{
+		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-message-queue-server-tls-socket.xml' );
+
+		$this->assertTrue( $validator->failed() );
+		$this->assertNotEmpty( $validator->getMessages() );
+	}
+
 	public function testFailsIfMessageQueueServerUnixSocketIsInvalid() : void
 	{
 		$validator = new ConfigFileValidator( __DIR__ . '/Fixtures/invalid-message-queue-server-unix-socket.xml' );
