@@ -54,6 +54,6 @@ For details of the client-endpoint-communication see the message [protocol docum
 
 ## Contributing
 
-Contributions are welcome and will be fully credited. Please see the [contribution guide](CONTRIBUTING.md) for details.
+Contributions are welcome and will be fully credited. Please see the [contribution guide](.github/CONTRIBUTING.md) for details.
 
 
